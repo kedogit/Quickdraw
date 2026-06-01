@@ -503,11 +503,11 @@ MonoBehaviour:
   m_playerCam: {fileID: 330585545}
   m_actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_moveSpeed: 5
-  m_jumpForce: 5
-  m_doubleJumpUpForce: 2
-  m_doubleJumpForwardForce: 6
-  m_dashForce: 5
-  m_dashCooldown: 1
+  m_jumpForce: 8
+  m_doubleJumpUpForce: 4
+  m_doubleJumpForwardForce: 2
+  m_dashForce: 10
+  m_dashCooldown: 0.6
   m_clamp: 90
   m_mouseSensHor: 0.2
   m_mouseSensVert: 0.2
