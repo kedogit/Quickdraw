@@ -1016,7 +1016,7 @@ TerrainCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_ProvidesContacts: 1
+  m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
   m_TerrainData: {fileID: 15600000, guid: 828bdf6e816ab354396fc7250c7f61cc, type: 2}
@@ -2136,7 +2136,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3917523640495521762, guid: 5d0cdf6f5dc1b6f4ea90f5f242218a77, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 58.3
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 3917523640495521762, guid: 5d0cdf6f5dc1b6f4ea90f5f242218a77, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2144,7 +2144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3917523640495521762, guid: 5d0cdf6f5dc1b6f4ea90f5f242218a77, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 88.8
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 3917523640495521762, guid: 5d0cdf6f5dc1b6f4ea90f5f242218a77, type: 3}
       propertyPath: m_LocalRotation.w

@@ -296,7 +296,8 @@ MonoBehaviour:
   m_playerCam: {fileID: 5231072786829684773}
   m_actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_hookHead: {fileID: 4002466240488211226, guid: 87a6dea471277f94a983d643b218b83b, type: 3}
-  m_moveSpeed: 5
+  m_swingPhysicsMaterial: {fileID: 13400000, guid: 86a53551c51e9054c9a8ff87c015a0a3, type: 2}
+  m_moveSpeed: 12
   m_jumpForce: 10
   m_doubleJumpUpForce: 10
   m_doubleJumpForwardForce: 1
@@ -306,13 +307,15 @@ MonoBehaviour:
   m_clamp: 90
   m_mouseSensHor: 0.2
   m_mouseSensVert: 0.2
-  m_hookDrawSpeed: 10
+  m_hookDrawSpeed: 0.2
   m_hookRange: 30
-  m_jointMinDistance: 0.3
-  m_jointMaxDistance: 0.3
-  m_jointSpring: 5
-  m_jointDamper: 3
-  m_jointMassScale: 4.5
+  m_jointMinDistance: 0.1
+  m_jointMaxDistance: 0.1
+  m_jointSpring: 1
+  m_jointDamper: 1
+  m_jointMassScale: 15
+  m_zipSpeed: 1.8
+  m_zipHopHeight: 6
 --- !u!54 &4108276435132713504
 Rigidbody:
   m_ObjectHideFlags: 0
