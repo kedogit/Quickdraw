@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     [SerializeField] private Camera m_playerCam;
     [SerializeField] private InputActionAsset m_actions;
     [SerializeField] private GameObject m_hookHead;
+    [SerializeField] private GameObject m_arrowPrefab;
+    [SerializeField] private Animator m_bowAnimator;
     [SerializeField] private PhysicsMaterial m_swingPhysicsMaterial;
 
     [Header("Run")]
@@ -44,12 +46,19 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_zipSpeed = 1.8f;
     [SerializeField] private float m_zipHopHeight = 6f;
 
+    [Header("Bow")]
+    [SerializeField] private float m_bowFullChargeTime = 2.0f;
+    [SerializeField] private float m_arrowForce = 60f;
+    [SerializeField] private float m_bowTargetDistance = 15f;
+    [SerializeField] private float m_reloadTime = 1.0f;
+
     //input actions
     private InputAction m_move;
     private InputAction m_look;
     private InputAction m_jump;
     private InputAction m_dash;
     private InputAction m_hook;
+    private InputAction m_shoot;
 
     //components
     private Rigidbody m_body;
@@ -79,6 +88,13 @@ public class Player : MonoBehaviour
     private LineRenderer m_hookLineRenderer;
     private Transform m_hookHeadInstance;
     private Action m_grappleAction;
+    private Coroutine m_ropeCoroutine;
+
+    //bow related
+    private float m_bowChargeTime;
+    private float m_bowChargeNormalized;
+    private GameObject m_currentArrow;
+    private bool m_readyToFire;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -89,6 +105,7 @@ public class Player : MonoBehaviour
         m_dash = m_actions.FindAction("Dash");
         m_move = m_actions.FindAction("Move");
         m_hook = m_actions.FindAction("Hook");
+        m_shoot = m_actions.FindAction("Shoot");
 
         m_body = GetComponent<Rigidbody>();
         m_hookLineRenderer = GetComponent<LineRenderer>();
@@ -96,6 +113,8 @@ public class Player : MonoBehaviour
         m_hookStartPoint = transform.Find("HookStart");
 
         m_body.freezeRotation = true;
+
+        StartCoroutine(LoadArrow());
 
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -109,44 +128,110 @@ public class Player : MonoBehaviour
         JumpHandling();
         Dash();
         Grapple();
+        ReadyBow();
         if (m_hook.WasReleasedThisFrame())
         {
             StopGrapple();
         }
+        ShootArrow();
     }
 
-    private void LateUpdate()
+    private void ShootArrow()
     {
-        //DrawRope();
+        if (m_shoot.WasReleasedThisFrame())
+        {
+            if (m_readyToFire)
+            {
+                Debug.Log("shoot arrow");
+
+                //find a transform ahead of where the player is looking
+                Vector3 target = m_playerCam.transform.position + m_playerCam.transform.forward * m_bowTargetDistance;
+
+                //create a direction vector by subtracting arrow's position
+                Vector3 directionVector = target - m_currentArrow.transform.position;
+                directionVector.Normalize();
+
+                //attach a rigidbody to the arrow and add the force to it
+                Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
+                m_currentArrow.transform.LookAt(target);
+                arrowBody.AddForce(directionVector * (m_arrowForce * m_bowChargeNormalized), ForceMode.Impulse);
+
+
+                //raycast bad
+                //RaycastHit hit;
+                //if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, Mathf.Infinity))
+                //{
+                //    Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
+
+                //    arrowBody.AddForce(Vector3.forward * 15f, ForceMode.Impulse);
+                //}
+
+
+
+                m_currentArrow = null;
+                m_bowChargeTime = 0;
+                m_bowAnimator.SetFloat("BowCharge", 0);
+                m_readyToFire = false;
+                StartCoroutine(LoadArrow());
+            }
+            else
+            {
+                m_bowChargeTime = 0;
+                m_bowAnimator.SetFloat("BowCharge", 0);
+            }
+        }
     }
 
-    //private void DrawRope()
-    //{
-    //    //if a joint exists (grapple is active)
-    //    if (m_joint)
-    //    {
-    //        m_drawRopeTimer += Time.deltaTime;
-    //        //lerp for gradual creation of the line
-    //        m_currentHookPosition = Vector3.Lerp(transform.position, m_hookAnchor, m_drawRopeTimer / m_hookDrawSpeed);
-            
-    //        //set start and end point for the line renderer
-    //        m_hookLineRenderer.SetPosition(0, m_hookStartPoint.position);
-    //        m_hookLineRenderer.SetPosition(1, m_currentHookPosition);
+    private IEnumerator LoadArrow()
+    {
+        Debug.Log("loading arrow");
+        yield return new WaitForSeconds(m_reloadTime);
+        GameObject arrowHolder = GameObject.Find("ArrowHolder");
+        m_currentArrow = Instantiate(m_arrowPrefab, arrowHolder.transform.position, arrowHolder.transform.rotation, arrowHolder.transform);
+        Debug.Log("arrow loaded");
+    }
 
-    //        m_hookHeadInstance.position = m_currentHookPosition;
+    private void ReadyBow()
+    {
+        if (m_shoot.IsPressed() && m_currentArrow != null)
+        {
+            m_bowChargeTime += Time.deltaTime;
+            m_bowChargeNormalized = Mathf.InverseLerp(0, m_bowFullChargeTime, m_bowChargeTime);
+            m_bowAnimator.SetFloat("BowCharge", m_bowChargeNormalized);
+            if (m_bowChargeTime >= m_bowFullChargeTime / 3)
+            {
+                m_readyToFire = true;
+            }
+        }
+    }
 
-    //        if (m_drawRopeTimer >= m_hookDrawSpeed)
-    //        {
-    //            Debug.Log("done");
-    //        }
-    //    }
-    //}
+    //WIP COROUTINE VERSION OF BOW
+    private IEnumerator DrawBow()
+    {
+        while (m_bowChargeTime <= m_bowFullChargeTime)
+        {
+            m_bowChargeTime += Time.deltaTime;
+            m_bowChargeNormalized = Mathf.InverseLerp(0, m_bowFullChargeTime, m_bowChargeTime);
+            m_bowAnimator.SetFloat("BowCharge", m_bowChargeNormalized);
+            yield return null;
+        }
+
+        m_readyToFire = true;
+
+        while (!m_shoot.WasReleasedThisFrame())
+        {
+            yield return null;
+        }
+
+        Debug.Log("shoot arrow");
+        m_bowChargeTime = 0;
+        m_bowAnimator.SetFloat("BowCharge", 0);
+        m_readyToFire = false;
+
+    }
 
     private IEnumerator DrawRope()
     {
-        //yield return new WaitForSeconds(m_hookDrawSpeed);
-        //Debug.Log("done");
-
         while (m_drawRopeTimer < m_hookDrawSpeed && m_hookLineRenderer.positionCount == 2)
         {
             m_drawRopeTimer += Time.deltaTime;
@@ -163,12 +248,12 @@ public class Player : MonoBehaviour
         //swing/zip
         m_grappleAction.Invoke();
 
+        //keep updating the start of the line renderer (player pos)
         while (m_hookLineRenderer.positionCount == 2)
         {
         m_hookLineRenderer.SetPosition(0, m_hookStartPoint.position);
         yield return null;
         }
-        Debug.Log("joint detached");
     }
 
     private void Swing()
@@ -228,22 +313,23 @@ public class Player : MonoBehaviour
                 m_hookHeadInstance = Instantiate(m_hookHead, m_currentHookPosition, Quaternion.identity).transform;
                 m_hookHeadInstance.LookAt(m_hookAnchor);
 
-                StartCoroutine(DrawRope());
+                m_ropeCoroutine = StartCoroutine(DrawRope());
             }
         }
     }
 
     private void StopGrapple()
     {
-            if (m_grappleInProgress)
-            {
-                m_hookLineRenderer.positionCount = 0;
-                Destroy(m_joint);
-                Destroy(m_hookHeadInstance.gameObject);
-                m_collider.material = null;
-                m_grappleAction = null;
-                m_grappleInProgress = false;
-            }
+        StopCoroutine(m_ropeCoroutine);
+        if (m_grappleInProgress)
+        {
+            m_hookLineRenderer.positionCount = 0;
+            Destroy(m_joint);
+            Destroy(m_hookHeadInstance.gameObject);
+            m_collider.material = null;
+            m_grappleAction = null;
+            m_grappleInProgress = false;
+        }
     }
 
     private void CalculateVectors()
@@ -278,6 +364,14 @@ public class Player : MonoBehaviour
         m_verticalRotation -= lookY;
         m_verticalRotation = Mathf.Clamp(m_verticalRotation, -m_clamp, m_clamp);
         m_playerCam.transform.localRotation = Quaternion.Euler(m_verticalRotation, 0, 0);
+
+        //Quaternion localRotation = m_playerCam.transform.localRotation;
+        //localRotation.x = m_verticalRotation;
+        //m_playerCam.transform.localRotation = localRotation;
+
+
+
+
     }
 
     private void JumpHandling()
