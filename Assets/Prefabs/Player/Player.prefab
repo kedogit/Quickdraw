@@ -353,7 +353,7 @@ MonoBehaviour:
   m_zipSpeed: 1.8
   m_zipHopHeight: 6
   m_bowFullChargeTime: 1
-  m_arrowForce: 70
+  m_arrowForce: 90
   m_bowTargetDistance: 15
   m_reloadTime: 0.5
 --- !u!54 &4108276435132713504

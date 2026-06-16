@@ -1,22 +1,27 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
 public abstract class Enemy : MonoBehaviour
 {
+    [SerializeField] protected float m_damage = 25f;
     [SerializeField] private float m_maxHP = 100f;
     [SerializeField] private float m_aggroRange = 10f;
-    [SerializeField] private float m_attackRange = 1f;
-    [SerializeField] private float m_deathCleanupTime = 15;
-    [SerializeField] private Animator m_animator;
+    [SerializeField] private float m_attackRange = 2.5f;
+    [SerializeField] private float m_attackDelay = 1f;
+    [SerializeField] private float m_deathCleanupTime = 15f;
+    [SerializeField] protected Animator m_animator;
 
     private NavMeshAgent m_agent;
+    private BoxCollider m_collider;
 
     private GameObject m_player;
-    private float m_elapsed;
+    private float m_attackTimer;
     private float m_currentHP;
     private float m_distanceFromPlayer;
-    private Vector3 m_playerPosition;
+    protected Vector3 m_playerPosition;
     private bool m_isDead = false;
+    protected bool m_canMove = true;
 
     protected abstract void Attack();
 
@@ -26,7 +31,10 @@ public abstract class Enemy : MonoBehaviour
     {
         m_currentHP = m_maxHP;
         m_agent = GetComponent<NavMeshAgent>();
+        m_collider = GetComponent<BoxCollider>();
         m_player = GameObject.FindWithTag("Player");
+        m_agent.stoppingDistance = m_attackRange;
+        m_attackTimer = m_attackDelay;
     }
 
     // Update is called once per frame
@@ -36,20 +44,17 @@ public abstract class Enemy : MonoBehaviour
 
         if (!m_isDead)
         {
-            Move();
+            if (m_canMove)
+            {
+                Move();
+            }
             if (m_distanceFromPlayer <= m_attackRange)
             {
-                Attack();
-            }
-            HitboxUpdate();
-        }
-        else
-        {
-            m_elapsed += Time.deltaTime;
-            //waits a certain amount of time before destroying the body
-            if (m_elapsed >= m_deathCleanupTime)
-            {
-                Destroy(this.gameObject);
+                if (m_attackTimer >= m_attackDelay)
+                {
+                    Attack();
+                    m_attackTimer = 0;
+                }
             }
         }
     }
@@ -58,7 +63,10 @@ public abstract class Enemy : MonoBehaviour
     {
         m_playerPosition = m_player.transform.position;
         m_distanceFromPlayer = Vector3.Distance(transform.position, m_playerPosition);
-        m_elapsed += Time.deltaTime;
+        if (m_attackTimer < m_attackDelay)
+        {
+            m_attackTimer += Time.deltaTime;
+        }
     }
 
     private void Move()
@@ -76,10 +84,38 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
-    private void HitboxUpdate()
+    public void Hurt(float damageAmount)
     {
+        if (!m_isDead)
+        {
+            Debug.Log("damage taken:" + damageAmount);
+            m_animator.SetTrigger("Hurt");
+            m_currentHP -= damageAmount;
 
+            if (m_currentHP <= 0)
+            {
+                Die();
+            } 
+        }
     }
 
+    private void Die()
+    {
+        StartCoroutine(DeathCleanup());
+        m_isDead = true;
+        m_animator.SetTrigger("Death");
+        m_collider.enabled = false;
+        m_agent.enabled = false;
+    }
 
+    private IEnumerator DeathCleanup()
+    {
+        yield return new WaitForSeconds(m_deathCleanupTime);
+        Destroy(this.gameObject);
+    }
+
+    public float GetDamage()
+    {
+        return m_damage;
+    }
 }

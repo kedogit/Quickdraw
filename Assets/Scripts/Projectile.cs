@@ -1,47 +1,52 @@
+using System.Collections;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private Vector3 m_target;
-    private float m_projectileSpeed;
-    private float m_distanceTravelled;
-    private float m_maxRange;
+    private float m_projectileDamage = 0f;
+    private float m_despawnTime = 5f;
+    private float m_stuckDownscale = 0.5f;
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void SetDamage(float damage)
     {
-        transform.LookAt(m_target);
+        m_projectileDamage = damage;
     }
 
-    // Update is called once per frame
-    void Update()
+    public float GetDamage()
     {
-        m_distanceTravelled += m_projectileSpeed * Time.deltaTime;
-        Debug.Log(m_distanceTravelled);
+        return m_projectileDamage;
+    }
 
-        if (m_distanceTravelled >= m_maxRange)
+    public void SetActive()
+    {
+        StartCoroutine(DespawnArrow());
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
-            Destroy(this.gameObject);
+            //enemy hit
+            Enemy enemyScript = other.gameObject.GetComponent<Enemy>();
+            enemyScript.Hurt(m_projectileDamage);
+
+            Destroy(GetComponent<Rigidbody>());
+            Destroy(GetComponent<BoxCollider>());
+
+            Vector3 otherPosition = other.gameObject.transform.position;
+            otherPosition.y = transform.position.y;
+            transform.position = otherPosition;
+
+            transform.localScale *= m_stuckDownscale;
+
+            Transform rootSkeleton = other.transform.Find("rootSkeleton");
+            transform.SetParent(rootSkeleton);
         }
-
-
-        float step = m_projectileSpeed * Time.deltaTime;
-        transform.position = Vector3.MoveTowards(transform.position, m_target, step);
     }
 
-    public void SetTarget(Vector3 target)
+    private IEnumerator DespawnArrow()
     {
-        m_target = target;
-    }
-
-    public void SetSpeed(float speed)
-    {
-        m_projectileSpeed = speed;
-    }
-
-    public void SetRange(float maxRange)
-    {
-        m_maxRange = maxRange;
+        yield return new WaitForSeconds(m_despawnTime);
+        Destroy(this.gameObject);
     }
 }

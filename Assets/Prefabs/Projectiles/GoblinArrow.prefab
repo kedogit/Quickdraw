@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6270834330033727422}
   - component: {fileID: 5596033445057271386}
   - component: {fileID: 1147972648412675230}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 8282411866214821881}
   - component: {fileID: 2725602476573114726}
   - component: {fileID: 961169496024395236}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Shaft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 7066434808059283960}
   - component: {fileID: 4682526282416402409}
   - component: {fileID: 2886591391809682659}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Band2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -269,7 +269,7 @@ GameObject:
   - component: {fileID: 2219859794267610632}
   - component: {fileID: 507394060188836842}
   - component: {fileID: 8368618031372665616}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Tail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -354,8 +354,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8799161254236243747}
   - component: {fileID: 1057700488200821131}
-  m_Layer: 0
-  m_Name: Arrow
+  - component: {fileID: 3682059862084963270}
+  m_Layer: 14
+  m_Name: GoblinArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -398,10 +399,22 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Size: {x: 0.41456074, y: 0.009657225, z: 1.27031}
-  m_Center: {x: -0.014332627, y: -0.00012437909, z: 0.057540014}
+  m_Size: {x: 0.06290908, y: 0.0033109125, z: 1.27031}
+  m_Center: {x: -0.009071067, y: 0.00022046866, z: 0.057540014}
+--- !u!114 &3682059862084963270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7808187863613962836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53fe1afa1af7664dab86ac9c47e3fbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9149115317552841017
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,7 +426,7 @@ GameObject:
   - component: {fileID: 2478977607077579599}
   - component: {fileID: 7185836563556316751}
   - component: {fileID: 5977401819456474603}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Band
   m_TagString: Untagged
   m_Icon: {fileID: 0}

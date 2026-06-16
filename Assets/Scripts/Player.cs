@@ -13,6 +13,9 @@ public class Player : MonoBehaviour
     [SerializeField] private Animator m_bowAnimator;
     [SerializeField] private PhysicsMaterial m_swingPhysicsMaterial;
 
+    [Header("Health")]
+    [SerializeField] private float m_maxHP = 100f;
+
     [Header("Run")]
     [SerializeField] private float m_moveSpeed = 5f;
 
@@ -51,6 +54,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_arrowForce = 60f;
     [SerializeField] private float m_bowTargetDistance = 15f;
     [SerializeField] private float m_reloadTime = 1.0f;
+    [SerializeField] private float m_arrowDamage = 55f;
 
     //input actions
     private InputAction m_move;
@@ -63,6 +67,9 @@ public class Player : MonoBehaviour
     //components
     private Rigidbody m_body;
     private BoxCollider m_collider;
+
+    //hp
+    private float m_currentHP;
 
     //wasd
     private Vector3 m_moveVector;
@@ -114,6 +121,8 @@ public class Player : MonoBehaviour
 
         m_body.freezeRotation = true;
 
+        m_currentHP = m_maxHP;
+
         StartCoroutine(LoadArrow());
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -136,14 +145,27 @@ public class Player : MonoBehaviour
         ShootArrow();
     }
 
+    public void Hurt(float damage)
+    {
+        m_currentHP -= damage;
+        Debug.Log("ouch, i took " + damage + " damage and i now have " + m_currentHP + " health");
+        if (m_currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("IM DEAD");
+    }
+
     private void ShootArrow()
     {
         if (m_shoot.WasReleasedThisFrame())
         {
             if (m_readyToFire)
             {
-                Debug.Log("shoot arrow");
-
                 //find a transform ahead of where the player is looking
                 Vector3 target = m_playerCam.transform.position + m_playerCam.transform.forward * m_bowTargetDistance;
 
@@ -155,6 +177,15 @@ public class Player : MonoBehaviour
                 Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
                 m_currentArrow.transform.LookAt(target);
                 arrowBody.AddForce(directionVector * (m_arrowForce * m_bowChargeNormalized), ForceMode.Impulse);
+
+                //activate arrow hitbox
+                BoxCollider arrowCollider = m_currentArrow.GetComponent<BoxCollider>();
+                arrowCollider.enabled = true;
+
+                //feed info to the projectile script
+                Projectile arrowScript = m_currentArrow.GetComponent<Projectile>();
+                arrowScript.SetActive();
+                m_currentArrow.GetComponent<Projectile>().SetDamage(m_arrowDamage * m_bowChargeNormalized);
 
 
                 //raycast bad
@@ -184,11 +215,9 @@ public class Player : MonoBehaviour
 
     private IEnumerator LoadArrow()
     {
-        Debug.Log("loading arrow");
         yield return new WaitForSeconds(m_reloadTime);
         GameObject arrowHolder = GameObject.Find("ArrowHolder");
         m_currentArrow = Instantiate(m_arrowPrefab, arrowHolder.transform.position, arrowHolder.transform.rotation, arrowHolder.transform);
-        Debug.Log("arrow loaded");
     }
 
     private void ReadyBow()
