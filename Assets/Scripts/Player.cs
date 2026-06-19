@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -12,9 +13,11 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject m_arrowPrefab;
     [SerializeField] private Animator m_bowAnimator;
     [SerializeField] private PhysicsMaterial m_swingPhysicsMaterial;
+    [SerializeField] private GameHUD m_gameHUD;
 
     [Header("Health")]
     [SerializeField] private float m_maxHP = 100f;
+    [SerializeField] private float m_invulnTime = 0.5f;
 
     [Header("Run")]
     [SerializeField] private float m_moveSpeed = 5f;
@@ -70,11 +73,13 @@ public class Player : MonoBehaviour
 
     //hp
     private float m_currentHP;
+    private bool m_isInvuln;
 
     //wasd
     private Vector3 m_moveVector;
 
     //jump related
+    private bool m_playerHasDoubleJump;
     private int m_jumpCount;
     private bool m_isGrounded;
 
@@ -86,6 +91,7 @@ public class Player : MonoBehaviour
     private float m_verticalRotation = 0f;
 
     //hook related
+    private bool m_playerHasGrapple;
     private bool m_grappleInProgress;
     private float m_drawRopeTimer;
     private Vector3 m_currentHookPosition;
@@ -125,6 +131,8 @@ public class Player : MonoBehaviour
 
         StartCoroutine(LoadArrow());
 
+        m_gameHUD.UpdateHP(m_currentHP);
+
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -138,7 +146,7 @@ public class Player : MonoBehaviour
         Dash();
         Grapple();
         ReadyBow();
-        if (m_hook.WasReleasedThisFrame())
+        if (m_hook.WasReleasedThisFrame() && m_playerHasGrapple)
         {
             StopGrapple();
         }
@@ -147,17 +155,29 @@ public class Player : MonoBehaviour
 
     public void Hurt(float damage)
     {
-        m_currentHP -= damage;
-        Debug.Log("ouch, i took " + damage + " damage and i now have " + m_currentHP + " health");
-        if (m_currentHP <= 0)
+        if (!m_isInvuln)
         {
-            Die();
+            m_currentHP -= damage;
+            StartCoroutine(InvincibilityWindow());
+            m_gameHUD.UpdateHP(m_currentHP);
+            Debug.Log("ouch, i took " + damage + " damage and i now have " + m_currentHP + " health");
+            if (m_currentHP <= 0)
+            {
+                Die();
+            }
         }
+    }
+
+    private IEnumerator InvincibilityWindow()
+    {
+        m_isInvuln = true;
+        yield return new WaitForSeconds(m_invulnTime);
+        m_isInvuln = false;
     }
 
     private void Die()
     {
-        Debug.Log("IM DEAD");
+        SceneManager.LoadScene("PrototypeLevel");
     }
 
     private void ShootArrow()
@@ -176,6 +196,7 @@ public class Player : MonoBehaviour
                 //attach a rigidbody to the arrow and add the force to it
                 Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
                 m_currentArrow.transform.LookAt(target);
+                m_currentArrow.transform.position = m_playerCam.transform.position;
                 arrowBody.AddForce(directionVector * (m_arrowForce * m_bowChargeNormalized), ForceMode.Impulse);
 
                 //activate arrow hitbox
@@ -187,21 +208,10 @@ public class Player : MonoBehaviour
                 arrowScript.SetActive();
                 m_currentArrow.GetComponent<Projectile>().SetDamage(m_arrowDamage * m_bowChargeNormalized);
 
-
-                //raycast bad
-                //RaycastHit hit;
-                //if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, Mathf.Infinity))
-                //{
-                //    Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
-
-                //    arrowBody.AddForce(Vector3.forward * 15f, ForceMode.Impulse);
-                //}
-
-
-
                 m_currentArrow = null;
                 m_bowChargeTime = 0;
                 m_bowAnimator.SetFloat("BowCharge", 0);
+                m_bowAnimator.SetTrigger("Shot");
                 m_readyToFire = false;
                 StartCoroutine(LoadArrow());
             }
@@ -315,34 +325,37 @@ public class Player : MonoBehaviour
 
     private void Grapple()
     {
-        if (m_hook.WasPressedThisFrame())
+        if (m_playerHasGrapple)
         {
-            //send a raycast to find a hit target (ADD LAYERMASK TO THE RAYCAST CALL LATER)
-            RaycastHit hit;
-            if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, m_hookRange))
+            if (m_hook.WasPressedThisFrame())
             {
-                //detect the target to determine whether it is a swing or zip action and store for later
-                if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+                //send a raycast to find a hit target (ADD LAYERMASK TO THE RAYCAST CALL LATER)
+                RaycastHit hit;
+                if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, m_hookRange))
                 {
-                    m_grappleAction += Zip;
+                    //detect the target to determine whether it is a swing or zip action and store for later
+                    if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+                    {
+                        m_grappleAction += Zip;
+                    }
+                    else
+                    {
+                        m_grappleAction += Swing;
+                    }
+
+                    m_grappleInProgress = true;
+                    m_drawRopeTimer = 0;
+                    m_hookAnchor = hit.point;
+
+                    //set line renderer parameters and vars to ready it for the drawrope function
+                    m_hookLineRenderer.positionCount = 2;
+                    m_currentHookPosition = m_hookStartPoint.position;
+
+                    m_hookHeadInstance = Instantiate(m_hookHead, m_currentHookPosition, Quaternion.identity).transform;
+                    m_hookHeadInstance.LookAt(m_hookAnchor);
+
+                    m_ropeCoroutine = StartCoroutine(DrawRope());
                 }
-                else
-                {
-                    m_grappleAction += Swing;
-                }
-
-                m_grappleInProgress = true;
-                m_drawRopeTimer = 0;
-                m_hookAnchor = hit.point;
-
-                //set line renderer parameters and vars to ready it for the drawrope function
-                m_hookLineRenderer.positionCount = 2;
-                m_currentHookPosition = m_hookStartPoint.position;
-
-                m_hookHeadInstance = Instantiate(m_hookHead, m_currentHookPosition, Quaternion.identity).transform;
-                m_hookHeadInstance.LookAt(m_hookAnchor);
-
-                m_ropeCoroutine = StartCoroutine(DrawRope());
             }
         }
     }
@@ -415,7 +428,7 @@ public class Player : MonoBehaviour
                 m_isGrounded = false;
             }
             //if not on the ground, double jump force (forward force)
-            else if (m_jumpCount < 2)
+            else if (m_jumpCount < 2 && m_playerHasDoubleJump)
             {
                 Vector3 upAndForward = Vector3.up * m_doubleJumpUpForce + transform.forward * m_doubleJumpForwardForce;
                 Jump(upAndForward);

@@ -622,7 +622,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_damage: 25
   m_maxHP: 100
-  m_aggroRange: 20
+  m_aggroRange: 30
   m_attackRange: 10
   m_attackDelay: 4
   m_deathCleanupTime: 15

@@ -16,8 +16,9 @@ public class GoblinRanged : Enemy
     {
         m_canMove = false;
         m_animator.SetTrigger("Attack");
-        GameObject rightHand = GameObject.Find("R_equip_joint");
-        m_currentArrow = Instantiate(m_arrow, rightHand.transform.position, rightHand.transform.rotation, rightHand.transform);
+        Transform rightHand = transform.Find("rootSkeleton/pelvis_joint/waist_joint/chest_joint/R_clavicle_joint/R_shoulder_joint/R_elbow_joint/R_wrist_joint/R_equip_joint");
+
+        m_currentArrow = Instantiate(m_arrow, rightHand.position, rightHand.rotation, rightHand);
         m_currentArrow.transform.localScale *= m_arrowRescale;
     }
 

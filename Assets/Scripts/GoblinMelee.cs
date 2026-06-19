@@ -10,17 +10,11 @@ public class GoblinMelee : Enemy
     {
         m_canMove = false;
         m_animator.SetTrigger("Attack");
-
-        //m_clubHitbox.enabled = true;
-        //REPLACE THIS WITH ANIM EVENT LATER
-        StartCoroutine(TEMPORARYHITBOXFIX());
-
         StartCoroutine(DisableHitbox());
     }
 
-    private IEnumerator TEMPORARYHITBOXFIX()
+    public void EnableHitbox()
     {
-        yield return new WaitForSeconds(0.7f);
         m_clubHitbox.enabled = true;
     }
 
