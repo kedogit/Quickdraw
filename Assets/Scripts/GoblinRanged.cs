@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class GoblinRanged : Enemy
 {
+    [SerializeField] float m_arrowDamage = 10f;
     [SerializeField] private GameObject m_arrow;
     [SerializeField] private float m_arrowForce = 50f;
     [SerializeField] private float m_arrowCleanupTime = 5f;
@@ -27,6 +28,7 @@ public class GoblinRanged : Enemy
         //find the righthand's transform and instantiate the arrow there. rescale arrow
         Transform rightHand = transform.Find("rootSkeleton/pelvis_joint/waist_joint/chest_joint/R_clavicle_joint/R_shoulder_joint/R_elbow_joint/R_wrist_joint/R_equip_joint");
         m_currentArrow = Instantiate(m_arrow, rightHand.position, rightHand.rotation, rightHand);
+        m_currentArrow.GetComponent<EnemyWeapon>().SetWeaponDamage(m_arrowDamage);
         m_currentArrow.transform.localScale *= m_arrowRescale;
     }
 

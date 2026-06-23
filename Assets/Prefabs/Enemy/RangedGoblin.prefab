@@ -80,6 +80,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -4.516753
       objectReference: {fileID: 0}
+    - target: {fileID: 775337586364191869, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: m_enemyScript
+      value: 
+      objectReference: {fileID: 7942594056188936904}
     - target: {fileID: 970457745640800858, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -3.4135408
@@ -580,6 +584,7 @@ PrefabInstance:
     - {fileID: 3099541446892255437, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
     - {fileID: 6808112944355346819, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
     - {fileID: 5557599128542449221, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+    - {fileID: 5649036352983104445, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
     m_RemovedGameObjects:
     - {fileID: 267870421860344614, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
     - {fileID: 7069034844502828461, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
@@ -661,6 +666,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c528b780054c26a4ea47a11626cfe2dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_enemyScript: {fileID: 7942594056188936904}
 --- !u!1001 &3595602875024847322
 PrefabInstance:
   m_ObjectHideFlags: 0

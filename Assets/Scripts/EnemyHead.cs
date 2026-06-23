@@ -2,13 +2,7 @@ using UnityEngine;
 
 public class EnemyHead : MonoBehaviour
 {
-    private Enemy m_enemyScript;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        m_enemyScript = transform.root.gameObject.GetComponent<Enemy>();
-    }
+    [SerializeField] private Enemy m_enemyScript;
 
     private void OnTriggerEnter(Collider other)
     {

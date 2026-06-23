@@ -4,7 +4,6 @@ using UnityEngine.AI;
 
 public abstract class Enemy : MonoBehaviour
 {
-    [SerializeField] protected float m_damage = 25f;
     [SerializeField] private float m_maxHP = 100f;
     [SerializeField] private float m_aggroRange = 10f;
     [SerializeField] private float m_attackRange = 2.5f;
@@ -127,10 +126,5 @@ public abstract class Enemy : MonoBehaviour
     {
         yield return new WaitForSeconds(m_deathCleanupTime);
         Destroy(this.gameObject);
-    }
-
-    public float GetDamage()
-    {
-        return m_damage;
     }
 }

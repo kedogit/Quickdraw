@@ -3,9 +3,16 @@ using UnityEngine;
 
 public class GoblinMelee : Enemy
 {
+    [SerializeField] private float m_swingDamage = 25f;
     [SerializeField] private BoxCollider m_clubHitbox;
     [SerializeField] private float m_attackDuration = 1f;
     [SerializeField] private AudioClip m_swingSFX;
+
+    private void Awake()
+    {
+        EnemyWeapon clubScript = GetComponentInChildren<EnemyWeapon>();
+        clubScript.SetWeaponDamage(m_swingDamage);
+    }
 
     protected override void Attack()
     {
