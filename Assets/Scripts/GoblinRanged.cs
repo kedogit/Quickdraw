@@ -6,6 +6,8 @@ public class GoblinRanged : Enemy
     [SerializeField] private GameObject m_arrow;
     [SerializeField] private float m_arrowForce = 50f;
     [SerializeField] private float m_arrowCleanupTime = 5f;
+    [SerializeField] private AudioClip m_shootSFX;
+    [SerializeField] private AudioClip m_drawSFX;
 
     const float m_arrowRescale = 5f;
 
@@ -14,6 +16,9 @@ public class GoblinRanged : Enemy
 
     protected override void Attack()
     {
+        m_audioSource.clip = m_drawSFX;
+        m_audioSource.Play();
+
         m_canMove = false;
         m_animator.SetTrigger("Attack");
         Transform rightHand = transform.Find("rootSkeleton/pelvis_joint/waist_joint/chest_joint/R_clavicle_joint/R_shoulder_joint/R_elbow_joint/R_wrist_joint/R_equip_joint");
@@ -24,6 +29,9 @@ public class GoblinRanged : Enemy
 
     public void LaunchArrow()
     {
+        m_audioSource.clip = m_shootSFX;
+        m_audioSource.Play();
+
         Vector3 target = m_playerPosition;
 
         Vector3 directionVector = target - m_currentArrow.transform.position;

@@ -5,6 +5,7 @@ public class GoblinMelee : Enemy
 {
     [SerializeField] private BoxCollider m_clubHitbox;
     [SerializeField] private float m_attackDuration = 1f;
+    [SerializeField] private AudioClip m_swingSFX;
 
     protected override void Attack()
     {
@@ -15,6 +16,8 @@ public class GoblinMelee : Enemy
 
     public void EnableHitbox()
     {
+        m_audioSource.clip = m_swingSFX;
+        m_audioSource.Play();
         m_clubHitbox.enabled = true;
     }
 

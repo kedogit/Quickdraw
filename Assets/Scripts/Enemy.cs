@@ -11,9 +11,12 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] private float m_attackDelay = 1f;
     [SerializeField] private float m_deathCleanupTime = 15f;
     [SerializeField] protected Animator m_animator;
+    [SerializeField] private AudioClip m_hurtSFX;
+    [SerializeField] private AudioClip m_deathSFX;
 
     private NavMeshAgent m_agent;
     private BoxCollider m_collider;
+    protected AudioSource m_audioSource;
 
     private GameObject m_player;
     private float m_attackTimer;
@@ -32,6 +35,7 @@ public abstract class Enemy : MonoBehaviour
         m_currentHP = m_maxHP;
         m_agent = GetComponent<NavMeshAgent>();
         m_collider = GetComponent<BoxCollider>();
+        m_audioSource = GetComponent<AudioSource>();
         m_player = GameObject.FindWithTag("Player");
         m_agent.stoppingDistance = m_attackRange;
         m_attackTimer = m_attackDelay;
@@ -88,6 +92,9 @@ public abstract class Enemy : MonoBehaviour
     {
         if (!m_isDead)
         {
+            m_audioSource.clip = m_hurtSFX;
+            m_audioSource.Play();
+
             Debug.Log("damage taken:" + damageAmount);
             m_animator.SetTrigger("Hurt");
             m_currentHP -= damageAmount;
@@ -101,6 +108,9 @@ public abstract class Enemy : MonoBehaviour
 
     private void Die()
     {
+        m_audioSource.clip = m_deathSFX;
+        m_audioSource.Play();
+
         StartCoroutine(DeathCleanup());
         m_isDead = true;
         m_animator.SetTrigger("Death");

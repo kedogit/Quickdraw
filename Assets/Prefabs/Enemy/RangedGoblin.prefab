@@ -627,9 +627,13 @@ MonoBehaviour:
   m_attackDelay: 4
   m_deathCleanupTime: 15
   m_animator: {fileID: 4549957302754300583}
+  m_hurtSFX: {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
+  m_deathSFX: {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
   m_arrow: {fileID: 7808187863613962836, guid: 7ceb31becb7b7d84c85e4f73362bce97, type: 3}
   m_arrowForce: 20
   m_arrowCleanupTime: 5
+  m_shootSFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
+  m_drawSFX: {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
 --- !u!4 &7871056393454157394 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5485374367212719663, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-    [Header("References")]
+    [Header("References - General")]
     [SerializeField] private Camera m_playerCam;
     [SerializeField] private InputActionAsset m_actions;
     [SerializeField] private GameObject m_hookHead;
@@ -14,6 +14,17 @@ public class Player : MonoBehaviour
     [SerializeField] private Animator m_bowAnimator;
     [SerializeField] private PhysicsMaterial m_swingPhysicsMaterial;
     [SerializeField] private GameHUD m_gameHUD;
+
+    [Header("References - Audio")]
+    [SerializeField] private AudioClip m_shootBowSFX;
+    [SerializeField] private AudioClip m_pullStringSFX;
+    [SerializeField] private AudioClip m_dashSFX;
+    [SerializeField] private AudioClip m_hurtSFX;
+    [SerializeField] private AudioClip m_jumpSFX;
+    [SerializeField] private AudioClip m_hookShootSFX;
+    [SerializeField] private AudioClip m_hookLandSFX;
+    [SerializeField] private AudioSource m_bowAudioSource;
+
 
     [Header("Health")]
     [SerializeField] private float m_maxHP = 100f;
@@ -70,6 +81,7 @@ public class Player : MonoBehaviour
     //components
     private Rigidbody m_body;
     private BoxCollider m_collider;
+    private AudioSource m_playerAudioSource;
 
     //hp
     private float m_currentHP;
@@ -120,6 +132,7 @@ public class Player : MonoBehaviour
         m_hook = m_actions.FindAction("Hook");
         m_shoot = m_actions.FindAction("Shoot");
 
+        m_playerAudioSource = GetComponent<AudioSource>();
         m_body = GetComponent<Rigidbody>();
         m_hookLineRenderer = GetComponent<LineRenderer>();
         m_collider = GetComponent<BoxCollider>();
@@ -157,6 +170,8 @@ public class Player : MonoBehaviour
     {
         if (!m_isInvuln)
         {
+            m_playerAudioSource.clip = m_hurtSFX;
+            m_playerAudioSource.Play();
             m_currentHP -= damage;
             StartCoroutine(InvincibilityWindow());
             m_gameHUD.UpdateHP(m_currentHP);
@@ -186,6 +201,9 @@ public class Player : MonoBehaviour
         {
             if (m_readyToFire)
             {
+                m_bowAudioSource.clip = m_shootBowSFX;
+                m_bowAudioSource.Play();
+
                 //find a transform ahead of where the player is looking
                 Vector3 target = m_playerCam.transform.position + m_playerCam.transform.forward * m_bowTargetDistance;
 
@@ -234,6 +252,12 @@ public class Player : MonoBehaviour
     {
         if (m_shoot.IsPressed() && m_currentArrow != null)
         {
+            if (m_bowChargeTime == 0)
+            {
+                m_bowAudioSource.clip = m_pullStringSFX;
+                m_bowAudioSource.Play();
+            }
+
             m_bowChargeTime += Time.deltaTime;
             m_bowChargeNormalized = Mathf.InverseLerp(0, m_bowFullChargeTime, m_bowChargeTime);
             m_bowAnimator.SetFloat("BowCharge", m_bowChargeNormalized);
@@ -284,8 +308,11 @@ public class Player : MonoBehaviour
             m_hookHeadInstance.position = m_currentHookPosition;
             yield return null;
         }
+
         //swing/zip
         m_grappleAction.Invoke();
+        m_playerAudioSource.clip = m_hookLandSFX;
+        m_playerAudioSource.Play();
 
         //keep updating the start of the line renderer (player pos)
         while (m_hookLineRenderer.positionCount == 2)
@@ -333,6 +360,9 @@ public class Player : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, m_hookRange))
                 {
+                    m_playerAudioSource.clip = m_hookShootSFX;
+                    m_playerAudioSource.Play();
+
                     //detect the target to determine whether it is a swing or zip action and store for later
                     if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Enemy"))
                     {
@@ -460,6 +490,8 @@ public class Player : MonoBehaviour
         {
             ResetVelocity('Y');
         }
+        m_playerAudioSource.clip = m_jumpSFX;
+        m_playerAudioSource.Play();
         m_body.AddForce(force, ForceMode.Impulse);
         m_jumpCount++;
     }
@@ -480,6 +512,9 @@ public class Player : MonoBehaviour
 
         if (m_dash.WasPressedThisFrame() && m_dashReady)
         {
+            m_playerAudioSource.clip = m_dashSFX;
+            m_playerAudioSource.Play();
+
             Vector2 inputVector = m_move.ReadValue<Vector2>();
             Vector3 dashDirection;
 
@@ -523,6 +558,12 @@ public class Player : MonoBehaviour
             m_dashTimer = 0;
             m_dashReady = false;
         }
+    }
+
+    public void AcquireGrapple()
+    {
+        m_playerHasGrapple = true;
+        m_gameHUD.ShowGrappleText();
     }
 
     private void OnCollisionEnter(Collision collision)
