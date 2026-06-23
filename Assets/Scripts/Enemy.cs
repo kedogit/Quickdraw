@@ -92,13 +92,16 @@ public abstract class Enemy : MonoBehaviour
     {
         if (!m_isDead)
         {
+            //play hurt sfx
             m_audioSource.clip = m_hurtSFX;
             m_audioSource.Play();
 
+            //play animation and update HP
             Debug.Log("damage taken:" + damageAmount);
             m_animator.SetTrigger("Hurt");
             m_currentHP -= damageAmount;
 
+            //if hp at 0, die
             if (m_currentHP <= 0)
             {
                 Die();
@@ -108,9 +111,11 @@ public abstract class Enemy : MonoBehaviour
 
     private void Die()
     {
+        //play death sfx
         m_audioSource.clip = m_deathSFX;
         m_audioSource.Play();
 
+        //start timer to remove body, play animation and disable components
         StartCoroutine(DeathCleanup());
         m_isDead = true;
         m_animator.SetTrigger("Death");

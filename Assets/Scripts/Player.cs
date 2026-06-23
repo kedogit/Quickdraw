@@ -116,6 +116,7 @@ public class Player : MonoBehaviour
     private Coroutine m_ropeCoroutine;
 
     //bow related
+    private const float m_readyToShootThreshold = 3;
     private float m_bowChargeTime;
     private float m_bowChargeNormalized;
     private GameObject m_currentArrow;
@@ -170,12 +171,18 @@ public class Player : MonoBehaviour
     {
         if (!m_isInvuln)
         {
+            //play sfx
             m_playerAudioSource.clip = m_hurtSFX;
             m_playerAudioSource.Play();
+
+            //reduce hp and start invuln window
             m_currentHP -= damage;
             StartCoroutine(InvincibilityWindow());
+
+            //update hud
             m_gameHUD.UpdateHP(m_currentHP);
-            Debug.Log("ouch, i took " + damage + " damage and i now have " + m_currentHP + " health");
+
+            //die if 0 hp
             if (m_currentHP <= 0)
             {
                 Die();
@@ -192,6 +199,7 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
+        //placeholder, reload scene for now
         SceneManager.LoadScene("PrototypeLevel");
     }
 
@@ -201,6 +209,7 @@ public class Player : MonoBehaviour
         {
             if (m_readyToFire)
             {
+                //play sfx
                 m_bowAudioSource.clip = m_shootBowSFX;
                 m_bowAudioSource.Play();
 
@@ -226,6 +235,7 @@ public class Player : MonoBehaviour
                 arrowScript.SetActive();
                 m_currentArrow.GetComponent<Projectile>().SetDamage(m_arrowDamage * m_bowChargeNormalized);
 
+                //prepare next shot
                 m_currentArrow = null;
                 m_bowChargeTime = 0;
                 m_bowAnimator.SetFloat("BowCharge", 0);
@@ -235,6 +245,7 @@ public class Player : MonoBehaviour
             }
             else
             {
+                //if released too early, reset charge
                 m_bowChargeTime = 0;
                 m_bowAnimator.SetFloat("BowCharge", 0);
             }
@@ -243,6 +254,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator LoadArrow()
     {
+        //wait for reload time, then instantiate new arrow
         yield return new WaitForSeconds(m_reloadTime);
         GameObject arrowHolder = GameObject.Find("ArrowHolder");
         m_currentArrow = Instantiate(m_arrowPrefab, arrowHolder.transform.position, arrowHolder.transform.rotation, arrowHolder.transform);
@@ -252,23 +264,27 @@ public class Player : MonoBehaviour
     {
         if (m_shoot.IsPressed() && m_currentArrow != null)
         {
+            //at the start of the drawing animation, play the sfx
             if (m_bowChargeTime == 0)
             {
                 m_bowAudioSource.clip = m_pullStringSFX;
                 m_bowAudioSource.Play();
             }
 
+            //every frame while held, add deltatime to charge time and update the normalized charge var
             m_bowChargeTime += Time.deltaTime;
             m_bowChargeNormalized = Mathf.InverseLerp(0, m_bowFullChargeTime, m_bowChargeTime);
             m_bowAnimator.SetFloat("BowCharge", m_bowChargeNormalized);
-            if (m_bowChargeTime >= m_bowFullChargeTime / 3)
+
+            //if charged a certain % of the way, player is ready to fire
+            if (m_bowChargeTime >= m_bowFullChargeTime / m_readyToShootThreshold)
             {
                 m_readyToFire = true;
             }
         }
     }
 
-    //WIP COROUTINE VERSION OF BOW
+    //WIP COROUTINE VERSION OF BOW, UNUSED FOR NOW
     private IEnumerator DrawBow()
     {
         while (m_bowChargeTime <= m_bowFullChargeTime)
@@ -295,9 +311,11 @@ public class Player : MonoBehaviour
 
     private IEnumerator DrawRope()
     {
+        //while rope hasn't reached the anchor point and line renderer is still active, draw the rope gradually
         while (m_drawRopeTimer < m_hookDrawSpeed && m_hookLineRenderer.positionCount == 2)
         {
             m_drawRopeTimer += Time.deltaTime;
+
             //lerp for gradual creation of the line
             m_currentHookPosition = Vector3.Lerp(m_hookStartPoint.position, m_hookAnchor, m_drawRopeTimer / m_hookDrawSpeed);
 
@@ -311,6 +329,8 @@ public class Player : MonoBehaviour
 
         //swing/zip
         m_grappleAction.Invoke();
+
+        //play hook hit sfx
         m_playerAudioSource.clip = m_hookLandSFX;
         m_playerAudioSource.Play();
 
@@ -327,13 +347,13 @@ public class Player : MonoBehaviour
         //set friction to null during hook swing
         m_collider.material = m_swingPhysicsMaterial;
 
-        //store the point of impact, add a spring joint to the player and configure parameters
+        //store the point of impact, add a spring joint to the player
         m_joint = gameObject.AddComponent<SpringJoint>();
         m_joint.autoConfigureConnectedAnchor = false;
         m_joint.connectedAnchor = m_hookAnchor;
 
+        //configure component params
         float distanceFromPoint = Vector3.Distance(transform.position, m_hookAnchor);
-
         m_joint.maxDistance = distanceFromPoint * m_jointMinDistance;
         m_joint.minDistance = distanceFromPoint * m_jointMaxDistance;
 
@@ -344,7 +364,7 @@ public class Player : MonoBehaviour
 
     private void Zip()
     {
-        Debug.Log("goblino");
+        //shoot player towards hook anchor and automatically end the grapple
         m_body.linearVelocity = Vector3.zero;
         m_body.AddForce((m_hookAnchor - transform.position) * m_zipSpeed + Vector3.up * m_zipHopHeight, ForceMode.Impulse);
         StopGrapple();
@@ -373,6 +393,7 @@ public class Player : MonoBehaviour
                         m_grappleAction += Swing;
                     }
 
+                    //reset/update grappling variables
                     m_grappleInProgress = true;
                     m_drawRopeTimer = 0;
                     m_hookAnchor = hit.point;
@@ -381,9 +402,11 @@ public class Player : MonoBehaviour
                     m_hookLineRenderer.positionCount = 2;
                     m_currentHookPosition = m_hookStartPoint.position;
 
+                    //instantiate the hook anchor model
                     m_hookHeadInstance = Instantiate(m_hookHead, m_currentHookPosition, Quaternion.identity).transform;
                     m_hookHeadInstance.LookAt(m_hookAnchor);
 
+                    //start rope coroutine
                     m_ropeCoroutine = StartCoroutine(DrawRope());
                 }
             }
@@ -392,7 +415,10 @@ public class Player : MonoBehaviour
 
     private void StopGrapple()
     {
+        //stop rope coroutine
         StopCoroutine(m_ropeCoroutine);
+
+        //if currently hooking, clean up every grapple variable
         if (m_grappleInProgress)
         {
             m_hookLineRenderer.positionCount = 0;
@@ -436,14 +462,6 @@ public class Player : MonoBehaviour
         m_verticalRotation -= lookY;
         m_verticalRotation = Mathf.Clamp(m_verticalRotation, -m_clamp, m_clamp);
         m_playerCam.transform.localRotation = Quaternion.Euler(m_verticalRotation, 0, 0);
-
-        //Quaternion localRotation = m_playerCam.transform.localRotation;
-        //localRotation.x = m_verticalRotation;
-        //m_playerCam.transform.localRotation = localRotation;
-
-
-
-
     }
 
     private void JumpHandling()
@@ -466,6 +484,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    //function to reset velocity for the jump and dash functions
     private void ResetVelocity(char axis)
     {
         Vector3 linearVelocity = m_body.linearVelocity;
@@ -486,12 +505,17 @@ public class Player : MonoBehaviour
 
     private void Jump(Vector3 force)
     {
+        //if velocity is negative, set it to 0
         if (m_body.linearVelocity.y < 0)
         {
             ResetVelocity('Y');
         }
+
+        //play sfx
         m_playerAudioSource.clip = m_jumpSFX;
         m_playerAudioSource.Play();
+
+        //add force
         m_body.AddForce(force, ForceMode.Impulse);
         m_jumpCount++;
     }
@@ -512,6 +536,7 @@ public class Player : MonoBehaviour
 
         if (m_dash.WasPressedThisFrame() && m_dashReady)
         {
+            //play sfx
             m_playerAudioSource.clip = m_dashSFX;
             m_playerAudioSource.Play();
 
@@ -527,25 +552,17 @@ public class Player : MonoBehaviour
             {
                 dashDirection = m_moveVector;
             }
+
+            //multiply by dash force
             dashDirection *= m_dashForce;
+
+            //if player is on ground, add an upwards force
             if (m_isGrounded)
             {
                 dashDirection += Vector3.up * m_dashGroundedUpForce;
             }
 
-
-            //currently goes forward, should go in movement input direction
-            //Vector3 forward = transform.forward * m_dashForce;
-            if (m_body.linearVelocity.x < 0)
-            {
-                ResetVelocity('X');
-            }
-            if (m_body.linearVelocity.z < 0)
-            {
-                ResetVelocity('Z');
-            }
-
-            //dot product tests, implement instead of the linearvelocity checks
+            //dot product tests, will need this later to affect velocities based on player direction. WIP
             if (Vector3.Dot(m_body.linearVelocity, dashDirection) < -0.8)
             {
                 Debug.Log("opposite direction");
@@ -554,6 +571,8 @@ public class Player : MonoBehaviour
             {
                 Debug.Log("same direction");
             }
+
+            //add the force and reset dash timer
             m_body.AddForce(dashDirection, ForceMode.Impulse);
             m_dashTimer = 0;
             m_dashReady = false;

@@ -9,6 +9,7 @@ public class GoblinMelee : Enemy
 
     protected override void Attack()
     {
+        //stop movement, start animation and start timer to disable hitbox
         m_canMove = false;
         m_animator.SetTrigger("Attack");
         StartCoroutine(DisableHitbox());
@@ -16,6 +17,7 @@ public class GoblinMelee : Enemy
 
     public void EnableHitbox()
     {
+        //enables hitbox and plays sfx (called by animevent)
         m_audioSource.clip = m_swingSFX;
         m_audioSource.Play();
         m_clubHitbox.enabled = true;

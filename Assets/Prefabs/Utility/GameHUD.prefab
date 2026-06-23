@@ -332,7 +332,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_hpBarAnimator: {fileID: 5965571231007925787}
-  m_grappleText: {fileID: 0}
+  m_grappleText: {fileID: 6726183131993971156}
 --- !u!1 &6726183131993971156
 GameObject:
   m_ObjectHideFlags: 0
@@ -350,7 +350,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6225963678192101948
 RectTransform:
   m_ObjectHideFlags: 0
