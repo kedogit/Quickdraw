@@ -16,7 +16,7 @@ TagManager:
   - Enemy
   - 
   - Ground
-  - 
+  - NotGround
   - Player Projectile
   - 
   - Hurtful

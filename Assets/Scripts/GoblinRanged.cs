@@ -17,10 +17,6 @@ public class GoblinRanged : Enemy
 
     protected override void Attack()
     {
-        //play draw sfx (change this to use an anim event instead, this is way too early)
-        m_audioSource.clip = m_drawSFX;
-        m_audioSource.Play();
-
         //stop movement and start attack animation
         m_canMove = false;
         m_animator.SetTrigger("Attack");
@@ -56,6 +52,12 @@ public class GoblinRanged : Enemy
 
         //start destroy timer
         StartCoroutine(DestroyArrow(m_currentArrow));
+    }
+
+    public void DrawString()
+    {
+        m_audioSource.clip = m_drawSFX;
+        m_audioSource.Play();
     }
 
     private IEnumerator DestroyArrow(GameObject arrow)

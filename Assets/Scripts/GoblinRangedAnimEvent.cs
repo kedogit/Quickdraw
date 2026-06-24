@@ -8,4 +8,9 @@ public class GoblinRangedAnimEvent : MonoBehaviour
     {
         m_enemyScript.LaunchArrow();
     }
+
+    public void DrawString()
+    {
+        m_enemyScript.DrawString();
+    }
 }

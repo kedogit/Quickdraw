@@ -215,16 +215,18 @@ public class Player : MonoBehaviour
 
                 //find a transform ahead of where the player is looking
                 Vector3 target = m_playerCam.transform.position + m_playerCam.transform.forward * m_bowTargetDistance;
+                //Vector3 target = m_playerCam.transform.position + m_playerCam.transform.forward;
 
                 //create a direction vector by subtracting arrow's position
-                Vector3 directionVector = target - m_currentArrow.transform.position;
-                directionVector.Normalize();
+                //Vector3 directionVector = target - m_currentArrow.transform.position;
+                //directionVector.Normalize();
 
                 //attach a rigidbody to the arrow and add the force to it
                 Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
                 m_currentArrow.transform.LookAt(target);
+                m_currentArrow.transform.parent = null;
                 m_currentArrow.transform.position = m_playerCam.transform.position;
-                arrowBody.AddForce(directionVector * (m_arrowForce * m_bowChargeNormalized), ForceMode.Impulse);
+                arrowBody.AddForce(m_playerCam.transform.forward * m_arrowForce * m_bowChargeNormalized, ForceMode.Impulse);
 
                 //activate arrow hitbox
                 BoxCollider arrowCollider = m_currentArrow.GetComponent<BoxCollider>();

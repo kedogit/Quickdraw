@@ -526,7 +526,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f53fe1afa1af7664dab86ac9c47e3fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_enemyScript: {fileID: 3099541446892255437}
 --- !u!1 &669489406471147303
 GameObject:
   m_ObjectHideFlags: 0
@@ -2622,6 +2621,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enemyScript: {fileID: 3099541446892255437}
+  m_damageMult: 2
 --- !u!1 &6492126398029898590
 GameObject:
   m_ObjectHideFlags: 0
@@ -2965,8 +2965,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.8091427, y: 2.0177073, z: 0.543921}
-  m_Center: {x: 0.013285458, y: 1.0555005, z: 0.009203196}
+  m_Size: {x: 0.8091427, y: 1.5811794, z: 0.543921}
+  m_Center: {x: 0.013285458, y: 0.8372365, z: 0.009203196}
 --- !u!195 &5995765702732867516
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -3001,7 +3001,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2339f1904ed59554d81d7d0249b82663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_damage: 25
   m_maxHP: 100
   m_aggroRange: 30
   m_attackRange: 2
@@ -3010,6 +3009,7 @@ MonoBehaviour:
   m_animator: {fileID: 2161966370844369626}
   m_hurtSFX: {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
   m_deathSFX: {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
+  m_swingDamage: 25
   m_clubHitbox: {fileID: 6808112944355346819}
   m_attackDuration: 1.5
   m_swingSFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
