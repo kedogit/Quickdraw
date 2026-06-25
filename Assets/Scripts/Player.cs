@@ -223,6 +223,7 @@ public class Player : MonoBehaviour
 
                 //attach a rigidbody to the arrow and add the force to it
                 Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
+
                 m_currentArrow.transform.LookAt(target);
                 m_currentArrow.transform.parent = null;
                 m_currentArrow.transform.position = m_playerCam.transform.position;

@@ -1,6 +1,13 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+
+public enum BodyPart
+{
+    HEAD,
+    BODY
+}
 
 public abstract class Enemy : MonoBehaviour
 {
@@ -12,9 +19,10 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected Animator m_animator;
     [SerializeField] private AudioClip m_hurtSFX;
     [SerializeField] private AudioClip m_deathSFX;
+    [SerializeField] private float m_bodyMultiplier = 1f;
+    [SerializeField] private float m_headshotMultiplier = 2f;
 
     private NavMeshAgent m_agent;
-    private BoxCollider m_collider;
     protected AudioSource m_audioSource;
 
     private GameObject m_player;
@@ -25,6 +33,8 @@ public abstract class Enemy : MonoBehaviour
     private bool m_isDead = false;
     protected bool m_canMove = true;
 
+    protected Dictionary<BodyPart, float> bodyDamageMultipliers;
+
     protected abstract void Attack();
 
 
@@ -33,11 +43,14 @@ public abstract class Enemy : MonoBehaviour
     {
         m_currentHP = m_maxHP;
         m_agent = GetComponent<NavMeshAgent>();
-        m_collider = GetComponent<BoxCollider>();
         m_audioSource = GetComponent<AudioSource>();
         m_player = GameObject.FindWithTag("Player");
         m_agent.stoppingDistance = m_attackRange;
         m_attackTimer = m_attackDelay;
+
+        bodyDamageMultipliers = new Dictionary<BodyPart, float>();
+        bodyDamageMultipliers.Add(BodyPart.BODY, m_bodyMultiplier);
+        bodyDamageMultipliers.Add(BodyPart.HEAD, m_headshotMultiplier);
     }
 
     // Update is called once per frame
@@ -87,7 +100,7 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
-    public void Hurt(float damageAmount)
+    public void Hurt(float damageAmount, BodyPart partHit)
     {
         if (!m_isDead)
         {
@@ -96,9 +109,9 @@ public abstract class Enemy : MonoBehaviour
             m_audioSource.Play();
 
             //play animation and update HP
-            Debug.Log("damage taken:" + damageAmount);
+            Debug.Log("damage taken:" + (damageAmount * bodyDamageMultipliers[partHit]));
             m_animator.SetTrigger("Hurt");
-            m_currentHP -= damageAmount;
+            m_currentHP -= damageAmount * bodyDamageMultipliers[partHit];
 
             //if hp at 0, die
             if (m_currentHP <= 0)
@@ -106,6 +119,23 @@ public abstract class Enemy : MonoBehaviour
                 Die();
             } 
         }
+    }
+
+    public void LodgeArrow(Vector3 stickPosition, GameObject arrow)
+    {
+        //destroy arrow's components
+        Destroy(arrow.GetComponent<Rigidbody>());
+        Destroy(arrow.GetComponent<BoxCollider>());
+
+        //stick it to the root skeleton
+        Transform parentTransform = transform.Find("rootSkeleton");
+        arrow.transform.SetParent(parentTransform);
+
+        //downscale the arrow
+        arrow.transform.localScale *= 0.5f;
+
+        //set its positions to the point of impact (depends on which collider was hit)
+        arrow.transform.position = stickPosition;
     }
 
     private void Die()
@@ -118,8 +148,14 @@ public abstract class Enemy : MonoBehaviour
         StartCoroutine(DeathCleanup());
         m_isDead = true;
         m_animator.SetTrigger("Death");
-        m_collider.enabled = false;
         m_agent.enabled = false;
+
+        //turn off each limb collider
+        BoxCollider[] boxColliders = GetComponentsInChildren<BoxCollider>();
+        foreach (BoxCollider collider in boxColliders)
+        {
+            collider.enabled = false;
+        }
     }
 
     private IEnumerator DeathCleanup()
