@@ -70,6 +70,12 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_reloadTime = 1.0f;
     [SerializeField] private float m_arrowDamage = 55f;
 
+    //public getters for player states
+    public float MoveSpeed => m_moveSpeed;
+    public Rigidbody RigidBody => m_body;
+    public Vector3 MoveVector => m_moveVector;
+
+
     //input actions
     private InputAction m_move;
     private InputAction m_look;
@@ -80,14 +86,15 @@ public class Player : MonoBehaviour
 
     //components
     private Rigidbody m_body;
-    private BoxCollider m_collider;
+    private CapsuleCollider m_collider;
     private AudioSource m_playerAudioSource;
 
     //hp
     private float m_currentHP;
     private bool m_isInvuln;
 
-    //wasd
+    //movement
+    private BasePlayerState m_currentState;
     private Vector3 m_moveVector;
 
     //jump related
@@ -126,6 +133,8 @@ public class Player : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        m_currentState = new PlayerStateGrounded(this);
+
         m_look = m_actions.FindAction("Look");
         m_jump = m_actions.FindAction("Jump");
         m_dash = m_actions.FindAction("Dash");
@@ -136,7 +145,7 @@ public class Player : MonoBehaviour
         m_playerAudioSource = GetComponent<AudioSource>();
         m_body = GetComponent<Rigidbody>();
         m_hookLineRenderer = GetComponent<LineRenderer>();
-        m_collider = GetComponent<BoxCollider>();
+        m_collider = GetComponent<CapsuleCollider>();
         m_hookStartPoint = transform.Find("HookStart");
 
         m_body.freezeRotation = true;
@@ -155,7 +164,7 @@ public class Player : MonoBehaviour
     {
         CalculateVectors();
         Look();
-        Walk();
+        m_currentState.Move();
         JumpHandling();
         Dash();
         Grapple();
@@ -446,11 +455,20 @@ public class Player : MonoBehaviour
         m_moveVector = (forwardDirection * inputVector.y + sideDirection * inputVector.x);
     }
 
-    private void Walk()
-    {
-        //move the body's position
-        m_body.MovePosition(m_body.position + m_moveVector * m_moveSpeed * Time.deltaTime);
-    }
+    //private void Walk()
+    //{
+    //    //move the body's position
+    //    //m_body.MovePosition(m_body.position + m_moveVector * m_moveSpeed * Time.deltaTime);
+
+    //    //m_body.AddForce(m_moveVector * m_moveSpeed, ForceMode.Acceleration);
+
+    //    //Vector3 calculatedVelocity = m_Rigidbody.linearVelocity;
+    //    //calculatedVelocity.x = moveAmount.x * m_moveSpeed;
+    //    //calculatedVelocity.z = moveAmount.y * m_moveSpeed;
+    //    Vector3 xzMovement = m_moveVector * m_moveSpeed;
+    //    xzMovement.y = m_body.linearVelocity.y;
+    //    m_body.linearVelocity = xzMovement;
+    //}
 
     private void Look()
     {
@@ -539,6 +557,8 @@ public class Player : MonoBehaviour
 
         if (m_dash.WasPressedThisFrame() && m_dashReady)
         {
+            m_currentState = new PlayerStateDashing(this);
+
             //play sfx
             m_playerAudioSource.clip = m_dashSFX;
             m_playerAudioSource.Play();
@@ -592,6 +612,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
+            m_currentState = new PlayerStateGrounded(this);
             m_isGrounded = true;
             m_jumpCount = 0;
         }

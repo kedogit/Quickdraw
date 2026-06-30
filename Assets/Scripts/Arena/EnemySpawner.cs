@@ -22,6 +22,9 @@ public class EnemySpawner : MonoBehaviour
         yield return new WaitForSeconds(m_spawnDelay);
         m_particles.Stop();
 
+        //create list of 
+
+
         GameObject enemy = Instantiate(prefab, transform.position, transform.rotation, transform);
         enemy.GetComponent<Enemy>().SetArenaScript(arenaScript);
     }

@@ -12,9 +12,12 @@ public class ArenaTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        m_doors.SetActive(true);
-        GetComponent<BoxCollider>().enabled = false;
-        SpawnWave(m_currentWave);
+        if (other.gameObject.CompareTag("Player"))
+        {
+            m_doors.SetActive(true);
+            GetComponent<BoxCollider>().enabled = false;
+            SpawnWave(m_currentWave);
+        }
     }
 
     private void SpawnWave(int waveIndex)

@@ -147,10 +147,7 @@ public abstract class Enemy : MonoBehaviour
 
     private void Die()
     {
-        if (m_arenaScript != null)
-        {
-            m_arenaScript.RegisterKill();
-        }
+        m_arenaScript?.RegisterKill();
 
         //play death sfx
         m_audioSource.clip = m_deathSFX;
