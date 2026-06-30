@@ -33,6 +33,8 @@ public abstract class Enemy : MonoBehaviour
     private bool m_isDead = false;
     protected bool m_canMove = true;
 
+    private ArenaTrigger m_arenaScript;
+
     protected Dictionary<BodyPart, float> bodyDamageMultipliers;
 
     protected abstract void Attack();
@@ -73,6 +75,11 @@ public abstract class Enemy : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void SetArenaScript(ArenaTrigger script)
+    {
+        m_arenaScript = script;
     }
 
     private void UpdatePositions()
@@ -140,6 +147,11 @@ public abstract class Enemy : MonoBehaviour
 
     private void Die()
     {
+        if (m_arenaScript != null)
+        {
+            m_arenaScript.RegisterKill();
+        }
+
         //play death sfx
         m_audioSource.clip = m_deathSFX;
         m_audioSource.Play();
