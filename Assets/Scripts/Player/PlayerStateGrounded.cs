@@ -12,6 +12,11 @@ public class PlayerStateGrounded : BasePlayerState
         Vector3 xzMovement = m_playerScript.MoveVector * m_playerScript.MoveSpeed;
         xzMovement.y = m_playerScript.RigidBody.linearVelocity.y;
         m_playerScript.RigidBody.linearVelocity = xzMovement;
+
+        if (!m_playerScript.IsGrounded)
+        {
+            m_playerScript.ChangeState(new PlayerStateAirborne(m_playerScript));
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

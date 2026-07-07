@@ -111,6 +111,8 @@ public abstract class Enemy : MonoBehaviour
     {
         if (!m_isDead)
         {
+            Observer.GetInstance().TriggerEvent(EVENT.ON_ENEMY_HURT);
+
             //play hurt sfx
             m_audioSource.clip = m_hurtSFX;
             m_audioSource.Play();

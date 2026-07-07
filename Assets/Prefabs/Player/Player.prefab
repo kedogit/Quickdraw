@@ -233,7 +233,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3917523640495521762}
-  - component: {fileID: 6991543885078031191}
   - component: {fileID: 4437095924032700996}
   - component: {fileID: 7692748539646169783}
   - component: {fileID: 4108276435132713504}
@@ -265,14 +264,6 @@ Transform:
   - {fileID: 5665873857842567748}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &6991543885078031191
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3921856039789619273}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &4437095924032700996
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -348,6 +339,8 @@ MonoBehaviour:
   m_maxHP: 100
   m_invulnTime: 1
   m_moveSpeed: 12
+  m_airAcceleration: 3
+  m_grappleAcceleration: 1
   m_jumpForce: 10
   m_doubleJumpUpForce: 10
   m_doubleJumpForwardForce: 1

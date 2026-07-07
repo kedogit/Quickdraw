@@ -30,8 +30,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_maxHP = 100f;
     [SerializeField] private float m_invulnTime = 0.5f;
 
-    [Header("Run")]
+    [Header("WASD")]
     [SerializeField] private float m_moveSpeed = 5f;
+    [SerializeField] private float m_airAcceleration = 1f;
+    [SerializeField] private float m_airTurnSpeed = 1f;
+    [SerializeField] private float m_grappleAcceleration = 1f;
 
     [Header("Jump")]
     [SerializeField] private float m_jumpForce = 5f;
@@ -71,9 +74,14 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_arrowDamage = 55f;
 
     //public getters for player states
+    public bool IsGrounded => m_isGrounded;
+    public float GrappleAcceleration => m_grappleAcceleration;
+    public float AirAcceleration => m_airAcceleration;
+    public float AirTurnSpeed => m_airTurnSpeed;
     public float MoveSpeed => m_moveSpeed;
     public Rigidbody RigidBody => m_body;
     public Vector3 MoveVector => m_moveVector;
+    public Vector3 InputVector => m_inputVector;
 
 
     //input actions
@@ -83,11 +91,15 @@ public class Player : MonoBehaviour
     private InputAction m_dash;
     private InputAction m_hook;
     private InputAction m_shoot;
+    private InputAction m_escMenu;
 
     //components
     private Rigidbody m_body;
     private CapsuleCollider m_collider;
     private AudioSource m_playerAudioSource;
+
+    //menu
+    private bool m_isPaused;
 
     //hp
     private float m_currentHP;
@@ -96,6 +108,7 @@ public class Player : MonoBehaviour
     //movement
     private BasePlayerState m_currentState;
     private Vector3 m_moveVector;
+    private Vector3 m_inputVector;
 
     //jump related
     private bool m_playerHasDoubleJump;
@@ -122,6 +135,9 @@ public class Player : MonoBehaviour
     private Action m_grappleAction;
     private Coroutine m_ropeCoroutine;
 
+    //checkpoint
+    private Vector3 m_checkpointPos;
+
     //bow related
     private const float m_readyToShootThreshold = 3;
     private float m_bowChargeTime;
@@ -141,6 +157,7 @@ public class Player : MonoBehaviour
         m_move = m_actions.FindAction("Move");
         m_hook = m_actions.FindAction("Hook");
         m_shoot = m_actions.FindAction("Shoot");
+        m_escMenu = m_actions.FindAction("ESCMenu");
 
         m_playerAudioSource = GetComponent<AudioSource>();
         m_body = GetComponent<Rigidbody>();
@@ -148,20 +165,23 @@ public class Player : MonoBehaviour
         m_collider = GetComponent<CapsuleCollider>();
         m_hookStartPoint = transform.Find("HookStart");
 
+        m_checkpointPos = transform.position;
+
         m_body.freezeRotation = true;
 
         m_currentHP = m_maxHP;
 
         StartCoroutine(LoadArrow());
 
-        m_gameHUD.UpdateHP(m_currentHP);
-
         Cursor.lockState = CursorLockMode.Locked;
+
+        m_gameHUD.UpdateHP(m_currentHP);
     }
 
     // Update is called once per frame
     void Update()
     {
+        GroundCheck();
         CalculateVectors();
         Look();
         m_currentState.Move();
@@ -169,12 +189,18 @@ public class Player : MonoBehaviour
         Dash();
         Grapple();
         ReadyBow();
-        if (m_hook.WasReleasedThisFrame() && m_playerHasGrapple)
-        {
-            StopGrapple();
-        }
+        GrappleExitHandling();
+        EscMenuHandling();
         ShootArrow();
     }
+
+    public void SetCheckpoint(Vector3 pos)
+    {
+        m_checkpointPos = pos;
+        Debug.Log("checkpoint pos updated, " + m_checkpointPos);
+    }
+
+    #region DAMAGE
 
     public void Hurt(float damage)
     {
@@ -211,6 +237,10 @@ public class Player : MonoBehaviour
         //placeholder, reload scene for now
         SceneManager.LoadScene("PrototypeLevel");
     }
+
+    #endregion
+
+    #region BOW
 
     private void ShootArrow()
     {
@@ -295,92 +325,9 @@ public class Player : MonoBehaviour
             }
         }
     }
+    #endregion
 
-    //WIP COROUTINE VERSION OF BOW, UNUSED FOR NOW
-    private IEnumerator DrawBow()
-    {
-        while (m_bowChargeTime <= m_bowFullChargeTime)
-        {
-            m_bowChargeTime += Time.deltaTime;
-            m_bowChargeNormalized = Mathf.InverseLerp(0, m_bowFullChargeTime, m_bowChargeTime);
-            m_bowAnimator.SetFloat("BowCharge", m_bowChargeNormalized);
-            yield return null;
-        }
-
-        m_readyToFire = true;
-
-        while (!m_shoot.WasReleasedThisFrame())
-        {
-            yield return null;
-        }
-
-        Debug.Log("shoot arrow");
-        m_bowChargeTime = 0;
-        m_bowAnimator.SetFloat("BowCharge", 0);
-        m_readyToFire = false;
-
-    }
-
-    private IEnumerator DrawRope()
-    {
-        //while rope hasn't reached the anchor point and line renderer is still active, draw the rope gradually
-        while (m_drawRopeTimer < m_hookDrawSpeed && m_hookLineRenderer.positionCount == 2)
-        {
-            m_drawRopeTimer += Time.deltaTime;
-
-            //lerp for gradual creation of the line
-            m_currentHookPosition = Vector3.Lerp(m_hookStartPoint.position, m_hookAnchor, m_drawRopeTimer / m_hookDrawSpeed);
-
-            //set start and end point for the line renderer
-            m_hookLineRenderer.SetPosition(0, m_hookStartPoint.position);
-            m_hookLineRenderer.SetPosition(1, m_currentHookPosition);
-
-            m_hookHeadInstance.position = m_currentHookPosition;
-            yield return null;
-        }
-
-        //swing/zip
-        m_grappleAction.Invoke();
-
-        //play hook hit sfx
-        m_playerAudioSource.clip = m_hookLandSFX;
-        m_playerAudioSource.Play();
-
-        //keep updating the start of the line renderer (player pos)
-        while (m_hookLineRenderer.positionCount == 2)
-        {
-        m_hookLineRenderer.SetPosition(0, m_hookStartPoint.position);
-        yield return null;
-        }
-    }
-
-    private void Swing()
-    {
-        //set friction to null during hook swing
-        m_collider.material = m_swingPhysicsMaterial;
-
-        //store the point of impact, add a spring joint to the player
-        m_joint = gameObject.AddComponent<SpringJoint>();
-        m_joint.autoConfigureConnectedAnchor = false;
-        m_joint.connectedAnchor = m_hookAnchor;
-
-        //configure component params
-        float distanceFromPoint = Vector3.Distance(transform.position, m_hookAnchor);
-        m_joint.maxDistance = distanceFromPoint * m_jointMinDistance;
-        m_joint.minDistance = distanceFromPoint * m_jointMaxDistance;
-
-        m_joint.spring = m_jointSpring;
-        m_joint.damper = m_jointDamper;
-        m_joint.massScale = m_jointMassScale;
-    }
-
-    private void Zip()
-    {
-        //shoot player towards hook anchor and automatically end the grapple
-        m_body.linearVelocity = Vector3.zero;
-        m_body.AddForce((m_hookAnchor - transform.position) * m_zipSpeed + Vector3.up * m_zipHopHeight, ForceMode.Impulse);
-        StopGrapple();
-    }
+    #region GRAPPLE
 
     private void Grapple()
     {
@@ -425,6 +372,48 @@ public class Player : MonoBehaviour
         }
     }
 
+    private IEnumerator DrawRope()
+    {
+        //while rope hasn't reached the anchor point and line renderer is still active, draw the rope gradually
+        while (m_drawRopeTimer < m_hookDrawSpeed && m_hookLineRenderer.positionCount == 2)
+        {
+            m_drawRopeTimer += Time.deltaTime;
+
+            //lerp for gradual creation of the line
+            m_currentHookPosition = Vector3.Lerp(m_hookStartPoint.position, m_hookAnchor, m_drawRopeTimer / m_hookDrawSpeed);
+
+            //set start and end point for the line renderer
+            m_hookLineRenderer.SetPosition(0, m_hookStartPoint.position);
+            m_hookLineRenderer.SetPosition(1, m_currentHookPosition);
+
+            m_hookHeadInstance.position = m_currentHookPosition;
+            yield return null;
+        }
+
+        //swing/zip
+        m_grappleAction.Invoke();
+        m_currentState = new PlayerStateGrappling(this);
+
+        //play hook hit sfx
+        m_playerAudioSource.clip = m_hookLandSFX;
+        m_playerAudioSource.Play();
+
+        //keep updating the start of the line renderer (player pos)
+        while (m_hookLineRenderer.positionCount == 2)
+        {
+            m_hookLineRenderer.SetPosition(0, m_hookStartPoint.position);
+            yield return null;
+        }
+    }
+
+    private void GrappleExitHandling()
+    {
+        if (m_hook.WasReleasedThisFrame() && m_playerHasGrapple)
+        {
+            StopGrapple();
+        }
+    }
+
     private void StopGrapple()
     {
         //stop rope coroutine
@@ -439,7 +428,89 @@ public class Player : MonoBehaviour
             m_collider.material = null;
             m_grappleAction = null;
             m_grappleInProgress = false;
+
+            if (m_isGrounded)
+            {
+                m_currentState = new PlayerStateGrounded(this);
+            }
+            else
+            {
+                m_currentState = new PlayerStateAirborne(this);
+            }
         }
+    }
+
+    private void Swing()
+    {
+        //set friction to null during hook swing
+        m_collider.material = m_swingPhysicsMaterial;
+
+        //store the point of impact, add a spring joint to the player
+        m_joint = gameObject.AddComponent<SpringJoint>();
+        m_joint.autoConfigureConnectedAnchor = false;
+        m_joint.connectedAnchor = m_hookAnchor;
+
+        //configure component params
+        float distanceFromPoint = Vector3.Distance(transform.position, m_hookAnchor);
+        m_joint.maxDistance = distanceFromPoint * m_jointMinDistance;
+        m_joint.minDistance = distanceFromPoint * m_jointMaxDistance;
+
+        m_joint.spring = m_jointSpring;
+        m_joint.damper = m_jointDamper;
+        m_joint.massScale = m_jointMassScale;
+    }
+
+    private void Zip()
+    {
+        //shoot player towards hook anchor and automatically end the grapple
+        m_body.linearVelocity = Vector3.zero;
+        m_body.AddForce((m_hookAnchor - transform.position) * m_zipSpeed + Vector3.up * m_zipHopHeight, ForceMode.Impulse);
+        StopGrapple();
+    }
+    #endregion
+
+    private void GroundCheck()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, 2f))
+        {
+            m_isGrounded = true;
+        }
+        else
+        {
+            m_isGrounded = false;
+        }
+    }
+
+    private void EscMenuHandling()
+    {
+        if (m_escMenu.WasPressedThisFrame())
+        {
+            TogglePlayerInputs();
+            m_gameHUD.ToggleEscMenu();
+        }
+    }
+
+    public void TogglePlayerInputs()
+    {
+        if (m_isPaused)
+        {
+            m_actions.FindActionMap("Player").Enable();
+            Cursor.lockState = CursorLockMode.Locked;
+            Time.timeScale = 1;
+        }
+        else
+        {
+            m_actions.FindActionMap("Player").Disable();
+            Cursor.lockState = CursorLockMode.Confined;
+            Time.timeScale = 0;
+        }
+
+        m_isPaused = !m_isPaused;
+    }
+
+    public void ChangeState(BasePlayerState state)
+    {
+        m_currentState = state;
     }
 
     private void CalculateVectors()
@@ -449,26 +520,11 @@ public class Player : MonoBehaviour
         Vector3 sideDirection = transform.right;
 
         //get the player's inputs
-        Vector2 inputVector = m_move.ReadValue<Vector2>();
+        m_inputVector = m_move.ReadValue<Vector2>();
 
         //create a movement vector by multiplying the inputs with their directions
-        m_moveVector = (forwardDirection * inputVector.y + sideDirection * inputVector.x);
+        m_moveVector = (forwardDirection * m_inputVector.y + sideDirection * m_inputVector.x);
     }
-
-    //private void Walk()
-    //{
-    //    //move the body's position
-    //    //m_body.MovePosition(m_body.position + m_moveVector * m_moveSpeed * Time.deltaTime);
-
-    //    //m_body.AddForce(m_moveVector * m_moveSpeed, ForceMode.Acceleration);
-
-    //    //Vector3 calculatedVelocity = m_Rigidbody.linearVelocity;
-    //    //calculatedVelocity.x = moveAmount.x * m_moveSpeed;
-    //    //calculatedVelocity.z = moveAmount.y * m_moveSpeed;
-    //    Vector3 xzMovement = m_moveVector * m_moveSpeed;
-    //    xzMovement.y = m_body.linearVelocity.y;
-    //    m_body.linearVelocity = xzMovement;
-    //}
 
     private void Look()
     {
@@ -490,11 +546,12 @@ public class Player : MonoBehaviour
         if (m_jump.WasPressedThisFrame())
         {
             //if on the ground, regular jump
-            if (m_isGrounded)
+            if (m_isGrounded && m_jumpCount < 1)
             {
                 Vector3 up = Vector3.up * m_jumpForce;
                 Jump(up);
                 m_isGrounded = false;
+                m_currentState = new PlayerStateAirborne(this);
             }
             //if not on the ground, double jump force (forward force)
             else if (m_jumpCount < 2 && m_playerHasDoubleJump)
@@ -540,8 +597,6 @@ public class Player : MonoBehaviour
         m_body.AddForce(force, ForceMode.Impulse);
         m_jumpCount++;
     }
-
-
 
     private void Dash()
     {
@@ -613,7 +668,6 @@ public class Player : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             m_currentState = new PlayerStateGrounded(this);
-            m_isGrounded = true;
             m_jumpCount = 0;
         }
     }
