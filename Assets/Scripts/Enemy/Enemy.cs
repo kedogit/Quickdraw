@@ -77,6 +77,11 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
+    public void SetAggroRange(float aggroRange)
+    {
+        m_aggroRange = aggroRange;
+    }
+
     public void SetArenaScript(ArenaTrigger script)
     {
         m_arenaScript = script;

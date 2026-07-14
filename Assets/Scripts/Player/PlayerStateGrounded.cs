@@ -15,7 +15,7 @@ public class PlayerStateGrounded : BasePlayerState
 
         if (!m_playerScript.IsGrounded)
         {
-            m_playerScript.ChangeState(new PlayerStateAirborne(m_playerScript));
+            //m_playerScript.ChangeState(new PlayerStateAirborne(m_playerScript));
         }
     }
 

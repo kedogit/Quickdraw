@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3223242166602897942}
   - component: {fileID: 819574754678533852}
   - component: {fileID: 3709548323251831888}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SM_rock_cluster_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}

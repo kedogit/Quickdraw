@@ -15,14 +15,17 @@ public class GameHUD : MonoBehaviour
 
     [SerializeField] private float m_hitmarkerDuration = 0.2f;
 
-    private Coroutine m_eraseHitmarker;
-
     void Start()
     {
         Debug.Log("start call");
         m_blackScreen.GetComponent<Animation>().Play();
 
         Observer.GetInstance().SubscribeTo(EVENT.ON_ENEMY_HURT, ShowHitmarker);
+    }
+
+    private void OnDestroy()
+    {
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_ENEMY_HURT, ShowHitmarker);
     }
 
 
@@ -39,6 +42,14 @@ public class GameHUD : MonoBehaviour
     public void ToggleEscMenu()
     {
         m_escMenu.SetActive(!m_escMenu.activeSelf);
+        if (Time.timeScale == 1)
+        {
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = 1;
+        }
     }
 
     public void ResumeGame()
@@ -53,6 +64,12 @@ public class GameHUD : MonoBehaviour
     {
         ResumeGame();
         SceneManager.LoadScene("PrototypeLevel");
+    }
+
+    public void BackToMainMenu()
+    {
+        ToggleEscMenu();
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void OpenSettingsMenu()
@@ -71,7 +88,7 @@ public class GameHUD : MonoBehaviour
     {
         Debug.Log("show hitmarker");
         m_hitMarker.SetActive(true);
-        m_eraseHitmarker = StartCoroutine(EraseHitmarker());
+        StartCoroutine(EraseHitmarker());
         m_hitMarkerSource.Play();
     }
 

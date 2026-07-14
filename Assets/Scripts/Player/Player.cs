@@ -106,6 +106,7 @@ public class Player : MonoBehaviour
     private bool m_isInvuln;
 
     //movement
+    private Action m_currentMovementAction;
     private BasePlayerState m_currentState;
     private Vector3 m_moveVector;
     private Vector3 m_inputVector;
@@ -150,6 +151,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         m_currentState = new PlayerStateGrounded(this);
+        m_currentMovementAction = Walk;
 
         m_look = m_actions.FindAction("Look");
         m_jump = m_actions.FindAction("Jump");
@@ -158,6 +160,8 @@ public class Player : MonoBehaviour
         m_hook = m_actions.FindAction("Hook");
         m_shoot = m_actions.FindAction("Shoot");
         m_escMenu = m_actions.FindAction("ESCMenu");
+
+        m_actions.FindActionMap("Player").Enable();
 
         m_playerAudioSource = GetComponent<AudioSource>();
         m_body = GetComponent<Rigidbody>();
@@ -181,10 +185,11 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GroundCheck();
+        //GroundCheck();
         CalculateVectors();
         Look();
-        m_currentState.Move();
+        //m_currentState.Move();
+        m_currentMovementAction.Invoke();
         JumpHandling();
         Dash();
         Grapple();
@@ -192,6 +197,18 @@ public class Player : MonoBehaviour
         GrappleExitHandling();
         EscMenuHandling();
         ShootArrow();
+    }
+
+    private void Walk()
+    {
+        Vector3 xzMovement = m_moveVector * m_moveSpeed;
+        xzMovement.y = m_body.linearVelocity.y;
+        m_body.linearVelocity = xzMovement;
+    }
+
+    private void AirStrafe()
+    {
+        //complicated
     }
 
     public void SetCheckpoint(Vector3 pos)
@@ -442,6 +459,13 @@ public class Player : MonoBehaviour
 
     private void Swing()
     {
+        //shoot player forward
+        if (m_isGrounded)
+        {
+            m_body.linearVelocity = Vector3.zero;
+            m_body.AddForce((m_hookAnchor - transform.position) * m_zipSpeed, ForceMode.Impulse);
+        }
+
         //set friction to null during hook swing
         m_collider.material = m_swingPhysicsMaterial;
 
@@ -469,17 +493,17 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    private void GroundCheck()
-    {
-        if (Physics.Raycast(transform.position, Vector3.down, 2f))
-        {
-            m_isGrounded = true;
-        }
-        else
-        {
-            m_isGrounded = false;
-        }
-    }
+    //private void GroundCheck()
+    //{
+    //    if (Physics.Raycast(transform.position, Vector3.down, 2f))
+    //    {
+    //        m_isGrounded = true;
+    //    }
+    //    else
+    //    {
+    //        m_isGrounded = false;
+    //    }
+    //}
 
     private void EscMenuHandling()
     {
@@ -496,22 +520,20 @@ public class Player : MonoBehaviour
         {
             m_actions.FindActionMap("Player").Enable();
             Cursor.lockState = CursorLockMode.Locked;
-            Time.timeScale = 1;
         }
         else
         {
             m_actions.FindActionMap("Player").Disable();
             Cursor.lockState = CursorLockMode.Confined;
-            Time.timeScale = 0;
         }
 
         m_isPaused = !m_isPaused;
     }
 
-    public void ChangeState(BasePlayerState state)
-    {
-        m_currentState = state;
-    }
+    //public void ChangeState(BasePlayerState state)
+    //{
+    //    m_currentState = state;
+    //}
 
     private void CalculateVectors()
     {
@@ -583,6 +605,8 @@ public class Player : MonoBehaviour
 
     private void Jump(Vector3 force)
     {
+        m_currentMovementAction = AirStrafe;
+
         //if velocity is negative, set it to 0
         if (m_body.linearVelocity.y < 0)
         {
@@ -612,7 +636,8 @@ public class Player : MonoBehaviour
 
         if (m_dash.WasPressedThisFrame() && m_dashReady)
         {
-            m_currentState = new PlayerStateDashing(this);
+            m_currentMovementAction = AirStrafe;
+            //m_currentState = new PlayerStateDashing(this);
 
             //play sfx
             m_playerAudioSource.clip = m_dashSFX;
@@ -667,8 +692,20 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
-            m_currentState = new PlayerStateGrounded(this);
+            m_isGrounded = true;
+            m_currentMovementAction = Walk;
+            //m_currentState = new PlayerStateGrounded(this);
             m_jumpCount = 0;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            m_isGrounded = false;
+            m_currentMovementAction = AirStrafe;
+            Debug.Log("left the ground");
         }
     }
 }

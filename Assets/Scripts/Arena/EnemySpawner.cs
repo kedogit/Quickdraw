@@ -5,6 +5,7 @@ public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private ParticleSystem m_particles;
     private const float m_spawnDelay = 2f;
+    private const float m_aggroRange = 99f;
 
     private void Start()
     {
@@ -26,6 +27,8 @@ public class EnemySpawner : MonoBehaviour
 
 
         GameObject enemy = Instantiate(prefab, transform.position, transform.rotation, transform);
-        enemy.GetComponent<Enemy>().SetArenaScript(arenaScript);
+        Enemy enemyScript = enemy.GetComponent<Enemy>();
+        enemyScript.SetArenaScript(arenaScript);
+        enemyScript.SetAggroRange(m_aggroRange);
     }
 }

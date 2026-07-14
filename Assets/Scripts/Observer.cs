@@ -30,15 +30,12 @@ public class Observer
 
     public void SubscribeTo(EVENT eventName, Action function)
     {
-        Debug.Log("am i even here like the fuck");
         if (m_eventList.ContainsKey(eventName))
         {
-            Debug.Log("found event");
             m_eventList[eventName] += function;
         }
         else
         {
-            Debug.Log("did not find event");
             m_eventList.Add(eventName, function);
         }
     }
