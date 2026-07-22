@@ -68,6 +68,7 @@ public abstract class Enemy : MonoBehaviour
             }
             if (m_distanceFromPlayer <= m_attackRange)
             {
+                LookAtPlayer();
                 if (m_attackTimer >= m_attackDelay)
                 {
                     Attack();
@@ -95,6 +96,11 @@ public abstract class Enemy : MonoBehaviour
         {
             m_attackTimer += Time.deltaTime;
         }
+    }
+
+    private void LookAtPlayer()
+    {
+        transform.LookAt(new Vector3(m_playerPosition.x, transform.position.y, m_playerPosition.z));
     }
 
     private void Move()

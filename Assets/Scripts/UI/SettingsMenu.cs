@@ -72,6 +72,8 @@ public class SettingsMenu : MonoBehaviour
 
         UpdatePlayerPrefValue("MasterVolume", truncatedValue);
         UpdateSliderDisplay(truncatedValue, m_masterVolumeDisplay);
+
+        AudioManager.GetInstance().AdjustMasterVolume(truncatedValue);
     }
 
     public void OnMusicVolumeChanged(float sliderValue)
@@ -80,6 +82,8 @@ public class SettingsMenu : MonoBehaviour
 
         UpdatePlayerPrefValue("MusicVolume", truncatedValue);
         UpdateSliderDisplay(truncatedValue, m_musicVolumeDisplay);
+
+        AudioManager.GetInstance().AdjustMusicVolume(truncatedValue);
     }
 
     private void UpdateSliderDisplay(float newValue, TextMeshProUGUI label)
@@ -95,5 +99,11 @@ public class SettingsMenu : MonoBehaviour
     public void SaveSettings()
     {
         PlayerPrefs.Save();
+
+        //if in-game
+        if (GameObject.FindGameObjectWithTag("Player") != null)
+        {
+            Observer.GetInstance().TriggerEvent(EVENT.ON_SENS_CHANGE);
+        }
     }
 }

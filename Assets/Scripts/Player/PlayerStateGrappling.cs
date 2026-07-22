@@ -2,25 +2,21 @@ using UnityEngine;
 
 public class PlayerStateGrappling : BasePlayerState
 {
+    private const float m_magnitudeSoftCap = 20f;
+    private const float m_velocityTaper = 0.95f;
+
     public PlayerStateGrappling(Player script) : base(script)
     {
     }
 
     public override void Move()
     {
-        Debug.Log("grappling");
-        m_playerScript.RigidBody.AddForce(m_playerScript.MoveVector * m_playerScript.GrappleAcceleration, ForceMode.Force);
-    }
+        //if player is going too fast, gradually decrease his velocity
+        if (m_body.linearVelocity.magnitude >= m_magnitudeSoftCap)
+        {
+            m_body.linearVelocity *= m_velocityTaper;
+        }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        m_body.AddForce(m_playerScript.MoveVector * m_playerScript.GrappleAcceleration, ForceMode.Acceleration);
     }
 }

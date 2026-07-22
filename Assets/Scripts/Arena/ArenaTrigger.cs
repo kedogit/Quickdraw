@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ public class ArenaTrigger : MonoBehaviour
     [SerializeField] private List<EnemySpawner> m_spawners;
     [SerializeField] private ArenaWaveData m_waveData;
     [SerializeField] private GameObject m_doors;
+    [SerializeField] bool m_isFinalArena = false;
 
     private int m_currentWave = 0;
     private int m_currentWaveKillCount = 0;
@@ -60,9 +62,21 @@ public class ArenaTrigger : MonoBehaviour
             }
             else
             {
-                Debug.Log("Arena completed");
-                m_doors.SetActive(false);
+                if (!m_isFinalArena)
+                {
+                    m_doors.SetActive(false);
+                }
+                else
+                {
+                    StartCoroutine(EndOfLevelDelay());
+                }
             }
         }
+    }
+
+    private IEnumerator EndOfLevelDelay()
+    {
+        yield return new WaitForSeconds(2f);
+        Observer.GetInstance().TriggerEvent(EVENT.ON_LEVEL_COMPLETE);
     }
 }

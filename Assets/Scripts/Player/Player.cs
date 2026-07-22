@@ -32,9 +32,8 @@ public class Player : MonoBehaviour
 
     [Header("WASD")]
     [SerializeField] private float m_moveSpeed = 5f;
-    [SerializeField] private float m_airAcceleration = 1f;
-    [SerializeField] private float m_airTurnSpeed = 1f;
-    [SerializeField] private float m_grappleAcceleration = 1f;
+    [SerializeField] private float m_airRotationSpeed = 10f;
+    [SerializeField] private float m_grappleAcceleration = 3f;
 
     [Header("Jump")]
     [SerializeField] private float m_jumpForce = 5f;
@@ -74,14 +73,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_arrowDamage = 55f;
 
     //public getters for player states
-    public bool IsGrounded => m_isGrounded;
     public float GrappleAcceleration => m_grappleAcceleration;
-    public float AirAcceleration => m_airAcceleration;
-    public float AirTurnSpeed => m_airTurnSpeed;
+    public float AirRotationSpeed => m_airRotationSpeed;
     public float MoveSpeed => m_moveSpeed;
-    public Rigidbody RigidBody => m_body;
     public Vector3 MoveVector => m_moveVector;
-    public Vector3 InputVector => m_inputVector;
+    public LayerMask GroundLayer => m_groundLayer;
 
 
     //input actions
@@ -106,15 +102,15 @@ public class Player : MonoBehaviour
     private bool m_isInvuln;
 
     //movement
-    private Action m_currentMovementAction;
-    private BasePlayerState m_currentState;
     private Vector3 m_moveVector;
     private Vector3 m_inputVector;
+    private LayerMask m_groundLayer;
+
+    private BasePlayerState m_currentState;
 
     //jump related
     private bool m_playerHasDoubleJump;
     private int m_jumpCount;
-    private bool m_isGrounded;
 
     //dash related
     private float m_dashTimer;
@@ -135,6 +131,7 @@ public class Player : MonoBehaviour
     private Transform m_hookHeadInstance;
     private Action m_grappleAction;
     private Coroutine m_ropeCoroutine;
+    private LayerMask m_grappleMask;
 
     //checkpoint
     private Vector3 m_checkpointPos;
@@ -150,8 +147,7 @@ public class Player : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        m_currentState = new PlayerStateGrounded(this);
-        m_currentMovementAction = Walk;
+        ChangeState(new PlayerStateAirborne(this));
 
         m_look = m_actions.FindAction("Look");
         m_jump = m_actions.FindAction("Jump");
@@ -162,12 +158,14 @@ public class Player : MonoBehaviour
         m_escMenu = m_actions.FindAction("ESCMenu");
 
         m_actions.FindActionMap("Player").Enable();
+        m_escMenu.Enable();
 
         m_playerAudioSource = GetComponent<AudioSource>();
         m_body = GetComponent<Rigidbody>();
         m_hookLineRenderer = GetComponent<LineRenderer>();
         m_collider = GetComponent<CapsuleCollider>();
         m_hookStartPoint = transform.Find("HookStart");
+        m_grappleMask = LayerMask.GetMask("Enemy", "Grappleable");
 
         m_checkpointPos = transform.position;
 
@@ -180,35 +178,46 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
 
         m_gameHUD.UpdateHP(m_currentHP);
+
+        Observer.GetInstance().SubscribeTo(EVENT.ON_SENS_CHANGE, AdjustSens);
+        AdjustSens();
+
+        if (Observer.GetInstance().GameState == GAME_STATE.SAVEDGAME)
+        {
+            SetSpawnLocation();
+        }
+
+        Observer.GetInstance().SetGameState(GAME_STATE.SAVEDGAME);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
+
+        m_groundLayer = LayerMask.GetMask("Ground");
     }
 
     // Update is called once per frame
     void Update()
     {
-        //GroundCheck();
         CalculateVectors();
         Look();
-        //m_currentState.Move();
-        m_currentMovementAction.Invoke();
         JumpHandling();
         Dash();
         Grapple();
+        m_currentState.Move();
         ReadyBow();
         GrappleExitHandling();
         EscMenuHandling();
         ShootArrow();
     }
 
-    private void Walk()
+    private void OnDestroy()
     {
-        Vector3 xzMovement = m_moveVector * m_moveSpeed;
-        xzMovement.y = m_body.linearVelocity.y;
-        m_body.linearVelocity = xzMovement;
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_SENS_CHANGE, AdjustSens);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
     }
 
-    private void AirStrafe()
+    private void AdjustSens()
     {
-        //complicated
+        m_mouseSensHor = PlayerPrefs.GetFloat("HorizontalSens");
+        m_mouseSensVert = PlayerPrefs.GetFloat("VerticalSens");
     }
 
     public void SetCheckpoint(Vector3 pos)
@@ -216,6 +225,146 @@ public class Player : MonoBehaviour
         m_checkpointPos = pos;
         Debug.Log("checkpoint pos updated, " + m_checkpointPos);
     }
+
+    #region MOVEMENT
+
+    public void ChangeState(BasePlayerState newState)
+    {
+        m_currentState = newState;
+    }
+
+    private void CalculateVectors()
+    {
+        //get the transforms to gauge current direction
+        Vector3 forwardDirection = transform.forward;
+        Vector3 sideDirection = transform.right;
+
+        //get the player's inputs
+        m_inputVector = m_move.ReadValue<Vector2>();
+
+        //create a movement vector by multiplying the inputs with their directions
+        m_moveVector = (forwardDirection * m_inputVector.y + sideDirection * m_inputVector.x);
+    }
+
+    private void JumpHandling()
+    {
+        if (m_jump.WasPressedThisFrame())
+        {
+            //if on the ground, regular jump
+            if (m_currentState is PlayerStateGrounded && m_jumpCount < 1)
+            {
+                Vector3 up = Vector3.up * m_jumpForce;
+                Jump(up);
+            }
+
+            //if not on the ground, double jump force (forward force)
+            else if (m_jumpCount < 2 && m_playerHasDoubleJump)
+            {
+                Vector3 upAndForward = Vector3.up * m_doubleJumpUpForce + transform.forward * m_doubleJumpForwardForce;
+                Jump(upAndForward);
+            }
+        }
+    }
+
+    private void Jump(Vector3 force)
+    {
+        //if velocity is negative, set it to 0
+        if (m_body.linearVelocity.y < 0)
+        {
+            ResetVelocity('Y');
+        }
+
+        //play sfx
+        m_playerAudioSource.clip = m_jumpSFX;
+        m_playerAudioSource.Play();
+
+        ChangeState(new PlayerStateJumping(this));
+
+        //add force
+        m_body.AddForce(force, ForceMode.Impulse);
+        m_jumpCount++;
+    }
+
+    public void ResetJumpCount()
+    {
+        m_jumpCount = 0;
+    }
+
+    private void Dash()
+    {
+        if (!m_dashReady)
+        {
+            m_dashTimer += Time.deltaTime;
+        }
+
+        if (m_dashTimer >= m_dashCooldown)
+        {
+            m_dashReady = true;
+        }
+
+        if (m_dash.WasPressedThisFrame() && m_dashReady)
+        {
+            //play sfx
+            m_playerAudioSource.clip = m_dashSFX;
+            m_playerAudioSource.Play();
+
+            Vector2 inputVector = m_move.ReadValue<Vector2>();
+            Vector3 dashDirection;
+
+            //if not pressing any movement keys, dash forward. otherwise, dash in the input direction
+            if (inputVector == Vector2.zero)
+            {
+                dashDirection = transform.forward;
+            }
+            else
+            {
+                dashDirection = m_moveVector;
+            }
+
+            //multiply by dash force
+            dashDirection *= m_dashForce;
+
+            //add up force
+            dashDirection += Vector3.up * m_dashGroundedUpForce;
+
+            //dot product tests, will need this later to affect velocities based on player direction. WIP
+            if (Vector3.Dot(m_body.linearVelocity, dashDirection) < -0.8)
+            {
+
+            }
+            if (Vector3.Dot(m_body.linearVelocity, dashDirection) > 0.8)
+            {
+
+            }
+
+            ChangeState(new PlayerStateDashing(this));
+
+            //add the force and reset dash timer
+            m_body.AddForce(dashDirection, ForceMode.Impulse);
+            m_dashTimer = 0;
+            m_dashReady = false;
+        }
+    }
+
+    //function to reset velocity for the jump and dash functions
+    private void ResetVelocity(char axis)
+    {
+        Vector3 linearVelocity = m_body.linearVelocity;
+        switch (axis)
+        {
+            case 'X':
+                linearVelocity.x = 0;
+                break;
+            case 'Y':
+                linearVelocity.y = 0;
+                break;
+            case 'Z':
+                linearVelocity.z = 0;
+                break;
+        }
+        m_body.linearVelocity = linearVelocity;
+    }
+    #endregion
 
     #region DAMAGE
 
@@ -354,7 +503,7 @@ public class Player : MonoBehaviour
             {
                 //send a raycast to find a hit target (ADD LAYERMASK TO THE RAYCAST CALL LATER)
                 RaycastHit hit;
-                if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, m_hookRange))
+                if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, m_hookRange, m_grappleMask))
                 {
                     m_playerAudioSource.clip = m_hookShootSFX;
                     m_playerAudioSource.Play();
@@ -409,7 +558,7 @@ public class Player : MonoBehaviour
 
         //swing/zip
         m_grappleAction.Invoke();
-        m_currentState = new PlayerStateGrappling(this);
+        ChangeState(new PlayerStateGrappling(this));
 
         //play hook hit sfx
         m_playerAudioSource.clip = m_hookLandSFX;
@@ -433,8 +582,16 @@ public class Player : MonoBehaviour
 
     private void StopGrapple()
     {
+        if (m_currentState is PlayerStateGrappling)
+        {
+            ChangeState(new PlayerStateAirborne(this));
+        }
+
         //stop rope coroutine
-        StopCoroutine(m_ropeCoroutine);
+        if (m_ropeCoroutine != null)
+        {
+            StopCoroutine(m_ropeCoroutine);
+        }
 
         //if currently hooking, clean up every grapple variable
         if (m_grappleInProgress)
@@ -445,26 +602,13 @@ public class Player : MonoBehaviour
             m_collider.material = null;
             m_grappleAction = null;
             m_grappleInProgress = false;
-
-            if (m_isGrounded)
-            {
-                m_currentState = new PlayerStateGrounded(this);
-            }
-            else
-            {
-                m_currentState = new PlayerStateAirborne(this);
-            }
         }
     }
 
     private void Swing()
     {
-        //shoot player forward
-        if (m_isGrounded)
-        {
-            m_body.linearVelocity = Vector3.zero;
-            m_body.AddForce((m_hookAnchor - transform.position) * m_zipSpeed, ForceMode.Impulse);
-        }
+        //m_body.linearVelocity = Vector3.zero;
+        //m_body.AddForce((m_hookAnchor - transform.position) * m_zipSpeed + Vector3.up * m_zipHopHeight, ForceMode.Impulse);
 
         //set friction to null during hook swing
         m_collider.material = m_swingPhysicsMaterial;
@@ -497,11 +641,11 @@ public class Player : MonoBehaviour
     //{
     //    if (Physics.Raycast(transform.position, Vector3.down, 2f))
     //    {
-    //        m_isGrounded = true;
+    //        m_isTouchingGround = true;
     //    }
     //    else
     //    {
-    //        m_isGrounded = false;
+    //        m_isTouchingGround = false;
     //    }
     //}
 
@@ -530,22 +674,11 @@ public class Player : MonoBehaviour
         m_isPaused = !m_isPaused;
     }
 
-    //public void ChangeState(BasePlayerState state)
-    //{
-    //    m_currentState = state;
-    //}
-
-    private void CalculateVectors()
+    private void DisableAllInputs()
     {
-        //get the transforms to gauge current direction
-        Vector3 forwardDirection = transform.forward;
-        Vector3 sideDirection = transform.right;
-
-        //get the player's inputs
-        m_inputVector = m_move.ReadValue<Vector2>();
-
-        //create a movement vector by multiplying the inputs with their directions
-        m_moveVector = (forwardDirection * m_inputVector.y + sideDirection * m_inputVector.x);
+        m_actions.FindActionMap("Player").Disable();
+        Cursor.lockState = CursorLockMode.Confined;
+        m_escMenu.Disable();
     }
 
     private void Look()
@@ -563,149 +696,39 @@ public class Player : MonoBehaviour
         m_playerCam.transform.localRotation = Quaternion.Euler(m_verticalRotation, 0, 0);
     }
 
-    private void JumpHandling()
-    {
-        if (m_jump.WasPressedThisFrame())
-        {
-            //if on the ground, regular jump
-            if (m_isGrounded && m_jumpCount < 1)
-            {
-                Vector3 up = Vector3.up * m_jumpForce;
-                Jump(up);
-                m_isGrounded = false;
-                m_currentState = new PlayerStateAirborne(this);
-            }
-            //if not on the ground, double jump force (forward force)
-            else if (m_jumpCount < 2 && m_playerHasDoubleJump)
-            {
-                Vector3 upAndForward = Vector3.up * m_doubleJumpUpForce + transform.forward * m_doubleJumpForwardForce;
-                Jump(upAndForward);
-            }
-        }
-    }
-
-    //function to reset velocity for the jump and dash functions
-    private void ResetVelocity(char axis)
-    {
-        Vector3 linearVelocity = m_body.linearVelocity;
-        switch (axis)
-        {
-            case 'X':
-                linearVelocity.x = 0;
-                break;
-            case 'Y':
-                linearVelocity.y = 0;
-                break;
-            case 'Z':
-                linearVelocity.z = 0;
-                break;
-        }
-        m_body.linearVelocity = linearVelocity;
-    }
-
-    private void Jump(Vector3 force)
-    {
-        m_currentMovementAction = AirStrafe;
-
-        //if velocity is negative, set it to 0
-        if (m_body.linearVelocity.y < 0)
-        {
-            ResetVelocity('Y');
-        }
-
-        //play sfx
-        m_playerAudioSource.clip = m_jumpSFX;
-        m_playerAudioSource.Play();
-
-        //add force
-        m_body.AddForce(force, ForceMode.Impulse);
-        m_jumpCount++;
-    }
-
-    private void Dash()
-    {
-        if (!m_dashReady)
-        {
-            m_dashTimer += Time.deltaTime;
-        }
-
-        if (m_dashTimer >= m_dashCooldown)
-        {
-            m_dashReady = true;
-        }
-
-        if (m_dash.WasPressedThisFrame() && m_dashReady)
-        {
-            m_currentMovementAction = AirStrafe;
-            //m_currentState = new PlayerStateDashing(this);
-
-            //play sfx
-            m_playerAudioSource.clip = m_dashSFX;
-            m_playerAudioSource.Play();
-
-            Vector2 inputVector = m_move.ReadValue<Vector2>();
-            Vector3 dashDirection;
-
-            //if not pressing any movement keys, dash forward. otherwise, dash in the input direction
-            if (inputVector == Vector2.zero)
-            {
-                dashDirection = transform.forward;
-            }
-            else
-            {
-                dashDirection = m_moveVector;
-            }
-
-            //multiply by dash force
-            dashDirection *= m_dashForce;
-
-            //if player is on ground, add an upwards force
-            if (m_isGrounded)
-            {
-                dashDirection += Vector3.up * m_dashGroundedUpForce;
-            }
-
-            //dot product tests, will need this later to affect velocities based on player direction. WIP
-            if (Vector3.Dot(m_body.linearVelocity, dashDirection) < -0.8)
-            {
-                Debug.Log("opposite direction");
-            }
-            if (Vector3.Dot(m_body.linearVelocity, dashDirection) > 0.8)
-            {
-                Debug.Log("same direction");
-            }
-
-            //add the force and reset dash timer
-            m_body.AddForce(dashDirection, ForceMode.Impulse);
-            m_dashTimer = 0;
-            m_dashReady = false;
-        }
-    }
-
     public void AcquireGrapple()
     {
         m_playerHasGrapple = true;
         m_gameHUD.ShowGrappleText();
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-        {
-            m_isGrounded = true;
-            m_currentMovementAction = Walk;
-            //m_currentState = new PlayerStateGrounded(this);
-            m_jumpCount = 0;
-        }
-    }
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+    //    {
+    //        m_isTouchingGround = true;
+    //        m_currentMovementAction = Walk;
+    //        m_jumpCount = 0;
+    //    }
+    //}
 
-    private void OnCollisionExit(Collision collision)
+    //private void OnCollisionExit(Collision collision)
+    //{
+    //    if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+    //    {
+    //        m_isTouchingGround = false;
+    //        m_currentMovementAction = AirStrafe;
+    //        Debug.Log("left the ground");
+    //    }
+    //}
+
+    private void SetSpawnLocation()
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-        {
-            m_isGrounded = false;
-            m_currentMovementAction = AirStrafe;
-            Debug.Log("left the ground");
-        }
+        float x = PlayerPrefs.GetFloat("PlayerStartX");
+        float y = PlayerPrefs.GetFloat("PlayerStartY");
+        float z = PlayerPrefs.GetFloat("PlayerStartZ");
+
+        Vector3 spawnLocation = new Vector3(x, y, z);
+        transform.position = spawnLocation;
     }
 }

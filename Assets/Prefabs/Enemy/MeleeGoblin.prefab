@@ -2975,7 +2975,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.4692475, y: 2.2667718, z: -2.3059058}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1688714743629723093}
@@ -2992,11 +2992,11 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 7
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 2.5
+  m_StoppingDistance: 10
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -3018,7 +3018,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_maxHP: 100
   m_aggroRange: 30
-  m_attackRange: 2
+  m_attackRange: 4
   m_attackDelay: 3
   m_deathCleanupTime: 15
   m_animator: {fileID: 2161966370844369626}
@@ -3039,7 +3039,7 @@ AudioSource:
   m_GameObject: {fileID: 6932044512179013866}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: f8a593633c5fc594fa72da5226a98ffa, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
