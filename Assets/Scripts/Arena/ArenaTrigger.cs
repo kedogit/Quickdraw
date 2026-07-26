@@ -27,6 +27,9 @@ public class ArenaTrigger : MonoBehaviour
         //fetch the current wave;
         ArenaWaveData.Wave currentWave = m_waveData.waves[waveIndex];
 
+        //send info to custom editor window
+        QuickdrawTools.GetWindow().UpdateArenaWave(true, m_currentWave + 1, m_waveData.waves[m_currentWave].waveEnemies.Count);
+
         //for each wave enemy in the current wave
         foreach (ArenaWaveData.WaveEnemy enemy in currentWave.waveEnemies)
         {
@@ -51,6 +54,8 @@ public class ArenaTrigger : MonoBehaviour
 
     public void RegisterKill()
     {
+        QuickdrawTools.GetWindow().DecreaseArenaEnemyCount();
+
         m_currentWaveKillCount++;
         Debug.Log("wave kill, kill count at " + m_currentWaveKillCount);
         if (m_currentWaveKillCount >= m_waveData.waves[m_currentWave].waveEnemies.Count)
@@ -64,6 +69,7 @@ public class ArenaTrigger : MonoBehaviour
             {
                 if (!m_isFinalArena)
                 {
+                    QuickdrawTools.GetWindow().UpdateArenaWave(false, 0, 0);
                     m_doors.SetActive(false);
                 }
                 else

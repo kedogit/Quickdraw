@@ -143,6 +143,11 @@ public class Player : MonoBehaviour
     private GameObject m_currentArrow;
     private bool m_readyToFire;
 
+    //cheats
+    private bool m_godMode;
+    private bool m_instaKill;
+    private const float m_instaKillDamage = 999f;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -184,11 +189,14 @@ public class Player : MonoBehaviour
 
         if (Observer.GetInstance().GameState == GAME_STATE.SAVEDGAME)
         {
+            m_playerHasGrapple = PlayerPrefs.GetInt("hasGrapple") == 1 ? true : false;
             SetSpawnLocation();
         }
 
         Observer.GetInstance().SetGameState(GAME_STATE.SAVEDGAME);
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
 
         m_groundLayer = LayerMask.GetMask("Ground");
     }
@@ -212,6 +220,18 @@ public class Player : MonoBehaviour
     {
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_SENS_CHANGE, AdjustSens);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
+    }
+
+    private void GodModeToggle()
+    {
+        m_godMode = !m_godMode;
+    }
+
+    private void InstakillToggle()
+    {
+        m_instaKill = !m_instaKill;
     }
 
     private void AdjustSens()
@@ -370,7 +390,7 @@ public class Player : MonoBehaviour
 
     public void Hurt(float damage)
     {
-        if (!m_isInvuln)
+        if (!m_isInvuln && !m_godMode)
         {
             //play sfx
             m_playerAudioSource.clip = m_hurtSFX;
@@ -441,7 +461,15 @@ public class Player : MonoBehaviour
                 //feed info to the projectile script
                 Projectile arrowScript = m_currentArrow.GetComponent<Projectile>();
                 arrowScript.SetActive();
-                m_currentArrow.GetComponent<Projectile>().SetDamage(m_arrowDamage * m_bowChargeNormalized);
+
+                if (!m_instaKill)
+                {
+                    m_currentArrow.GetComponent<Projectile>().SetDamage(m_arrowDamage * m_bowChargeNormalized);
+                }
+                else
+                {
+                    m_currentArrow.GetComponent<Projectile>().SetDamage(m_instaKillDamage);
+                }
 
                 //prepare next shot
                 m_currentArrow = null;
@@ -699,28 +727,9 @@ public class Player : MonoBehaviour
     public void AcquireGrapple()
     {
         m_playerHasGrapple = true;
+        PlayerPrefs.SetInt("hasGrapple", 1);
         m_gameHUD.ShowGrappleText();
     }
-
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-    //    {
-    //        m_isTouchingGround = true;
-    //        m_currentMovementAction = Walk;
-    //        m_jumpCount = 0;
-    //    }
-    //}
-
-    //private void OnCollisionExit(Collision collision)
-    //{
-    //    if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-    //    {
-    //        m_isTouchingGround = false;
-    //        m_currentMovementAction = AirStrafe;
-    //        Debug.Log("left the ground");
-    //    }
-    //}
 
     private void SetSpawnLocation()
     {

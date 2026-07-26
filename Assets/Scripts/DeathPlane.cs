@@ -5,6 +5,6 @@ public class DeathPlane : MonoBehaviour
 {
     private void OnCollisionEnter(Collision collision)
     {
-        SceneManager.LoadScene("PrototypeLevel");
+        collision.gameObject.GetComponent<Player>().Hurt(999f);
     }
 }
