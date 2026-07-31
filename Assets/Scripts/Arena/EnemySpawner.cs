@@ -19,13 +19,13 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator SpawnDelay(GameObject prefab, ArenaTrigger arenaScript)
     {
+        //play smoke particles to indicate spawn
         m_particles.Play();
         yield return new WaitForSeconds(m_spawnDelay);
         m_particles.Stop();
 
-        //create list of 
 
-
+        //instantiate enemy and set values specific to arena enemies
         GameObject enemy = Instantiate(prefab, transform.position, transform.rotation, transform);
         Enemy enemyScript = enemy.GetComponent<Enemy>();
         enemyScript.SetArenaScript(arenaScript);

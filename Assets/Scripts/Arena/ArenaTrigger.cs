@@ -23,7 +23,7 @@ public class ArenaTrigger : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             m_doors.SetActive(true);
-            AudioManager.GetInstance().FadeToBattleBGM();
+            AudioManager.GetInstance()?.FadeToBattleBGM();
             GetComponent<BoxCollider>().enabled = false;
             SpawnWave(m_currentWave);
         }
@@ -78,7 +78,7 @@ public class ArenaTrigger : MonoBehaviour
                 if (!m_isFinalArena)
                 {
                     m_doors.SetActive(false);
-                    AudioManager.GetInstance().FadeToPersistentBGM();
+                    AudioManager.GetInstance()?.FadeToPersistentBGM();
                 }
                 else
                 {

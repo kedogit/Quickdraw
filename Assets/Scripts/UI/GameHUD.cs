@@ -45,10 +45,15 @@ public class GameHUD : MonoBehaviour
 
     private IEnumerator ShowEndScreen()
     {
+        //start the fade out
         m_blackScreenAnimator.clip = m_fadeOutScreen;
         m_blackScreenAnimator.Play();
+
+        //show end screen
         yield return new WaitForSeconds(1f);
         m_endScreen.SetActive(true);
+
+        //fade text in
         Animation textAnimator = m_endScreen.transform.Find("EndText").gameObject.GetComponent<Animation>();
         textAnimator.Play();
     }
@@ -71,8 +76,10 @@ public class GameHUD : MonoBehaviour
 
     private IEnumerator HideTextAfterDelay(float delay, float fadeDuration, GameObject objectToHide)
     {
+        //wait for the specified delay time
         yield return new WaitForSeconds(delay);
 
+        //set vars for the fade
         TextMeshProUGUI text = objectToHide.GetComponent<TextMeshProUGUI>();
         float elapsed = 0f;
 
@@ -83,6 +90,7 @@ public class GameHUD : MonoBehaviour
             yield return null;
         }
 
+        //set object inactive after fade completed
         objectToHide.SetActive(false);
     }
 
@@ -139,7 +147,6 @@ public class GameHUD : MonoBehaviour
 
     public void ShowHitmarker()
     {
-        Debug.Log("show hitmarker");
         m_hitMarker.SetActive(true);
         StartCoroutine(EraseHitmarker());
         m_hitMarkerSource.Play();

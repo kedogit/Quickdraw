@@ -13,6 +13,7 @@ public class EnemyWeapon : MonoBehaviour
         }
     }
 
+    //public func to centralize weapon damage variable to enemy script
     public void SetWeaponDamage(float weaponDamage)
     {
         m_weaponDamage = weaponDamage;

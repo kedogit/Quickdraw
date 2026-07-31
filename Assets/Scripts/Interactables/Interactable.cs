@@ -8,6 +8,7 @@ public abstract class Interactable : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            //sets the player's interaction target to this interactable
             m_player = collision.gameObject.GetComponent<Player>();
             m_player.SetInteractTarget(this);
         }
@@ -23,6 +24,7 @@ public abstract class Interactable : MonoBehaviour
 
     protected void DisableInteractable()
     {
+        //disables collider and removes interact target
         GetComponent<BoxCollider>().enabled = false;
         m_player.SetInteractTarget(null);
     }

@@ -46,8 +46,11 @@ public abstract class Enemy : MonoBehaviour
         m_agent = GetComponent<NavMeshAgent>();
         m_audioSource = GetComponent<AudioSource>();
         m_player = GameObject.FindWithTag("Player");
+
+        //set timer so the enemy can attack immediately
         m_attackTimer = m_attackDelay;
 
+        //create the body part dictionary for hurt function
         bodyDamageMultipliers = new Dictionary<BodyPart, float>();
         bodyDamageMultipliers.Add(BodyPart.BODY, m_bodyMultiplier);
         bodyDamageMultipliers.Add(BodyPart.HEAD, m_headshotMultiplier);
@@ -145,6 +148,7 @@ public abstract class Enemy : MonoBehaviour
 
     private void Die()
     {
+        //if arena enemy, tell arena to increment kill count
         m_arenaScript?.RegisterKill();
 
         //play death sfx

@@ -38,7 +38,5 @@ public class PlayerStateAirborne : BasePlayerState
         //applies the rotation to the rigidbody
         currentVectorPlanar.y = m_body.linearVelocity.y;
         m_body.linearVelocity = currentVectorPlanar;
-
-        Debug.Log("airborne");
     }
 }

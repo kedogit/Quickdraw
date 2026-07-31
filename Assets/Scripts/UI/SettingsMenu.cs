@@ -21,7 +21,8 @@ public class SettingsMenu : MonoBehaviour
     private const float m_volumeMinValue = 0f;
     private const float m_volumeMaxValue = 100f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // TODO!!!!
+    // combine both sensitivity sliders into one, or add a lock button to keep the same value for both
     void Start()
     {
         float sliderValue = PlayerPrefs.GetFloat("HorizontalSens");

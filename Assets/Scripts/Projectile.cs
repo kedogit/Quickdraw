@@ -46,7 +46,6 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //&& other.gameObject.layer != LayerMask.NameToLayer("Invisible")
         if (other.gameObject.layer != LayerMask.NameToLayer("Enemy") && !other.gameObject.CompareTag("Player"))
         {
             Destroy(gameObject);

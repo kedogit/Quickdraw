@@ -189,9 +189,6 @@ public class Player : MonoBehaviour
 
         m_gameHUD.UpdateHP(m_currentHP);
 
-        Observer.GetInstance().SubscribeTo(EVENT.ON_SENS_CHANGE, AdjustSens);
-        AdjustSens();
-
         if (Observer.GetInstance().GameState == GAME_STATE.SAVEDGAME)
         {
             m_playerHasGrapple = PlayerPrefs.GetInt("hasGrapple") == 1 ? true : false;
@@ -199,13 +196,15 @@ public class Player : MonoBehaviour
         }
         else
         {
-            AudioManager.GetInstance().ChangePersistentBGM(SONG.OVERWORLD1);
+            AudioManager.GetInstance()?.ChangePersistentBGM(SONG.OVERWORLD1);
         }
 
         Observer.GetInstance().SetGameState(GAME_STATE.SAVEDGAME);
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_SENS_CHANGE, AdjustSens);
+        AdjustSens();
 
         m_groundLayer = LayerMask.GetMask("Ground");
     }
@@ -325,6 +324,7 @@ public class Player : MonoBehaviour
         m_playerAudioSource.clip = m_jumpSFX;
         m_playerAudioSource.Play();
 
+        //change state
         ChangeState(new PlayerStateJumping(this));
 
         //add force
@@ -374,6 +374,7 @@ public class Player : MonoBehaviour
             //add up force
             dashDirection += Vector3.up * m_dashGroundedUpForce;
 
+            //change state
             ChangeState(new PlayerStateDashing(this));
 
             //add the force and reset dash timer
@@ -658,9 +659,6 @@ public class Player : MonoBehaviour
 
     private void Swing()
     {
-        //m_body.linearVelocity = Vector3.zero;
-        //m_body.AddForce((m_hookAnchor - transform.position) * m_zipSpeed + Vector3.up * m_zipHopHeight, ForceMode.Impulse);
-
         //set friction to null during hook swing
         m_collider.material = m_swingPhysicsMaterial;
 
@@ -737,6 +735,7 @@ public class Player : MonoBehaviour
 
     public void AcquireGrapple()
     {
+        //allows grapple usage and saves it to playerprefs
         m_playerHasGrapple = true;
         PlayerPrefs.SetInt("hasGrapple", 1);
         m_gameHUD.ShowGrappleText();
@@ -744,6 +743,7 @@ public class Player : MonoBehaviour
 
     private void SetSpawnLocation()
     {
+        //fetches the saved location and sets the player's position
         float x = PlayerPrefs.GetFloat("PlayerStartX");
         float y = PlayerPrefs.GetFloat("PlayerStartY");
         float z = PlayerPrefs.GetFloat("PlayerStartZ");

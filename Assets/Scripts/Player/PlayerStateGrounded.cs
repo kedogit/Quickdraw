@@ -18,6 +18,7 @@ public class PlayerStateGrounded : BasePlayerState
     {
         if (!Physics.Raycast(m_playerScript.transform.position, Vector3.down, m_rayDistance, m_playerScript.GroundLayer))
         {
+            //if left the ground and currently not transitioning, start transition
             if (m_isTransitioning == false)
             {
                 m_elapsed = 0;
@@ -26,9 +27,11 @@ public class PlayerStateGrounded : BasePlayerState
         }
         else
         {
+            //if on the ground, set transition to false
             m_isTransitioning = false;
         }
 
+        //if transitioning, elapse timer and change to airborne after fully elapsed
         if (m_isTransitioning)
         {
             m_elapsed += Time.deltaTime;
@@ -38,15 +41,10 @@ public class PlayerStateGrounded : BasePlayerState
                 m_playerScript.ChangeState(new PlayerStateAirborne(m_playerScript));
             }
         }
-        else
-        {
-            //m_playerScript.ResetJumpCount();
-        }
 
+        //apply planar movement by modifying linear velocity
         Vector3 planarMovement = m_playerScript.MoveVector * m_moveSpeed;
         planarMovement.y = m_body.linearVelocity.y;
         m_body.linearVelocity = planarMovement;
-
-        Debug.Log("grounded");
     }
 }

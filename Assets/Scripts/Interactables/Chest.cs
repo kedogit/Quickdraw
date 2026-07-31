@@ -12,6 +12,7 @@ public class Chest : Interactable
     {
         if (m_player != null)
         {
+            //give the player the grapple, play the animation and disable the interactable (parent func)
             m_player.AcquireGrapple();
             m_animator.Play();
             DisableInteractable();

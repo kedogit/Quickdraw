@@ -35,7 +35,5 @@ public class PlayerStateJumping : BasePlayerState
             //TODO: check if player is grounded (hitting ceilings) and handle
             m_playerScript.ChangeState(new PlayerStateAirborne(m_playerScript));
         }
-
-        Debug.Log("jumping");
     }
 }
