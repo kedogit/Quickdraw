@@ -9,7 +9,7 @@ public class EnemyLimb : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Player Projectile"))
         {
-            m_enemyScript.LodgeArrow(GetComponent<BoxCollider>().bounds.center, other.gameObject);
+            other.GetComponent<Projectile>().LodgeArrow(GetComponent<CapsuleCollider>().bounds.center, this.transform);
             m_enemyScript.Hurt(other.gameObject.GetComponent<Projectile>().GetDamage(), m_bodyPart);
         }
     }

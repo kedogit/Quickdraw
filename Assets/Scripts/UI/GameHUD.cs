@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,6 +8,7 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private GameObject m_blackScreen;
     [SerializeField] private Animator m_hpBarAnimator;
     [SerializeField] private GameObject m_grappleText;
+    [SerializeField] private GameObject m_interactPrompt;
     [SerializeField] private GameObject m_escMenu;
     [SerializeField] private GameObject m_settingsMenu;
     [SerializeField] private GameObject m_topLevelMenu;
@@ -18,6 +20,8 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private GameObject m_endScreen;
 
     private Animation m_blackScreenAnimator;
+    private const float m_grappleTextHideDelay = 2f;
+    private const float m_grappleTextFadeDuration = 0.5f;
 
     void Start()
     {
@@ -54,9 +58,32 @@ public class GameHUD : MonoBehaviour
         m_hpBarAnimator.SetFloat("HP", currHP);
     }
 
+    public void ToggleInteractPrompt()
+    {
+        m_interactPrompt.SetActive(!m_interactPrompt.activeSelf);
+    }
+
     public void ShowGrappleText()
     {
         m_grappleText.SetActive(true);
+        StartCoroutine(HideTextAfterDelay(m_grappleTextHideDelay, m_grappleTextFadeDuration, m_grappleText));
+    }
+
+    private IEnumerator HideTextAfterDelay(float delay, float fadeDuration, GameObject objectToHide)
+    {
+        yield return new WaitForSeconds(delay);
+
+        TextMeshProUGUI text = objectToHide.GetComponent<TextMeshProUGUI>();
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            text.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+            yield return null;
+        }
+
+        objectToHide.SetActive(false);
     }
 
     public void ToggleEscMenu()

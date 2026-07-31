@@ -45,3 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_mixer: {fileID: 24100000, guid: f8a593633c5fc594fa72da5226a98ffa, type: 2}
+  m_musicMixerGroup: {fileID: 2670047026270434085, guid: f8a593633c5fc594fa72da5226a98ffa, type: 2}
+  m_overworldSong1: {fileID: 8300000, guid: 7291548fe0217f44d9afb54f1aea767e, type: 3}
+  m_battleSong1: {fileID: 8300000, guid: 9b556f348ae694f55b4dc3ed51971a64, type: 3}
+  m_menuSong1: {fileID: 8300000, guid: a1863e9dca5c4b343ac6a94b631cde53, type: 3}
+  m_songCrossfadeDuration: 3

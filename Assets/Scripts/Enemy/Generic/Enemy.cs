@@ -13,7 +13,6 @@ public abstract class Enemy : MonoBehaviour
 {
     [SerializeField] private float m_maxHP = 100f;
     [SerializeField] private float m_aggroRange = 10f;
-    [SerializeField] private float m_attackRange = 2.5f;
     [SerializeField] private float m_attackDelay = 1f;
     [SerializeField] private float m_deathCleanupTime = 15f;
     [SerializeField] protected Animator m_animator;
@@ -22,7 +21,7 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] private float m_bodyMultiplier = 1f;
     [SerializeField] private float m_headshotMultiplier = 2f;
 
-    private NavMeshAgent m_agent;
+    protected NavMeshAgent m_agent;
     protected AudioSource m_audioSource;
 
     private GameObject m_player;
@@ -47,7 +46,6 @@ public abstract class Enemy : MonoBehaviour
         m_agent = GetComponent<NavMeshAgent>();
         m_audioSource = GetComponent<AudioSource>();
         m_player = GameObject.FindWithTag("Player");
-        m_agent.stoppingDistance = m_attackRange;
         m_attackTimer = m_attackDelay;
 
         bodyDamageMultipliers = new Dictionary<BodyPart, float>();
@@ -62,11 +60,7 @@ public abstract class Enemy : MonoBehaviour
 
         if (!m_isDead)
         {
-            if (m_canMove)
-            {
-                Move();
-            }
-            if (m_distanceFromPlayer <= m_attackRange)
+            if (m_distanceFromPlayer <= m_agent.stoppingDistance)
             {
                 LookAtPlayer();
                 if (m_attackTimer >= m_attackDelay)
@@ -74,6 +68,11 @@ public abstract class Enemy : MonoBehaviour
                     Attack();
                     m_attackTimer = 0;
                 }
+            }
+
+            if (m_canMove)
+            {
+                Move();
             }
         }
     }
@@ -108,12 +107,15 @@ public abstract class Enemy : MonoBehaviour
         //if in aggro range, move towards player
         if (m_distanceFromPlayer <= m_aggroRange)
         {
+            m_agent.isStopped = false;
             m_agent.SetDestination(m_playerPosition);
             m_animator.SetBool("isRunning", true);
         }
-        //if at its destination, stop the animation
-        if (m_agent.remainingDistance - m_agent.stoppingDistance <= 0)
+        else
         {
+            //otherwise, clear path and go back to idle
+            m_agent.ResetPath();
+            m_agent.isStopped = true;
             m_animator.SetBool("isRunning", false);
         }
     }
@@ -141,23 +143,6 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
-    public void LodgeArrow(Vector3 stickPosition, GameObject arrow)
-    {
-        //destroy arrow's components
-        Destroy(arrow.GetComponent<Rigidbody>());
-        Destroy(arrow.GetComponent<BoxCollider>());
-
-        //stick it to the root skeleton
-        Transform parentTransform = transform.Find("rootSkeleton");
-        arrow.transform.SetParent(parentTransform);
-
-        //downscale the arrow
-        arrow.transform.localScale *= 0.5f;
-
-        //set its positions to the point of impact (depends on which collider was hit)
-        arrow.transform.position = stickPosition;
-    }
-
     private void Die()
     {
         m_arenaScript?.RegisterKill();
@@ -173,8 +158,8 @@ public abstract class Enemy : MonoBehaviour
         m_agent.enabled = false;
 
         //turn off each limb collider
-        BoxCollider[] boxColliders = GetComponentsInChildren<BoxCollider>();
-        foreach (BoxCollider collider in boxColliders)
+        CapsuleCollider[] colliders = GetComponentsInChildren<CapsuleCollider>();
+        foreach (CapsuleCollider collider in colliders)
         {
             collider.enabled = false;
         }

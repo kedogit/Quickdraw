@@ -1,4 +1,3 @@
-using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ public class QuickdrawTools : EditorWindow
     private static QuickdrawTools m_window = null;
 
     private int m_selectedTab = 0;
-    private string[] m_toolTabs = { "Cheats", "Arena Viewer", "Visuals" };
+    private string[] m_toolTabs = { "Cheats", "Arena Viewer" };
 
     private bool m_godMode = false;
     private bool m_instakill = false;
@@ -15,8 +14,6 @@ public class QuickdrawTools : EditorWindow
     private bool m_isArenaActive = false;
     private int m_waveCount = 0;
     private int m_enemyCount = 0;
-
-    private bool m_showHitboxes = false;
     
 
     [MenuItem("Window/Quickdraw/Tools")]
@@ -45,9 +42,6 @@ public class QuickdrawTools : EditorWindow
             case 1:
                 ShowArenaViewer();
                 break;
-            case 2:
-                ShowVisualTools();
-                break;
         }
     }
 
@@ -58,6 +52,37 @@ public class QuickdrawTools : EditorWindow
         m_instakill = false;
         m_isArenaActive = false;
         m_window = this;
+
+        //subscribe to the static events from the arena trigger script
+        ArenaTrigger.m_onArenaEnable += SetArenaActive;
+        ArenaTrigger.m_onWaveChange += SetWaveCount;
+        ArenaTrigger.m_onKillCountChange += DecreaseArenaEnemyCount;
+    }
+
+    private void OnDisable()
+    {
+        ArenaTrigger.m_onArenaEnable -= SetArenaActive;
+        ArenaTrigger.m_onWaveChange -= SetWaveCount;
+        ArenaTrigger.m_onKillCountChange -= DecreaseArenaEnemyCount;
+    }
+
+    private void SetArenaActive(bool activeState)
+    {
+        m_isArenaActive = activeState;
+        Repaint();
+    }
+
+    private void SetWaveCount(int currentWave, int enemyCount)
+    {
+        m_waveCount = currentWave;
+        m_enemyCount = enemyCount;
+        Repaint();
+    }
+
+    public void DecreaseArenaEnemyCount()
+    {
+        m_enemyCount--;
+        Repaint();
     }
 
     private void ShowCheats()
@@ -109,7 +134,7 @@ public class QuickdrawTools : EditorWindow
 
     private void ShowArenaViewer()
     {
-        if (m_isArenaActive)
+        if (m_isArenaActive && Application.isPlaying)
         {
             GUILayout.Label("Arena is ACTIVE.");
             GUILayout.Label("Wave " + m_waveCount);
@@ -119,51 +144,5 @@ public class QuickdrawTools : EditorWindow
         {
             GUILayout.Label("No arenas currently active.");
         }
-    }
-
-    public void UpdateArenaWave(bool isActive, int currentWave, int totalEnemies)
-    {
-        m_isArenaActive = isActive;
-        m_waveCount = currentWave;
-        m_enemyCount = totalEnemies;
-        Repaint();
-    }
-
-    public void DecreaseArenaEnemyCount()
-    {
-        m_enemyCount--;
-        Repaint();
-    }
-
-    private void ShowVisualTools()
-    {
-        bool showHitboxesToggle = GUILayout.Toggle(m_showHitboxes, "Show Hitboxes");
-        if (showHitboxesToggle != m_showHitboxes)
-        {
-            m_showHitboxes = showHitboxesToggle;
-            ToggleGizmos(m_showHitboxes);
-        }
-        if (showHitboxesToggle && Application.isPlaying)
-        {
-
-        }
-    }
-
-    private void ToggleGizmos(bool activeState)
-    {
-        Debug.Log("toggled gizmos");
-        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Weapon");
-
-        foreach (GameObject gameObject in allEnemies)
-        {
-            BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
-            DrawGizmo();
-            Gizmos.DrawWireCube(boxCollider.center, boxCollider.size);
-        }
-    }
-
-    private void DrawGizmo()
-    {
-
     }
 }

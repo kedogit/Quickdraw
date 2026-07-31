@@ -323,7 +323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_playerCam: {fileID: 5231072786829684773}
   m_actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  m_hookHead: {fileID: 4002466240488211226, guid: 87a6dea471277f94a983d643b218b83b, type: 3}
+  m_hookHead: {fileID: 7646736502276273147, guid: f4a59806f8e664741ac9ba37c675639a, type: 3}
   m_arrowPrefab: {fileID: 7808187863613962836, guid: 1b5d97d4dd79b294b89238d4fee39ba7, type: 3}
   m_bowAnimator: {fileID: 4152266277840164538}
   m_swingPhysicsMaterial: {fileID: 13400000, guid: 86a53551c51e9054c9a8ff87c015a0a3, type: 2}
@@ -338,13 +338,10 @@ MonoBehaviour:
   m_bowAudioSource: {fileID: 2884375386706273031}
   m_maxHP: 100
   m_invulnTime: 1
-  m_moveSpeed: 12
-  m_coyoteTime: 0.3
-  m_airAcceleration: 3
+  m_moveSpeed: 10
   m_airRotationSpeed: 10
-  m_airTurnSpeed: 1
   m_grappleAcceleration: 5
-  m_jumpForce: 10
+  m_jumpForce: 7
   m_doubleJumpUpForce: 10
   m_doubleJumpForwardForce: 1
   m_dashGroundedUpForce: 5

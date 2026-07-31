@@ -80,6 +80,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -4.516753
       objectReference: {fileID: 0}
+    - target: {fileID: 620119462065098440, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 775337586364191869, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_enemyScript
       value: 
@@ -356,6 +360,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -16.887634
       objectReference: {fileID: 0}
+    - target: {fileID: 5995765702732867516, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: m_StoppingDistance
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 6072853829436451816, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -20.750977
@@ -435,6 +443,18 @@ PrefabInstance:
     - target: {fileID: 6932044512179013866, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_Name
       value: RangedGoblin
+      objectReference: {fileID: 0}
+    - target: {fileID: 7011903078007300247, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: MaxDistance
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7011903078007300247, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: MinDistance
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7011903078007300247, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7231983716514584542, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -635,7 +655,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_maxHP: 70
   m_aggroRange: 30
-  m_attackRange: 10
   m_attackDelay: 4
   m_deathCleanupTime: 15
   m_animator: {fileID: 4549957302754300583}
@@ -645,7 +664,7 @@ MonoBehaviour:
   m_headshotMultiplier: 2
   m_arrowDamage: 20
   m_arrow: {fileID: 7808187863613962836, guid: 7ceb31becb7b7d84c85e4f73362bce97, type: 3}
-  m_arrowForce: 20
+  m_arrowForce: 30
   m_arrowCleanupTime: 5
   m_shootSFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
   m_drawSFX: {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}

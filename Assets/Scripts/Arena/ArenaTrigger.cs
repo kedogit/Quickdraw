@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,11 @@ public class ArenaTrigger : MonoBehaviour
     [SerializeField] private GameObject m_doors;
     [SerializeField] bool m_isFinalArena = false;
 
+    //static events for the quickdraw tool
+    public static event Action<bool> m_onArenaEnable;
+    public static event Action<int, int> m_onWaveChange;
+    public static event Action m_onKillCountChange;
+
     private int m_currentWave = 0;
     private int m_currentWaveKillCount = 0;
 
@@ -17,6 +23,7 @@ public class ArenaTrigger : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             m_doors.SetActive(true);
+            AudioManager.GetInstance().FadeToBattleBGM();
             GetComponent<BoxCollider>().enabled = false;
             SpawnWave(m_currentWave);
         }
@@ -27,8 +34,9 @@ public class ArenaTrigger : MonoBehaviour
         //fetch the current wave;
         ArenaWaveData.Wave currentWave = m_waveData.waves[waveIndex];
 
-        //send info to custom editor window
-        QuickdrawTools.GetWindow().UpdateArenaWave(true, m_currentWave + 1, m_waveData.waves[m_currentWave].waveEnemies.Count);
+        //actions for the quickdraw editor window
+        m_onArenaEnable?.Invoke(true);
+        m_onWaveChange?.Invoke(m_currentWave + 1, m_waveData.waves[m_currentWave].waveEnemies.Count);
 
         //for each wave enemy in the current wave
         foreach (ArenaWaveData.WaveEnemy enemy in currentWave.waveEnemies)
@@ -54,10 +62,10 @@ public class ArenaTrigger : MonoBehaviour
 
     public void RegisterKill()
     {
-        QuickdrawTools.GetWindow().DecreaseArenaEnemyCount();
+        //action for the quickdraw editor window
+        m_onKillCountChange?.Invoke();
 
         m_currentWaveKillCount++;
-        Debug.Log("wave kill, kill count at " + m_currentWaveKillCount);
         if (m_currentWaveKillCount >= m_waveData.waves[m_currentWave].waveEnemies.Count)
         {
             if (m_currentWave < m_waveData.waves.Count - 1)
@@ -69,13 +77,16 @@ public class ArenaTrigger : MonoBehaviour
             {
                 if (!m_isFinalArena)
                 {
-                    QuickdrawTools.GetWindow().UpdateArenaWave(false, 0, 0);
                     m_doors.SetActive(false);
+                    AudioManager.GetInstance().FadeToPersistentBGM();
                 }
                 else
                 {
                     StartCoroutine(EndOfLevelDelay());
                 }
+
+                //action for the quickdraw editor window
+                m_onArenaEnable?.Invoke(false);
             }
         }
     }

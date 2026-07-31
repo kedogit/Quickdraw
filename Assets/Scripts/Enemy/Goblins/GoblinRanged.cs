@@ -19,6 +19,8 @@ public class GoblinRanged : Enemy
     {
         //stop movement and start attack animation
         m_canMove = false;
+        m_agent.velocity = Vector3.zero;
+
         m_animator.SetTrigger("Attack");
         
         //find the righthand's transform and instantiate the arrow there. rescale arrow
@@ -46,12 +48,17 @@ public class GoblinRanged : Enemy
         m_currentArrow.transform.parent = null;
         arrowBody.AddForce(directionVector * m_arrowForce, ForceMode.Impulse);
 
+        //enable trail
+        m_currentArrow.GetComponent<TrailRenderer>().enabled = true;
+
         //active the collider on the arrow
         BoxCollider arrowCollider = m_currentArrow.GetComponent<BoxCollider>();
         arrowCollider.enabled = true;
 
         //start destroy timer
         StartCoroutine(DestroyArrow(m_currentArrow));
+
+        m_canMove = true;
     }
 
     public void DrawString()

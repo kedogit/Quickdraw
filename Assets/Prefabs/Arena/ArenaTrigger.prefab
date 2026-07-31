@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5591097589302009217}
   - component: {fileID: 652196252498951238}
   - component: {fileID: 8147822245437258190}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ArenaTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69,3 +69,5 @@ MonoBehaviour:
   m_spawners:
   - {fileID: 0}
   m_waveData: {fileID: 0}
+  m_doors: {fileID: 0}
+  m_isFinalArena: 0

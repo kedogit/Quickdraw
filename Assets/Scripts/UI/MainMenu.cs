@@ -6,6 +6,11 @@ public class MainMenu : MonoBehaviour
     [SerializeField] GameObject m_settingsMenu;
     [SerializeField] GameObject m_mainMenu;
 
+    private void Start()
+    {
+        AudioManager.GetInstance().ChangePersistentBGM(SONG.MENU1);
+    }
+
     public void PlayGame()
     {
         Observer.GetInstance().SetGameState(GAME_STATE.NEWGAME);

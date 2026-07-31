@@ -87,6 +87,7 @@ public class Player : MonoBehaviour
     private InputAction m_dash;
     private InputAction m_hook;
     private InputAction m_shoot;
+    private InputAction m_interact;
     private InputAction m_escMenu;
 
     //components
@@ -148,6 +149,9 @@ public class Player : MonoBehaviour
     private bool m_instaKill;
     private const float m_instaKillDamage = 999f;
 
+    //interactions
+    private Interactable m_interactTarget;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -160,6 +164,7 @@ public class Player : MonoBehaviour
         m_move = m_actions.FindAction("Move");
         m_hook = m_actions.FindAction("Hook");
         m_shoot = m_actions.FindAction("Shoot");
+        m_interact = m_actions.FindAction("Interact");
         m_escMenu = m_actions.FindAction("ESCMenu");
 
         m_actions.FindActionMap("Player").Enable();
@@ -192,6 +197,10 @@ public class Player : MonoBehaviour
             m_playerHasGrapple = PlayerPrefs.GetInt("hasGrapple") == 1 ? true : false;
             SetSpawnLocation();
         }
+        else
+        {
+            AudioManager.GetInstance().ChangePersistentBGM(SONG.OVERWORLD1);
+        }
 
         Observer.GetInstance().SetGameState(GAME_STATE.SAVEDGAME);
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
@@ -209,6 +218,7 @@ public class Player : MonoBehaviour
         JumpHandling();
         Dash();
         Grapple();
+        Interact();
         m_currentState.Move();
         ReadyBow();
         GrappleExitHandling();
@@ -222,6 +232,23 @@ public class Player : MonoBehaviour
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
+    }
+
+    public void SetInteractTarget(Interactable target)
+    {
+        m_gameHUD.ToggleInteractPrompt();
+        m_interactTarget = target;
+    }
+
+    private void Interact()
+    {
+        if (m_interact.WasPressedThisFrame())
+        {
+            if (m_interactTarget != null)
+            {
+                m_interactTarget.InteractAction();
+            }
+        }
     }
 
     private void GodModeToggle()
@@ -347,16 +374,6 @@ public class Player : MonoBehaviour
             //add up force
             dashDirection += Vector3.up * m_dashGroundedUpForce;
 
-            //dot product tests, will need this later to affect velocities based on player direction. WIP
-            if (Vector3.Dot(m_body.linearVelocity, dashDirection) < -0.8)
-            {
-
-            }
-            if (Vector3.Dot(m_body.linearVelocity, dashDirection) > 0.8)
-            {
-
-            }
-
             ChangeState(new PlayerStateDashing(this));
 
             //add the force and reset dash timer
@@ -420,7 +437,10 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
-        //placeholder, reload scene for now
+        //trigger death event
+        Observer.GetInstance().TriggerEvent(EVENT.ON_PLAYER_DEATH);
+
+        //placeholder, reloads scene for now
         SceneManager.LoadScene("PrototypeLevel");
     }
 
@@ -453,6 +473,9 @@ public class Player : MonoBehaviour
                 m_currentArrow.transform.parent = null;
                 m_currentArrow.transform.position = m_playerCam.transform.position;
                 arrowBody.AddForce(m_playerCam.transform.forward * m_arrowForce * m_bowChargeNormalized, ForceMode.Impulse);
+
+                //enable trail renderer
+                m_currentArrow.GetComponent<TrailRenderer>().enabled = true;
 
                 //activate arrow hitbox
                 BoxCollider arrowCollider = m_currentArrow.GetComponent<BoxCollider>();
@@ -664,18 +687,6 @@ public class Player : MonoBehaviour
         StopGrapple();
     }
     #endregion
-
-    //private void GroundCheck()
-    //{
-    //    if (Physics.Raycast(transform.position, Vector3.down, 2f))
-    //    {
-    //        m_isTouchingGround = true;
-    //    }
-    //    else
-    //    {
-    //        m_isTouchingGround = false;
-    //    }
-    //}
 
     private void EscMenuHandling()
     {

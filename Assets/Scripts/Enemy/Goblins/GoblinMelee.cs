@@ -35,5 +35,6 @@ public class GoblinMelee : Enemy
         yield return new WaitForSeconds(m_attackDuration);
         m_clubHitbox.enabled = false;
         m_canMove = true;
+        m_animator.SetBool("isRunning", false);
     }
 }

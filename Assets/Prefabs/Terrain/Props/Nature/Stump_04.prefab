@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 647530673114113624}
   - component: {fileID: 8431952972934188527}
   - component: {fileID: 539557730026683955}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Stump_04_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,8 +106,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.6, y: 0.764911, z: 0.6}
-  m_Center: {x: 0, y: 0.34619352, z: 0}
+  m_Size: {x: 0.6, y: 0.48791584, z: 0.6}
+  m_Center: {x: -2.1022373e-10, y: 0.20769483, z: 0.0000000018281091}
 --- !u!1 &6361723844059883730
 GameObject:
   m_ObjectHideFlags: 0
@@ -118,7 +118,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6361723844060116210}
   - component: {fileID: 5365421844367000555}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Stump_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +139,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1086417857410632438}
-  - {fileID: 5998759702005820019}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!205 &5365421844367000555
@@ -160,75 +159,4 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 8431952972934188527}
-  - screenRelativeHeight: 0.026141416
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 8191840999155301911}
   m_Enabled: 1
---- !u!1001 &5245946849808014855
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 6361723844060116210}
-    m_Modifications:
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8608139182829928984, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-      propertyPath: m_Name
-      value: Stump_04_LOD1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
---- !u!4 &5998759702005820019 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2013875354780759156, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-  m_PrefabInstance: {fileID: 5245946849808014855}
-  m_PrefabAsset: {fileID: 0}
---- !u!23 &8191840999155301911 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 4134897236800905232, guid: d90e9754a11b438429a648e95df5bc7d, type: 3}
-  m_PrefabInstance: {fileID: 5245946849808014855}
-  m_PrefabAsset: {fileID: 0}
