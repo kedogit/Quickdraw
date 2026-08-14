@@ -37,7 +37,7 @@ public class GoblinRanged : Enemy
         m_audioSource.Play();
 
         //set target, find direction vector
-        Vector3 target = m_playerPosition;
+        Vector3 target = m_target.position;
         Vector3 directionVector = target - m_currentArrow.transform.position;
         directionVector.Normalize();
 

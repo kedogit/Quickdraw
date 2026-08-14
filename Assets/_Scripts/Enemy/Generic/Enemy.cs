@@ -23,12 +23,11 @@ public abstract class Enemy : MonoBehaviour
 
     protected NavMeshAgent m_agent;
     protected AudioSource m_audioSource;
+    protected Transform m_target;
 
-    private GameObject m_player;
     private float m_attackTimer;
     private float m_currentHP;
     private float m_distanceFromPlayer;
-    protected Vector3 m_playerPosition;
     private bool m_isDead = false;
     protected bool m_canMove = true;
 
@@ -45,7 +44,6 @@ public abstract class Enemy : MonoBehaviour
         m_currentHP = m_maxHP;
         m_agent = GetComponent<NavMeshAgent>();
         m_audioSource = GetComponent<AudioSource>();
-        m_player = GameObject.FindWithTag("Player");
 
         //set timer so the enemy can attack immediately
         m_attackTimer = m_attackDelay;
@@ -61,7 +59,7 @@ public abstract class Enemy : MonoBehaviour
     {
         UpdatePositions();
 
-        if (!m_isDead)
+        if (!m_isDead && m_target != null)
         {
             if (m_distanceFromPlayer <= m_agent.stoppingDistance)
             {
@@ -92,8 +90,11 @@ public abstract class Enemy : MonoBehaviour
 
     private void UpdatePositions()
     {
-        m_playerPosition = m_player.transform.position;
-        m_distanceFromPlayer = Vector3.Distance(transform.position, m_playerPosition);
+        if (m_target != null)
+        {
+            m_distanceFromPlayer = Vector3.Distance(transform.position, m_target.position);
+        }
+
         if (m_attackTimer < m_attackDelay)
         {
             m_attackTimer += Time.deltaTime;
@@ -102,7 +103,7 @@ public abstract class Enemy : MonoBehaviour
 
     private void LookAtPlayer()
     {
-        transform.LookAt(new Vector3(m_playerPosition.x, transform.position.y, m_playerPosition.z));
+        transform.LookAt(new Vector3(m_target.position.x, transform.position.y, m_target.position.z));
     }
 
     private void Move()
@@ -111,7 +112,7 @@ public abstract class Enemy : MonoBehaviour
         if (m_distanceFromPlayer <= m_aggroRange)
         {
             m_agent.isStopped = false;
-            m_agent.SetDestination(m_playerPosition);
+            m_agent.SetDestination(m_target.position);
             m_animator.SetBool("isRunning", true);
         }
         else
@@ -142,7 +143,7 @@ public abstract class Enemy : MonoBehaviour
             if (m_currentHP <= 0)
             {
                 Die();
-            } 
+            }
         }
     }
 
@@ -166,6 +167,14 @@ public abstract class Enemy : MonoBehaviour
         foreach (CapsuleCollider collider in colliders)
         {
             collider.enabled = false;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            m_target = other.transform;
         }
     }
 

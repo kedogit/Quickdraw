@@ -472,6 +472,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RangedGoblin (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4690493769109862551, guid: 1a49d73a633d459488eb5bc654df7449, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6118402164775816357, guid: 1a49d73a633d459488eb5bc654df7449, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.0906696
@@ -876,13 +880,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4273321461675166959, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: m_Size.y
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4273321461675166959, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: m_Center.y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 6932044512179013866, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_Name
       value: MeleeGoblin
-      objectReference: {fileID: 0}
-    - target: {fileID: 6932044512179013866, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8488305224227241176, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_LocalPosition.x

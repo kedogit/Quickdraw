@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -7,11 +8,16 @@ public class GoblinMelee : Enemy
     [SerializeField] private BoxCollider m_clubHitbox;
     [SerializeField] private float m_attackDuration = 1f;
     [SerializeField] private AudioClip m_swingSFX;
+    [SerializeField] private EnemyAttack m_attackState;
+
+    private Type m_attackStateType;
 
     private void Awake()
     {
         EnemyWeapon clubScript = GetComponentInChildren<EnemyWeapon>();
         clubScript.SetWeaponDamage(m_swingDamage);
+        m_attackStateType = m_attackState.GetType();
+        EnemyAttack testAttack = (EnemyAttack)Activator.CreateInstance(m_attackStateType);
     }
 
     protected override void Attack()

@@ -2962,6 +2962,7 @@ GameObject:
   - component: {fileID: 5995765702732867516}
   - component: {fileID: 3099541446892255437}
   - component: {fileID: 7011903078007300247}
+  - component: {fileID: 4273321461675166959}
   m_Layer: 8
   m_Name: MeleeGoblin
   m_TagString: Enemy
@@ -3130,6 +3131,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!65 &4273321461675166959
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6932044512179013866}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 6, y: 5, z: 20}
+  m_Center: {x: 0, y: 0, z: 10}
 --- !u!1 &6972583794996688189
 GameObject:
   m_ObjectHideFlags: 0
