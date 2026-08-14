@@ -14,7 +14,8 @@ public class EnemyDead : EnemyState
         navAgent.ResetPath();
         navAgent.velocity = Vector3.zero;
 
-        m_animator.SetTrigger("Death");
+        animator.SetTrigger("Death");
+        animator.speed = 1;
     }
 
     public override void Execute()

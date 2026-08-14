@@ -9,6 +9,7 @@ public class EnemyChase : EnemyState
     {
         m_navAgent = enemyScript.GetComponent<NavMeshAgent>();
         animator.SetBool("isRunning", true);
+        animator.speed = 1;
     }
 
     public override void Execute()

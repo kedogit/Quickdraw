@@ -12,6 +12,7 @@ public class EnemyHurt : EnemyState
         navAgent.velocity = Vector3.zero;
 
         animator.SetTrigger("Hurt");
+        animator.speed = 1;
     }
 
     public override void Execute()

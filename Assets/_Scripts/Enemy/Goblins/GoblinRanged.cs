@@ -9,6 +9,7 @@ public class GoblinRanged : Enemy
     [SerializeField] private float m_arrowCleanupTime = 5f;
     [SerializeField] private AudioClip m_shootSFX;
     [SerializeField] private AudioClip m_drawSFX;
+    [SerializeField] private AnimationClip m_shootAnimation;
 
     const float m_arrowRescale = 5f;
 
@@ -22,11 +23,15 @@ public class GoblinRanged : Enemy
 
     public override void Attack()
     {
-        //stop movement and start attack animation
-        m_agent.velocity = Vector3.zero;
+        m_animator.SetBool("isRunning", false);
+        ShootBow();
+    }
 
-        m_animator.SetTrigger("Attack");
-        
+    private void ShootBow()
+    {
+        m_animator.speed = m_shootAnimation.length / m_attackSpeed;
+        m_animator.SetBool("isShooting", true);
+
         //find the righthand's transform and instantiate the arrow there. rescale arrow
         Transform rightHand = transform.Find("rootSkeleton/pelvis_joint/waist_joint/chest_joint/R_clavicle_joint/R_shoulder_joint/R_elbow_joint/R_wrist_joint/R_equip_joint");
         m_currentArrow = Instantiate(m_arrow, rightHand.position, rightHand.rotation, rightHand);

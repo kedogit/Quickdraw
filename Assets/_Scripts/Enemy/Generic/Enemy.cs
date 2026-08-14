@@ -18,7 +18,7 @@ public enum EnemySize
 public abstract class Enemy : MonoBehaviour
 {
     [SerializeField] private float m_maxHP = 100f;
-    [SerializeField] private float m_attackSpeed = 1f;
+    [SerializeField] protected float m_attackSpeed = 1f;
     [SerializeField] private float m_deathCleanupTime = 15f;
     [SerializeField] protected Animator m_animator;
     [SerializeField] private AudioClip m_hurtSFX;

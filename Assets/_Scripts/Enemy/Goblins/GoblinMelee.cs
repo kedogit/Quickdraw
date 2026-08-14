@@ -6,8 +6,11 @@ public class GoblinMelee : Enemy
 {
     [SerializeField] private float m_swingDamage = 25f;
     [SerializeField] private BoxCollider m_clubHitbox;
-    [SerializeField] private float m_attackDuration = 1f;
     [SerializeField] private AudioClip m_swingSFX;
+    [SerializeField] private AnimationClip m_swingAnimation;
+
+    //disables hitbox at the given percentage of animation length. if 0.6f, turns off hitbox 60% of the way through animation
+    private const float swingActiveHitboxDuration = 0.6f;
 
     private void Awake()
     {
@@ -18,9 +21,15 @@ public class GoblinMelee : Enemy
 
     public override void Attack()
     {
-        //stop movement, start animation and start timer to disable hitbox
-        m_animator.SetTrigger("Attack");
-        StartCoroutine(DisableHitbox());
+        m_animator.SetBool("isRunning", false);
+        Swing();
+    }
+
+    private void Swing()
+    {
+        m_animator.speed = m_swingAnimation.length / m_attackSpeed;
+        m_animator.SetBool("isAttacking", true);
+        StartCoroutine(DisableHitbox(m_attackSpeed * swingActiveHitboxDuration));
     }
 
     public void EnableHitbox()
@@ -31,10 +40,9 @@ public class GoblinMelee : Enemy
         m_clubHitbox.enabled = true;
     }
 
-    private IEnumerator DisableHitbox()
+    private IEnumerator DisableHitbox(float hitboxDuration)
     {
-        yield return new WaitForSeconds(m_attackDuration);
+        yield return new WaitForSeconds(hitboxDuration);
         m_clubHitbox.enabled = false;
-        m_animator.SetBool("isRunning", false);
     }
 }

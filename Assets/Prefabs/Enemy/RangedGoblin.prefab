@@ -667,6 +667,7 @@ MonoBehaviour:
   m_arrowCleanupTime: 5
   m_shootSFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
   m_drawSFX: {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
+  m_shootAnimation: {fileID: 7400000, guid: 885ea463d1d224e4a83e0ee86861c82d, type: 2}
 --- !u!4 &7871056393454157394 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5485374367212719663, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}

@@ -337,7 +337,7 @@ MonoBehaviour:
   m_hookLandSFX: {fileID: 8300000, guid: 3ada522b115b53f41a408b5e749d6a22, type: 3}
   m_bowAudioSource: {fileID: 2884375386706273031}
   m_maxHP: 100
-  m_invulnTime: 1
+  m_invulnTime: 0.5
   m_moveSpeed: 10
   m_airRotationSpeed: 10
   m_grappleAcceleration: 5
