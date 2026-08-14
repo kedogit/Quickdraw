@@ -12,12 +12,12 @@ public class EnemySpawner : MonoBehaviour
         m_particles.Stop();
     }
 
-    public void SpawnMonster(GameObject prefab, ArenaTrigger arenaScript)
+    public void SpawnMonster(GameObject prefab, ArenaTrigger arenaScript, Transform player)
     {
-        StartCoroutine(SpawnDelay(prefab, arenaScript));
+        StartCoroutine(SpawnDelay(prefab, arenaScript, player));
     }
 
-    private IEnumerator SpawnDelay(GameObject prefab, ArenaTrigger arenaScript)
+    private IEnumerator SpawnDelay(GameObject prefab, ArenaTrigger arenaScript, Transform player)
     {
         //play smoke particles to indicate spawn
         m_particles.Play();
@@ -29,6 +29,6 @@ public class EnemySpawner : MonoBehaviour
         GameObject enemy = Instantiate(prefab, transform.position, transform.rotation, transform);
         Enemy enemyScript = enemy.GetComponent<Enemy>();
         enemyScript.SetArenaScript(arenaScript);
-        enemyScript.SetAggroRange(m_aggroRange);
+        enemyScript.SetTarget(player);
     }
 }

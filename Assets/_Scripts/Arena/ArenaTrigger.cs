@@ -18,10 +18,13 @@ public class ArenaTrigger : MonoBehaviour
     private int m_currentWave = 0;
     private int m_currentWaveKillCount = 0;
 
+    private Transform m_player;
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
+            m_player = other.transform;
             m_doors.SetActive(true);
             AudioManager.GetInstance()?.FadeToBattleBGM();
             GetComponent<BoxCollider>().enabled = false;
@@ -44,7 +47,7 @@ public class ArenaTrigger : MonoBehaviour
             //failsafe for wrong index in arena data
             if (enemy.SpawnerIndex < m_spawners.Count)
             {
-                m_spawners[enemy.SpawnerIndex].SpawnMonster(enemy.enemyPrefab, this);
+                m_spawners[enemy.SpawnerIndex].SpawnMonster(enemy.enemyPrefab, this, m_player);
                 Debug.Log("Spawning enemy at " + enemy.SpawnerIndex);
             }
             else

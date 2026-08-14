@@ -3,23 +3,25 @@ using UnityEngine.AI;
 
 public class EnemyChase : EnemyState
 {
-    private Transform m_chaseTarget;
     private NavMeshAgent m_navAgent;
 
-    public EnemyChase(Enemy enemyScript, Transform target) : base(enemyScript)
+    public EnemyChase(Enemy enemyScript, Animator animator) : base(enemyScript, animator)
     {
         m_navAgent = enemyScript.GetComponent<NavMeshAgent>();
-        m_chaseTarget = target;
-        //enemyScript.m_animator.SetBool("isRunning", true);
+        animator.SetBool("isRunning", true);
     }
 
     public override void Execute()
     {
-        m_navAgent.SetDestination(m_chaseTarget.position);
-        if (Vector3.Distance(m_enemyScript.transform.position, m_chaseTarget.position) <= m_navAgent.stoppingDistance)
+        Vector3 targetPos = m_enemyScript.Target.position;
+        Debug.Log("chasing target at " + targetPos);
+        m_navAgent.SetDestination(targetPos);
+        if (Vector3.Distance(m_enemyScript.transform.position, targetPos) <= m_navAgent.stoppingDistance)
         {
-            //m_enemyScript.m_animator.SetBool("isRunning", false);
-            //m_enemyScript.ChangeState(new EnemyAttack(m_enemyScript, m_chaseTarget));
+            Debug.Log("target in range");
+            m_navAgent.ResetPath();
+            m_navAgent.velocity = Vector3.zero;
+            m_enemyScript.ChangeState(new EnemyAttack(m_enemyScript, m_animator));
         }
     }
 }

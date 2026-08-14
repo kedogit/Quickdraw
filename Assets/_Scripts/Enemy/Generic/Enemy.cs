@@ -9,11 +9,16 @@ public enum BodyPart
     BODY
 }
 
+public enum EnemySize
+{
+    SMALL,
+    BIG
+}
+
 public abstract class Enemy : MonoBehaviour
 {
     [SerializeField] private float m_maxHP = 100f;
-    [SerializeField] private float m_aggroRange = 10f;
-    [SerializeField] private float m_attackDelay = 1f;
+    [SerializeField] private float m_attackSpeed = 1f;
     [SerializeField] private float m_deathCleanupTime = 15f;
     [SerializeField] protected Animator m_animator;
     [SerializeField] private AudioClip m_hurtSFX;
@@ -21,32 +26,39 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] private float m_bodyMultiplier = 1f;
     [SerializeField] private float m_headshotMultiplier = 2f;
 
+    public float AttackSpeed => m_attackSpeed;
+    public Transform Target => m_target;
+
     protected NavMeshAgent m_agent;
     protected AudioSource m_audioSource;
     protected Transform m_target;
 
-    private float m_attackTimer;
     private float m_currentHP;
-    private float m_distanceFromPlayer;
-    private bool m_isDead = false;
-    protected bool m_canMove = true;
+    protected EnemySize m_enemySize;
 
     private ArenaTrigger m_arenaScript;
 
     protected Dictionary<BodyPart, float> bodyDamageMultipliers;
 
-    protected abstract void Attack();
+    protected EnemyState m_currentState;
+
+    public abstract void Attack();
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected virtual void Start()
     {
+        if (m_target == null)
+        {
+            m_currentState = new EnemyIdle(this, m_animator);
+        }
+        else
+        {
+            m_currentState = new EnemyChase(this, m_animator);
+        }
         m_currentHP = m_maxHP;
         m_agent = GetComponent<NavMeshAgent>();
         m_audioSource = GetComponent<AudioSource>();
-
-        //set timer so the enemy can attack immediately
-        m_attackTimer = m_attackDelay;
 
         //create the body part dictionary for hurt function
         bodyDamageMultipliers = new Dictionary<BodyPart, float>();
@@ -57,30 +69,20 @@ public abstract class Enemy : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        UpdatePositions();
+        m_currentState.Execute();
+    }
 
-        if (!m_isDead && m_target != null)
+    public void CheckDistance()
+    {
+        if (Vector3.Distance(this.transform.position, m_target.position) > m_agent.stoppingDistance)
         {
-            if (m_distanceFromPlayer <= m_agent.stoppingDistance)
-            {
-                LookAtPlayer();
-                if (m_attackTimer >= m_attackDelay)
-                {
-                    Attack();
-                    m_attackTimer = 0;
-                }
-            }
-
-            if (m_canMove)
-            {
-                Move();
-            }
+            ChangeState(new EnemyChase(this, m_animator));
         }
     }
 
-    public void SetAggroRange(float aggroRange)
+    public void SetTarget(Transform player)
     {
-        m_aggroRange = aggroRange;
+        m_target = player;
     }
 
     public void SetArenaScript(ArenaTrigger script)
@@ -88,61 +90,38 @@ public abstract class Enemy : MonoBehaviour
         m_arenaScript = script;
     }
 
-    private void UpdatePositions()
-    {
-        if (m_target != null)
-        {
-            m_distanceFromPlayer = Vector3.Distance(transform.position, m_target.position);
-        }
-
-        if (m_attackTimer < m_attackDelay)
-        {
-            m_attackTimer += Time.deltaTime;
-        }
-    }
-
-    private void LookAtPlayer()
-    {
-        transform.LookAt(new Vector3(m_target.position.x, transform.position.y, m_target.position.z));
-    }
-
-    private void Move()
-    {
-        //if in aggro range, move towards player
-        if (m_distanceFromPlayer <= m_aggroRange)
-        {
-            m_agent.isStopped = false;
-            m_agent.SetDestination(m_target.position);
-            m_animator.SetBool("isRunning", true);
-        }
-        else
-        {
-            //otherwise, clear path and go back to idle
-            m_agent.ResetPath();
-            m_agent.isStopped = true;
-            m_animator.SetBool("isRunning", false);
-        }
-    }
-
     public void Hurt(float damageAmount, BodyPart partHit)
     {
-        if (!m_isDead)
+        if (m_currentState is not EnemyDead)
         {
+            //trigger event for hitmarker
             Observer.GetInstance().TriggerEvent(EVENT.ON_ENEMY_HURT);
 
-            //play hurt sfx
-            m_audioSource.clip = m_hurtSFX;
-            m_audioSource.Play();
-
-            //play animation and update HP
-            Debug.Log("damage taken:" + (damageAmount * bodyDamageMultipliers[partHit]));
-            m_animator.SetTrigger("Hurt");
+            //update HP
             m_currentHP -= damageAmount * bodyDamageMultipliers[partHit];
 
             //if hp at 0, die
             if (m_currentHP <= 0)
             {
                 Die();
+            }
+            else
+            {
+                //play hurt sfx
+                m_audioSource.clip = m_hurtSFX;
+                m_audioSource.Play();
+
+                //set stagger state if small enemy
+                if (m_enemySize == EnemySize.SMALL)
+                {
+                    //needed in case the player hurts an enemy that never spotted them
+                    if (m_target == null)
+                    {
+                        SetTarget(GameObject.FindGameObjectWithTag("Player").transform);
+                    }
+
+                    ChangeState(new EnemyHurt(this, m_animator));
+                }
             }
         }
     }
@@ -156,10 +135,8 @@ public abstract class Enemy : MonoBehaviour
         m_audioSource.clip = m_deathSFX;
         m_audioSource.Play();
 
-        //start timer to remove body, play animation and disable components
-        StartCoroutine(DeathCleanup());
-        m_isDead = true;
-        m_animator.SetTrigger("Death");
+        //change state and disable agent
+        ChangeState(new EnemyDead(this, m_animator, m_deathCleanupTime));
         m_agent.enabled = false;
 
         //turn off each limb collider
@@ -174,13 +151,13 @@ public abstract class Enemy : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            m_target = other.transform;
+            SetTarget(other.transform);
+            m_currentState.TriggerStart(other);
         }
     }
 
-    private IEnumerator DeathCleanup()
+    public void ChangeState(EnemyState newState)
     {
-        yield return new WaitForSeconds(m_deathCleanupTime);
-        Destroy(this.gameObject);
+        m_currentState = newState;
     }
 }

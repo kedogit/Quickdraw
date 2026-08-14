@@ -13,4 +13,9 @@ public class GoblinRangedAnimEvent : MonoBehaviour
     {
         m_enemyScript.DrawString();
     }
+
+    public void CheckDistance()
+    {
+        m_enemyScript.CheckDistance();
+    }
 }

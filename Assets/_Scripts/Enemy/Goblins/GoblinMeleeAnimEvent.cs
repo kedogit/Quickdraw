@@ -8,4 +8,9 @@ public class GoblinMeleeAnimEvent : MonoBehaviour
     {
         m_enemyScript.EnableHitbox();
     }
+
+    public void CheckDistance()
+    {
+        m_enemyScript.CheckDistance();
+    }
 }

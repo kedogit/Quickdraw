@@ -1,30 +1,27 @@
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class EnemyAttack : EnemyState
 {
-    protected Transform m_target;
+    private float m_elapsed;
+    private float m_attackSpeed;
 
-    public EnemyAttack(Enemy enemyScript, Transform target) : base(enemyScript)
+    public EnemyAttack(Enemy enemyScript, Animator animator) : base(enemyScript, animator)
     {
-        //m_enemyScript.StartAttacking(target);
-        //m_target = target;
+        m_elapsed = Mathf.Infinity;
+        m_attackSpeed = enemyScript.AttackSpeed;
     }
 
     public override void Execute()
     {
-        //m_enemyScript.Attack();
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //Debug.Log("attack state");
+        m_enemyScript.transform.LookAt(new Vector3(m_enemyScript.Target.position.x, m_enemyScript.transform.position.y, m_enemyScript.Target.position.z));
+        m_elapsed += Time.deltaTime;
+        if (m_elapsed >= m_attackSpeed)
+        {
+            m_enemyScript.Attack();
+            m_elapsed = 0f;
+        }
     }
 }

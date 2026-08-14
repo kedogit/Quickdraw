@@ -15,10 +15,14 @@ public class GoblinRanged : Enemy
     private GameObject m_currentArrow;
 
 
-    protected override void Attack()
+    private void Awake()
+    {
+        m_enemySize = EnemySize.SMALL;
+    }
+
+    public override void Attack()
     {
         //stop movement and start attack animation
-        m_canMove = false;
         m_agent.velocity = Vector3.zero;
 
         m_animator.SetTrigger("Attack");
@@ -57,8 +61,6 @@ public class GoblinRanged : Enemy
 
         //start destroy timer
         StartCoroutine(DestroyArrow(m_currentArrow));
-
-        m_canMove = true;
     }
 
     public void DrawString()

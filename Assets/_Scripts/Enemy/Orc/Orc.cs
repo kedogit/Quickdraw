@@ -11,7 +11,12 @@ public class Orc : Enemy
     [SerializeField] private BoxCollider m_weaponHitbox;
     [SerializeField] private float m_attackDuration = 1f;
 
-    protected override void Attack()
+    private void Awake()
+    {
+        m_enemySize = EnemySize.BIG;
+    }
+
+    public override void Attack()
     {
         m_animator.SetTrigger("Attack");
         StartCoroutine(DisableHitbox());
@@ -29,7 +34,6 @@ public class Orc : Enemy
     {
         yield return new WaitForSeconds(m_attackDuration);
         m_weaponHitbox.enabled = false;
-        m_canMove = true;
         m_animator.SetBool("isRunning", false);
     }
 }
