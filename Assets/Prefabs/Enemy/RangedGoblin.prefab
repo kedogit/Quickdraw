@@ -361,6 +361,10 @@ PrefabInstance:
       value: -15.237337
       objectReference: {fileID: 0}
     - target: {fileID: 5995765702732867516, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: m_Acceleration
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5995765702732867516, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_StoppingDistance
       value: 20
       objectReference: {fileID: 0}
@@ -616,6 +620,7 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 267870421860344614, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
     - {fileID: 7069034844502828461, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+    - {fileID: 6521643916425036239, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5485374367212719663, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       insertIndex: -1
@@ -631,6 +636,16 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6415685480040373513}
   m_SourcePrefab: {fileID: 100100000, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+--- !u!1 &1224353409084441024 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3592091339025412541, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+  m_PrefabInstance: {fileID: 2388151327799226493}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3123605423437038514 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 755809170022429647, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+  m_PrefabInstance: {fileID: 2388151327799226493}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &4549957302754300583 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2161966370844369626, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
@@ -653,12 +668,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 309d397639d6ec5438ca6e777e00f3e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_maxStun: 50
+  m_stunDuration: 6
+  m_stunRecoveryDelay: 2
+  m_stunRecoveryTickRate: 0.2
+  m_stunRecoveryPerTick: 5
   m_maxHP: 70
-  m_attackSpeed: 4
+  m_attackSpeed: 2.5
   m_deathCleanupTime: 15
   m_animator: {fileID: 4549957302754300583}
   m_hurtSFX: {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
   m_deathSFX: {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
+  m_bars: {fileID: 1224353409084441024}
+  m_stunParticles: {fileID: 3123605423437038514}
   m_bodyMultiplier: 1
   m_headshotMultiplier: 2
   m_arrowDamage: 20

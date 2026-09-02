@@ -17,12 +17,26 @@ public enum EnemySize
 
 public abstract class Enemy : MonoBehaviour
 {
+    [Header("Stun")]
+    [SerializeField] private float m_maxStun = 100f;
+    [SerializeField] private float m_stunDuration = 2f;
+    [SerializeField] private float m_stunRecoveryDelay = 2f;
+    [SerializeField] private float m_stunRecoveryTickRate = 0.2f;
+    [SerializeField] private float m_stunRecoveryPerTick = 5f;
+
+    [Header("Stats")]
     [SerializeField] private float m_maxHP = 100f;
     [SerializeField] protected float m_attackSpeed = 1f;
     [SerializeField] private float m_deathCleanupTime = 15f;
+
+    [Header("References")]
     [SerializeField] protected Animator m_animator;
     [SerializeField] private AudioClip m_hurtSFX;
     [SerializeField] private AudioClip m_deathSFX;
+    [SerializeField] private GameObject m_bars;
+    [SerializeField] private GameObject m_stunParticles;
+
+    [Header("Body Parts")]
     [SerializeField] private float m_bodyMultiplier = 1f;
     [SerializeField] private float m_headshotMultiplier = 2f;
 
@@ -33,8 +47,18 @@ public abstract class Enemy : MonoBehaviour
     protected AudioSource m_audioSource;
     protected Transform m_target;
 
+    private float m_currStun;
+    private bool m_ongoingStunRecovery;
+    private bool m_ongoingStunDelay;
+    private Coroutine m_stunDelayCoroutine;
+    private Coroutine m_stunRecoveryCoroutine;
+
     private float m_currentHP;
     protected EnemySize m_enemySize;
+
+    private Animator m_hpBarAnimator;
+    private Animator m_stunFillAnimator;
+    private Animation m_stunFlashAnimator;
 
     private ArenaTrigger m_arenaScript;
 
@@ -60,6 +84,10 @@ public abstract class Enemy : MonoBehaviour
         m_agent = GetComponent<NavMeshAgent>();
         m_audioSource = GetComponent<AudioSource>();
 
+        m_hpBarAnimator = m_bars.transform.Find("HPBar/Fill").GetComponent<Animator>();
+        m_stunFillAnimator = m_bars.transform.Find("StunBar/Fill").GetComponent<Animator>();
+        m_stunFlashAnimator = m_bars.transform.Find("StunBar/Border").GetComponent<Animation>();
+
         //create the body part dictionary for hurt function
         bodyDamageMultipliers = new Dictionary<BodyPart, float>();
         bodyDamageMultipliers.Add(BodyPart.BODY, m_bodyMultiplier);
@@ -76,12 +104,16 @@ public abstract class Enemy : MonoBehaviour
     {
         if (Vector3.Distance(this.transform.position, m_target.position) > m_agent.stoppingDistance)
         {
-            ChangeState(new EnemyChase(this, m_animator));
+            if (m_currentState is EnemyAttack)
+            {
+                ChangeState(new EnemyChase(this, m_animator));
+            }
         }
     }
 
     public void SetTarget(Transform player)
     {
+        //most importantly used by arena script to target player
         m_target = player;
     }
 
@@ -97,8 +129,14 @@ public abstract class Enemy : MonoBehaviour
             //trigger event for hitmarker
             Observer.GetInstance().TriggerEvent(EVENT.ON_ENEMY_HURT);
 
+            //show bars
+            m_bars.SetActive(true);
+
             //update HP
-            m_currentHP -= damageAmount * bodyDamageMultipliers[partHit];
+            UpdateHP(m_currentHP - damageAmount * bodyDamageMultipliers[partHit]);
+
+            //increment stun gauge
+            AccumulateStun(damageAmount);
 
             //if hp at 0, die
             if (m_currentHP <= 0)
@@ -120,14 +158,108 @@ public abstract class Enemy : MonoBehaviour
                         SetTarget(GameObject.FindGameObjectWithTag("Player").transform);
                     }
 
-                    ChangeState(new EnemyHurt(this, m_animator));
+                    if (m_currentState is not EnemyStunned)
+                    {
+                        ChangeState(new EnemyHurt(this, m_animator));
+                    }
                 }
             }
         }
     }
 
+    private void UpdateHP(float newHP)
+    {
+        m_currentHP = newHP;
+        m_hpBarAnimator.SetFloat("Fill", m_currentHP / m_maxHP * 100);
+    }
+
+    private void UpdateStun(float newStun)
+    {
+        m_currStun = newStun;
+        m_stunFillAnimator.SetFloat("Fill", m_currStun / m_maxStun * 100);
+    }
+
+    private void AccumulateStun(float stunAmount)
+    {
+        //add the stun to the stun gauge
+        UpdateStun(m_currStun + stunAmount);
+
+        //stop ongoing stun recovery routines if any
+        if (m_ongoingStunDelay)
+        {
+            StopCoroutine(m_stunDelayCoroutine);
+            m_ongoingStunDelay = false;
+        }
+        if (m_ongoingStunRecovery)
+        {
+            StopCoroutine(m_stunRecoveryCoroutine);
+            m_ongoingStunRecovery = false;
+        }
+
+        //if current stun is higher than max, change state to stunned
+        if (m_currStun >= m_maxStun)
+        {
+            m_currStun = m_maxStun;
+            m_stunParticles.SetActive(true);
+            m_stunFlashAnimator.Play();
+            ChangeState(new EnemyStunned(this, m_animator, m_stunDuration));
+        }
+        //if stun not at max, restart the delay for stun recovery and stop any active recovery
+        else
+        {
+            m_stunDelayCoroutine = StartCoroutine(StunRecoveryDelay());
+        }
+    }
+
+    private IEnumerator StunRecoveryDelay()
+    {
+        m_ongoingStunDelay = true;
+
+        yield return new WaitForSeconds(m_stunRecoveryDelay);
+        if (!m_ongoingStunRecovery)
+        {
+            m_stunRecoveryCoroutine = StartCoroutine(StartStunRecovery());
+        }
+
+        m_ongoingStunDelay = false;
+    }
+
+    private IEnumerator StartStunRecovery()
+    {
+        m_ongoingStunRecovery = true;
+
+        //initial recovery tick
+        m_currStun -= m_stunRecoveryPerTick;
+
+        //while stun is above 0, keep recovering
+        while (m_currStun > 0)
+        {
+            yield return new WaitForSeconds(m_stunRecoveryTickRate);
+            m_currStun -= m_stunRecoveryPerTick;
+            UpdateStun(m_currStun - m_stunRecoveryPerTick);
+        }
+
+        //sets the stun to exactly 0 to make sure it is not a negative number
+        ResetStun();
+        m_ongoingStunRecovery = false;
+    }
+
+    public void ResetStun()
+    {
+        UpdateStun(0);
+        m_stunParticles.SetActive(false);
+        m_stunFlashAnimator.Stop();
+    }
+
     private void Die()
     {
+        //if stunned, disable stun animation and particles
+        m_animator.SetBool("isStunned", false);
+        m_stunParticles.SetActive(false);
+
+        //turn off overhead bars
+        m_bars.SetActive(false);
+
         //if arena enemy, tell arena to increment kill count
         m_arenaScript?.RegisterKill();
 

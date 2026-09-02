@@ -13,7 +13,7 @@ public class EnemyAttack : EnemyState
 
     public override void Execute()
     {
-        //Debug.Log("attack state");
+        Debug.Log("attacking");
         m_enemyScript.transform.LookAt(new Vector3(m_enemyScript.Target.position.x, m_enemyScript.transform.position.y, m_enemyScript.Target.position.z));
         m_elapsed += Time.deltaTime;
         if (m_elapsed >= m_attackSpeed)

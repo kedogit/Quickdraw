@@ -60,7 +60,7 @@ public class GameHUD : MonoBehaviour
 
     public void UpdateHP(float currHP)
     {
-        m_hpBarAnimator.SetFloat("HP", currHP);
+        m_hpBarAnimator.SetFloat("Fill", currHP);
     }
 
     public void ToggleInteractPrompt()

@@ -14,12 +14,11 @@ public class EnemyChase : EnemyState
 
     public override void Execute()
     {
+        Debug.Log("chasing");
         Vector3 targetPos = m_enemyScript.Target.position;
-        Debug.Log("chasing target at " + targetPos);
         m_navAgent.SetDestination(targetPos);
-        if (Vector3.Distance(m_enemyScript.transform.position, targetPos) <= m_navAgent.stoppingDistance)
+        if (m_navAgent.remainingDistance <= m_navAgent.stoppingDistance && m_navAgent.remainingDistance > 0)
         {
-            Debug.Log("target in range");
             m_navAgent.ResetPath();
             m_navAgent.velocity = Vector3.zero;
             m_enemyScript.ChangeState(new EnemyAttack(m_enemyScript, m_animator));

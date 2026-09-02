@@ -8,9 +8,10 @@ public class GoblinMelee : Enemy
     [SerializeField] private BoxCollider m_clubHitbox;
     [SerializeField] private AudioClip m_swingSFX;
     [SerializeField] private AnimationClip m_swingAnimation;
+    [SerializeField] private TrailRenderer m_swingTrail;
 
     //disables hitbox at the given percentage of animation length. if 0.6f, turns off hitbox 60% of the way through animation
-    private const float swingActiveHitboxDuration = 0.6f;
+    private const float swingActiveHitboxDuration = 0.7f;
 
     private void Awake()
     {
@@ -35,6 +36,7 @@ public class GoblinMelee : Enemy
     public void EnableHitbox()
     {
         //enables hitbox and plays sfx (called by animevent)
+        m_swingTrail.enabled = true;
         m_audioSource.clip = m_swingSFX;
         m_audioSource.Play();
         m_clubHitbox.enabled = true;
@@ -43,6 +45,7 @@ public class GoblinMelee : Enemy
     private IEnumerator DisableHitbox(float hitboxDuration)
     {
         yield return new WaitForSeconds(hitboxDuration);
+        m_swingTrail.enabled = false;
         m_clubHitbox.enabled = false;
     }
 }
