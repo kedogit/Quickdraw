@@ -6,7 +6,7 @@ public class GoblinMeleeAnimEvent : MonoBehaviour
 
     public void HitboxStart()
     {
-        m_enemyScript.EnableHitbox();
+        m_enemyScript.EnableWeaponHitbox(SFX.GOBLIN_ATTACK1);
     }
 
     public void CheckDistance()

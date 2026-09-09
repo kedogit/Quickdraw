@@ -2,38 +2,46 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class Orc : Enemy
+public class Orc : EnemyMeleeArmed
 {
-    //TODO!!!: create child of Enemy called MeleeEnemy, include everything related to enabling and disabling weapon hitboxes.
-    //make orc and meleegoblin children of MeleeEnemy. too much shared code
-
+    [Header("Orc")]
+    [SerializeField] private float m_swingDamage = 25f;
     [SerializeField] private AudioClip m_swingSFX;
-    [SerializeField] private BoxCollider m_weaponHitbox;
-    [SerializeField] private float m_attackDuration = 1f;
+    [SerializeField] private AnimationClip m_swingAnimation;
+
+    private const float swingActiveHitboxDuration = 0.7f;
 
     private void Awake()
     {
+        EnemyWeapon clubScript = GetComponentInChildren<EnemyWeapon>();
+        clubScript.SetWeaponDamage(m_swingDamage);
         m_enemySize = EnemySize.BIG;
     }
 
     public override void Attack()
     {
-        m_animator.SetTrigger("Attack");
-        StartCoroutine(DisableHitbox());
+        int rngFactor = UnityEngine.Random.Range(0, 2);
+        //int rngFactor = 2;
+
+        if (rngFactor == 0)
+        {
+            Swing();
+        }
+        else if (rngFactor == 1)
+        {
+            JumpAttack();
+        }
     }
 
-    public void EnableHitbox()
+    private void Swing()
     {
-        //enables hitbox and plays sfx (called by animevent)
-        m_audioSource.clip = m_swingSFX;
-        m_audioSource.Play();
-        m_weaponHitbox.enabled = true;
+        m_animator.speed = m_swingAnimation.length / m_attackSpeed;
+        m_animator.SetTrigger("Swing");
+        StartCoroutine(DisableWeaponHitbox(m_attackSpeed * swingActiveHitboxDuration));
     }
 
-    private IEnumerator DisableHitbox()
+    private void JumpAttack()
     {
-        yield return new WaitForSeconds(m_attackDuration);
-        m_weaponHitbox.enabled = false;
-        m_animator.SetBool("isRunning", false);
+        m_animator.SetTrigger("JumpAttack");
     }
 }

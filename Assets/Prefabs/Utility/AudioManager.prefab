@@ -44,9 +44,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0425c1d69988d874b94bad180f14f855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_globalSFXVolume: 0.5
+  m_songCrossfadeDuration: 3
+  m_spatialAudioMinDistance: 2
+  m_spatialAudioMaxDistance: 20
   m_mixer: {fileID: 24100000, guid: f8a593633c5fc594fa72da5226a98ffa, type: 2}
   m_musicMixerGroup: {fileID: 2670047026270434085, guid: f8a593633c5fc594fa72da5226a98ffa, type: 2}
+  m_masterMixerGroup: {fileID: 24300002, guid: f8a593633c5fc594fa72da5226a98ffa, type: 2}
   m_overworldSong1: {fileID: 8300000, guid: 7291548fe0217f44d9afb54f1aea767e, type: 3}
   m_battleSong1: {fileID: 8300000, guid: 9b556f348ae694f55b4dc3ed51971a64, type: 3}
   m_menuSong1: {fileID: 8300000, guid: a1863e9dca5c4b343ac6a94b631cde53, type: 3}
-  m_songCrossfadeDuration: 3
+  m_hitmarkerSFX: {fileID: 8300000, guid: 8c41b1b65f409a940b629a67f08f85dd, type: 3}
+  m_playerHurtSFX: {fileID: 8300000, guid: b19d73cbcd5b0e84089c0e31a937b218, type: 3}
+  m_playerDrawBowSFX: {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
+  m_playerShootSFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
+  m_playerJumpSFX: {fileID: 8300000, guid: 9e4422a8aa2b75843ade61152bc7210c, type: 3}
+  m_playerDashSFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
+  m_grapplingHookThrowSFX: {fileID: 8300000, guid: 01c7c4f202191cf46b49666571bb51bb, type: 3}
+  m_grapplingHookLandSFX: {fileID: 8300000, guid: 3ada522b115b53f41a408b5e749d6a22, type: 3}
+  m_goblinAttack1SFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
+  m_goblinAttack2SFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
+  m_goblinDrawBowSFX: {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
+  m_goblinHurtSFX: {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
+  m_goblinDeathSFX: {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
+  m_orcAttack1SFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}

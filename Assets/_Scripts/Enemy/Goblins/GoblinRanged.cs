@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class GoblinRanged : Enemy
 {
+    [Header("Ranged Goblin")]
     [SerializeField] float m_arrowDamage = 10f;
     [SerializeField] private GameObject m_arrow;
     [SerializeField] private float m_arrowForce = 50f;
@@ -23,14 +24,13 @@ public class GoblinRanged : Enemy
 
     public override void Attack()
     {
-        m_animator.SetBool("isRunning", false);
         ShootBow();
     }
 
     private void ShootBow()
     {
         m_animator.speed = m_shootAnimation.length / m_attackSpeed;
-        m_animator.SetBool("isShooting", true);
+        m_animator.SetTrigger("Shoot");
 
         //find the righthand's transform and instantiate the arrow there. rescale arrow
         Transform rightHand = transform.Find("rootSkeleton/pelvis_joint/waist_joint/chest_joint/R_clavicle_joint/R_shoulder_joint/R_elbow_joint/R_wrist_joint/R_equip_joint");
@@ -42,8 +42,7 @@ public class GoblinRanged : Enemy
     public void LaunchArrow()
     {
         //play shoot sfx
-        m_audioSource.clip = m_shootSFX;
-        m_audioSource.Play();
+        AudioManager.GetInstance()?.PlaySFX(SFX.GOBLIN_ATTACK2, transform.position);
 
         //set target, find direction vector
         Vector3 target = m_target.position;
@@ -70,8 +69,7 @@ public class GoblinRanged : Enemy
 
     public void DrawString()
     {
-        m_audioSource.clip = m_drawSFX;
-        m_audioSource.Play();
+        AudioManager.GetInstance()?.PlaySFX(SFX.GOBLIN_DRAW_BOW, transform.position);
     }
 
     private IEnumerator DestroyArrow(GameObject arrow)

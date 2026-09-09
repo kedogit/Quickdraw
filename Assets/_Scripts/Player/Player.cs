@@ -321,8 +321,7 @@ public class Player : MonoBehaviour
         }
 
         //play sfx
-        m_playerAudioSource.clip = m_jumpSFX;
-        m_playerAudioSource.Play();
+        AudioManager.GetInstance()?.PlaySFX(SFX.PLAYER_JUMP);
 
         //change state
         ChangeState(new PlayerStateJumping(this));
@@ -352,8 +351,7 @@ public class Player : MonoBehaviour
         if (m_dash.WasPressedThisFrame() && m_dashReady)
         {
             //play sfx
-            m_playerAudioSource.clip = m_dashSFX;
-            m_playerAudioSource.Play();
+            AudioManager.GetInstance()?.PlaySFX(SFX.PLAYER_DASH);
 
             Vector2 inputVector = m_move.ReadValue<Vector2>();
             Vector3 dashDirection;
@@ -411,8 +409,7 @@ public class Player : MonoBehaviour
         if (!m_isInvuln && !m_godMode)
         {
             //play sfx
-            m_playerAudioSource.clip = m_hurtSFX;
-            m_playerAudioSource.Play();
+            AudioManager.GetInstance()?.PlaySFX(SFX.PLAYER_HURT);
 
             //reduce hp and start invuln window
             m_currentHP -= damage;
@@ -557,8 +554,8 @@ public class Player : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, m_hookRange, m_grappleMask))
                 {
-                    m_playerAudioSource.clip = m_hookShootSFX;
-                    m_playerAudioSource.Play();
+                    //play throw sfx
+                    AudioManager.GetInstance()?.PlaySFX(SFX.GRAPPLING_HOOK_THROW);
 
                     //detect the target to determine whether it is a swing or zip action and store for later
                     if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Enemy"))
@@ -613,8 +610,7 @@ public class Player : MonoBehaviour
         ChangeState(new PlayerStateGrappling(this));
 
         //play hook hit sfx
-        m_playerAudioSource.clip = m_hookLandSFX;
-        m_playerAudioSource.Play();
+        AudioManager.GetInstance()?.PlaySFX(SFX.GRAPPLING_HOOK_LAND, m_hookHeadInstance.position);
 
         //keep updating the start of the line renderer (player pos)
         while (m_hookLineRenderer.positionCount == 2)

@@ -8,7 +8,7 @@ public class EnemyIdle : EnemyState
 
     public override void Execute()
     {
-        Debug.Log("idle state");
+
     }
 
     public override void TriggerStart(Collider target)

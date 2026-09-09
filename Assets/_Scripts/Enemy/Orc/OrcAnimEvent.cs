@@ -6,6 +6,11 @@ public class OrcAnimEvent : MonoBehaviour
 
     public void HitboxStart()
     {
-        m_enemyScript.EnableHitbox();
+        m_enemyScript.EnableWeaponHitbox(SFX.ORC_ATTACK1);
+    }
+
+    public void CheckDistance()
+    {
+        m_enemyScript.CheckDistance();
     }
 }

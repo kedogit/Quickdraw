@@ -14,7 +14,6 @@ public class EnemyChase : EnemyState
 
     public override void Execute()
     {
-        Debug.Log("chasing");
         Vector3 targetPos = m_enemyScript.Target.position;
         m_navAgent.SetDestination(targetPos);
         if (m_navAgent.remainingDistance <= m_navAgent.stoppingDistance && m_navAgent.remainingDistance > 0)

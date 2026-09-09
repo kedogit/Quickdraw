@@ -31,8 +31,8 @@ public abstract class Enemy : MonoBehaviour
 
     [Header("References")]
     [SerializeField] protected Animator m_animator;
-    [SerializeField] private AudioClip m_hurtSFX;
-    [SerializeField] private AudioClip m_deathSFX;
+    [SerializeField] private SFX m_hurtSFX;
+    [SerializeField] private SFX m_deathSFX;
     [SerializeField] private GameObject m_bars;
     [SerializeField] private GameObject m_stunParticles;
 
@@ -98,15 +98,20 @@ public abstract class Enemy : MonoBehaviour
     protected virtual void Update()
     {
         m_currentState.Execute();
+        Debug.Log(m_currentState.GetType());
     }
 
     public void CheckDistance()
     {
-        if (Vector3.Distance(this.transform.position, m_target.position) > m_agent.stoppingDistance)
+        if (m_currentState is EnemyAttack)
         {
-            if (m_currentState is EnemyAttack)
+            if (Vector3.Distance(this.transform.position, m_target.position) > m_agent.stoppingDistance)
             {
                 ChangeState(new EnemyChase(this, m_animator));
+            }
+            else
+            {
+                Attack();
             }
         }
     }
@@ -146,21 +151,24 @@ public abstract class Enemy : MonoBehaviour
             else
             {
                 //play hurt sfx
-                m_audioSource.clip = m_hurtSFX;
-                m_audioSource.Play();
+                AudioManager.GetInstance()?.PlaySFX(m_hurtSFX, transform.position);
 
-                //set stagger state if small enemy
-                if (m_enemySize == EnemySize.SMALL)
+                //needed in case the player hurts an enemy that never spotted them
+                if (m_target == null)
                 {
-                    //needed in case the player hurts an enemy that never spotted them
-                    if (m_target == null)
-                    {
-                        SetTarget(GameObject.FindGameObjectWithTag("Player").transform);
-                    }
+                    SetTarget(GameObject.FindGameObjectWithTag("Player").transform);
+                }
 
-                    if (m_currentState is not EnemyStunned)
+                //if enemy is not stunned and is small, hurt state. if big, chasing state.
+                if (m_currentState is not EnemyStunned)
+                {
+                    if (m_enemySize == EnemySize.SMALL)
                     {
                         ChangeState(new EnemyHurt(this, m_animator));
+                    }
+                    else
+                    {
+                        ChangeState(new EnemyChase(this, m_animator));
                     }
                 }
             }
@@ -201,6 +209,12 @@ public abstract class Enemy : MonoBehaviour
         {
             m_currStun = m_maxStun;
             m_stunParticles.SetActive(true);
+
+            //this line's goal was to set the lifetime of the stun particles appropriately so they shrink fully depending on the set stun duration
+            //it broke the particle trail because trail lifetime is tied to particle lifetime. dunno how to fix, not important
+            //var stunParticles = m_stunParticles.GetComponent<ParticleSystem>().main;
+            //stunParticles.startLifetime = m_stunDuration;
+
             m_stunFlashAnimator.Play();
             ChangeState(new EnemyStunned(this, m_animator, m_stunDuration));
         }
@@ -264,8 +278,7 @@ public abstract class Enemy : MonoBehaviour
         m_arenaScript?.RegisterKill();
 
         //play death sfx
-        m_audioSource.clip = m_deathSFX;
-        m_audioSource.Play();
+        AudioManager.GetInstance()?.PlaySFX(m_deathSFX, transform.position);
 
         //change state and disable agent
         ChangeState(new EnemyDead(this, m_animator, m_deathCleanupTime));
