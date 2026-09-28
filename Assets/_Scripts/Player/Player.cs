@@ -7,11 +7,11 @@ using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
     [Header("References - General")]
-    [SerializeField] private Camera m_playerCam;
+    [SerializeField] private Transform m_playerBow;
+    [SerializeField] private Transform m_playerCamera;
     [SerializeField] private InputActionAsset m_actions;
     [SerializeField] private GameObject m_hookHead;
     [SerializeField] private GameObject m_arrowPrefab;
-    [SerializeField] private Animator m_bowAnimator;
     [SerializeField] private PhysicsMaterial m_swingPhysicsMaterial;
     [SerializeField] private GameHUD m_gameHUD;
 
@@ -23,7 +23,6 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioClip m_jumpSFX;
     [SerializeField] private AudioClip m_hookShootSFX;
     [SerializeField] private AudioClip m_hookLandSFX;
-    [SerializeField] private AudioSource m_bowAudioSource;
 
 
     [Header("Health")]
@@ -41,9 +40,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_doubleJumpForwardForce = 4f;
 
     [Header("Dash")]
-    [SerializeField] private float m_dashGroundedUpForce = 3f;
     [SerializeField] private float m_dashForce = 5f;
     [SerializeField] private float m_dashCooldown = 2f;
+    [SerializeField] private float m_dashDecayRate = 0.95f;
 
     [Header("Camera")]
     [SerializeField] private float m_clamp = 90f;
@@ -78,6 +77,7 @@ public class Player : MonoBehaviour
     public float MoveSpeed => m_moveSpeed;
     public Vector3 MoveVector => m_moveVector;
     public LayerMask GroundLayer => m_groundLayer;
+    public float DashDecayRate => m_dashDecayRate;
 
 
     //input actions
@@ -93,7 +93,6 @@ public class Player : MonoBehaviour
     //components
     private Rigidbody m_body;
     private CapsuleCollider m_collider;
-    private AudioSource m_playerAudioSource;
 
     //menu
     private bool m_isPaused;
@@ -119,6 +118,7 @@ public class Player : MonoBehaviour
 
     //camera related
     private float m_verticalRotation = 0f;
+    private Quaternion m_cameraRotation = Quaternion.identity;
 
     //hook related
     private bool m_playerHasGrapple;
@@ -138,11 +138,14 @@ public class Player : MonoBehaviour
     private Vector3 m_checkpointPos;
 
     //bow related
+    private Animator m_bowAnimator;
+    private AudioSource m_bowAudioSource;
     private const float m_readyToShootThreshold = 3;
     private float m_bowChargeTime;
     private float m_bowChargeNormalized;
     private GameObject m_currentArrow;
     private bool m_readyToFire;
+    private Transform m_arrowHolder;
 
     //cheats
     private bool m_godMode;
@@ -170,12 +173,15 @@ public class Player : MonoBehaviour
         m_actions.FindActionMap("Player").Enable();
         m_escMenu.Enable();
 
-        m_playerAudioSource = GetComponent<AudioSource>();
         m_body = GetComponent<Rigidbody>();
         m_hookLineRenderer = GetComponent<LineRenderer>();
         m_collider = GetComponent<CapsuleCollider>();
         m_hookStartPoint = transform.Find("HookStart");
         m_grappleMask = LayerMask.GetMask("Enemy", "Grappleable");
+
+        m_bowAnimator = m_playerBow.GetComponent<Animator>();
+        m_bowAudioSource = m_playerBow.GetComponent<AudioSource>();
+        m_arrowHolder = m_playerBow.Find("ArrowHolder");
 
         m_checkpointPos = transform.position;
 
@@ -203,8 +209,6 @@ public class Player : MonoBehaviour
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
-        Observer.GetInstance().SubscribeTo(EVENT.ON_SENS_CHANGE, AdjustSens);
-        AdjustSens();
 
         m_groundLayer = LayerMask.GetMask("Ground");
     }
@@ -213,21 +217,53 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateVectors();
-        Look();
+        FetchCameraRotation();
         JumpHandling();
         Dash();
         Grapple();
         Interact();
-        m_currentState.Move();
         ReadyBow();
         GrappleExitHandling();
         EscMenuHandling();
         ShootArrow();
     }
+    
+    void FixedUpdate()
+    {
+        m_currentState.Move();
+        RotateBody();
+    }
+
+    public bool CheckGrounded()
+    {
+        if (m_currentState is PlayerStateGrounded)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private void FetchCameraRotation()
+    {
+        Vector3 cameraForward = m_playerCamera.forward;
+        cameraForward.y = 0;
+
+        if (cameraForward.sqrMagnitude > 0.01f)
+        {
+            m_cameraRotation = Quaternion.LookRotation(cameraForward.normalized);
+        }
+    }
+
+    private void RotateBody()
+    {
+        m_body.MoveRotation(m_cameraRotation);
+    }
 
     private void OnDestroy()
     {
-        Observer.GetInstance().UnsubscribeTo(EVENT.ON_SENS_CHANGE, AdjustSens);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
@@ -258,12 +294,6 @@ public class Player : MonoBehaviour
     private void InstakillToggle()
     {
         m_instaKill = !m_instaKill;
-    }
-
-    private void AdjustSens()
-    {
-        m_mouseSensHor = PlayerPrefs.GetFloat("HorizontalSens");
-        m_mouseSensVert = PlayerPrefs.GetFloat("VerticalSens");
     }
 
     public void SetCheckpoint(Vector3 pos)
@@ -348,7 +378,7 @@ public class Player : MonoBehaviour
             m_dashReady = true;
         }
 
-        if (m_dash.WasPressedThisFrame() && m_dashReady)
+        if (m_dashReady && m_dash.WasPressedThisFrame() && CheckGrounded())
         {
             //play sfx
             AudioManager.GetInstance()?.PlaySFX(SFX.PLAYER_DASH);
@@ -368,9 +398,6 @@ public class Player : MonoBehaviour
 
             //multiply by dash force
             dashDirection *= m_dashForce;
-
-            //add up force
-            dashDirection += Vector3.up * m_dashGroundedUpForce;
 
             //change state
             ChangeState(new PlayerStateDashing(this));
@@ -457,20 +484,15 @@ public class Player : MonoBehaviour
                 m_bowAudioSource.Play();
 
                 //find a transform ahead of where the player is looking
-                Vector3 target = m_playerCam.transform.position + m_playerCam.transform.forward * m_bowTargetDistance;
-                //Vector3 target = m_playerCam.transform.position + m_playerCam.transform.forward;
-
-                //create a direction vector by subtracting arrow's position
-                //Vector3 directionVector = target - m_currentArrow.transform.position;
-                //directionVector.Normalize();
+                Vector3 target = m_playerCamera.position + m_playerCamera.forward * m_bowTargetDistance;
 
                 //attach a rigidbody to the arrow and add the force to it
                 Rigidbody arrowBody = m_currentArrow.AddComponent<Rigidbody>();
 
                 m_currentArrow.transform.LookAt(target);
                 m_currentArrow.transform.parent = null;
-                m_currentArrow.transform.position = m_playerCam.transform.position;
-                arrowBody.AddForce(m_playerCam.transform.forward * m_arrowForce * m_bowChargeNormalized, ForceMode.Impulse);
+                m_currentArrow.transform.position = m_playerCamera.position;
+                arrowBody.AddForce(m_playerCamera.forward * m_arrowForce * m_bowChargeNormalized, ForceMode.Impulse);
 
                 //enable trail renderer
                 m_currentArrow.GetComponent<TrailRenderer>().enabled = true;
@@ -513,8 +535,7 @@ public class Player : MonoBehaviour
     {
         //wait for reload time, then instantiate new arrow
         yield return new WaitForSeconds(m_reloadTime);
-        GameObject arrowHolder = GameObject.Find("ArrowHolder");
-        m_currentArrow = Instantiate(m_arrowPrefab, arrowHolder.transform.position, arrowHolder.transform.rotation, arrowHolder.transform);
+        m_currentArrow = Instantiate(m_arrowPrefab, m_arrowHolder.position, m_arrowHolder.rotation, m_arrowHolder);
     }
 
     private void ReadyBow()
@@ -552,7 +573,7 @@ public class Player : MonoBehaviour
             {
                 //send a raycast to find a hit target (ADD LAYERMASK TO THE RAYCAST CALL LATER)
                 RaycastHit hit;
-                if (Physics.Raycast(m_playerCam.transform.position, m_playerCam.transform.forward, out hit, m_hookRange, m_grappleMask))
+                if (Physics.Raycast(m_playerCamera.position, m_playerCamera.forward, out hit, m_hookRange, m_grappleMask))
                 {
                     //play throw sfx
                     AudioManager.GetInstance()?.PlaySFX(SFX.GRAPPLING_HOOK_THROW);
@@ -712,21 +733,6 @@ public class Player : MonoBehaviour
         m_actions.FindActionMap("Player").Disable();
         Cursor.lockState = CursorLockMode.Confined;
         m_escMenu.Disable();
-    }
-
-    private void Look()
-    {
-        Vector3 lookVector = m_look.ReadValue<Vector2>();
-
-        //horizontal
-        float lookX = lookVector.x * m_mouseSensHor;
-        transform.Rotate(Vector3.up, lookX);
-
-        //vertical
-        float lookY = lookVector.y * m_mouseSensVert;
-        m_verticalRotation -= lookY;
-        m_verticalRotation = Mathf.Clamp(m_verticalRotation, -m_clamp, m_clamp);
-        m_playerCam.transform.localRotation = Quaternion.Euler(m_verticalRotation, 0, 0);
     }
 
     public void AcquireGrapple()

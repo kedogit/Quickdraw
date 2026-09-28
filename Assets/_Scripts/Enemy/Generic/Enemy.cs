@@ -98,7 +98,6 @@ public abstract class Enemy : MonoBehaviour
     protected virtual void Update()
     {
         m_currentState.Execute();
-        Debug.Log(m_currentState.GetType());
     }
 
     public void CheckDistance()

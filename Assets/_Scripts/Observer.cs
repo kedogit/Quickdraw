@@ -11,7 +11,8 @@ public enum EVENT
     ON_LEVEL_COMPLETE,
     ON_CHEAT_GODMODE,
     ON_CHEAT_INSTAKILL,
-    ON_ARENA_START
+    ON_ARENA_START,
+    ON_PLAYER_DASH_START
 }
 
 public enum GAME_STATE
@@ -58,7 +59,7 @@ public class Observer
 
     public void UnsubscribeTo(EVENT eventName, Action function)
     {
-        if (m_eventList[eventName] != null)
+        if (m_eventList.ContainsKey(eventName))
         {
             m_eventList[eventName] -= function;
         }
@@ -66,7 +67,7 @@ public class Observer
 
     public void TriggerEvent(EVENT eventName)
     {
-        if (m_eventList[eventName] != null)
+        if (m_eventList.ContainsKey(eventName))
         {
             m_eventList[eventName].Invoke();
         }
