@@ -14,8 +14,8 @@ public class GoblinMelee : EnemyMeleeArmed
 
     private void Awake()
     {
-        EnemyWeapon clubScript = GetComponentInChildren<EnemyWeapon>();
-        clubScript.SetWeaponDamage(m_swingDamage);
+        EnemyAttackScript clubScript = GetComponentInChildren<EnemyAttackScript>();
+        clubScript.SetAttackDamage(m_swingDamage);
         m_enemySize = EnemySize.SMALL;
     }
 

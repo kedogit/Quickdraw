@@ -5,6 +5,7 @@ using UnityEngine;
 public enum EVENT
 {
     ON_ENEMY_HURT,
+    ON_PLAYER_HURT,
     ON_PLAYER_DEATH,
     ON_SENS_CHANGE,
     ON_VOLUME_CHANGE,

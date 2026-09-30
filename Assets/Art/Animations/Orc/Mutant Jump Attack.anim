@@ -114495,8 +114495,15 @@ AnimationClip:
   m_HasGenericRootTransform: 1
   m_HasMotionFloatCurves: 0
   m_Events:
+  - time: 1.6666666
+    functionName: SlamLanding
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 2.8666666
-    functionName: CheckDistance
+    functionName: DecideNextMove
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

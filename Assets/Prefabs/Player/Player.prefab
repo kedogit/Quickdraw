@@ -67,7 +67,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2003386719421410773}
-  - {fileID: 5389946065389995979}
+  - {fileID: 2963147174427532759}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &4437095924032700996
@@ -127,11 +127,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c56e8e79bc2595f45948bacb60c0049c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_playerBow: {fileID: 0}
   m_playerCamera: {fileID: 0}
   m_actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_hookHead: {fileID: 7646736502276273147, guid: f4a59806f8e664741ac9ba37c675639a, type: 3}
   m_arrowPrefab: {fileID: 7808187863613962836, guid: 1b5d97d4dd79b294b89238d4fee39ba7, type: 3}
-  m_bowAnimator: {fileID: 0}
   m_swingPhysicsMaterial: {fileID: 13400000, guid: 86a53551c51e9054c9a8ff87c015a0a3, type: 2}
   m_gameHUD: {fileID: 0}
   m_shootBowSFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
@@ -141,7 +141,6 @@ MonoBehaviour:
   m_jumpSFX: {fileID: 8300000, guid: 9e4422a8aa2b75843ade61152bc7210c, type: 3}
   m_hookShootSFX: {fileID: 8300000, guid: 01c7c4f202191cf46b49666571bb51bb, type: 3}
   m_hookLandSFX: {fileID: 8300000, guid: 3ada522b115b53f41a408b5e749d6a22, type: 3}
-  m_bowAudioSource: {fileID: 0}
   m_maxHP: 100
   m_invulnTime: 0.5
   m_moveSpeed: 10
@@ -150,9 +149,9 @@ MonoBehaviour:
   m_jumpForce: 7
   m_doubleJumpUpForce: 10
   m_doubleJumpForwardForce: 1
-  m_dashGroundedUpForce: 5
-  m_dashForce: 10
+  m_dashForce: 30
   m_dashCooldown: 0.6
+  m_dashDecayRate: 0.95
   m_clamp: 90
   m_mouseSensHor: 0.2
   m_mouseSensVert: 0.2
@@ -422,7 +421,7 @@ CapsuleCollider:
   m_Height: 3.11
   m_Direction: 1
   m_Center: {x: -1.8216584e-16, y: -0.02, z: 0.0323837}
---- !u!1 &8357432868790929798
+--- !u!1 &5004595956577903472
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -430,24 +429,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5389946065389995979}
+  - component: {fileID: 2963147174427532759}
   m_Layer: 0
-  m_Name: CameraPivot
+  m_Name: CameraAnchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5389946065389995979
+--- !u!4 &2963147174427532759
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8357432868790929798}
+  m_GameObject: {fileID: 5004595956577903472}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.15, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

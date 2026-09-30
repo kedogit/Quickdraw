@@ -354,8 +354,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8799161254236243747}
   - component: {fileID: 1057700488200821131}
-  - component: {fileID: 3682059862084963270}
   - component: {fileID: 7866721075712390361}
+  - component: {fileID: 3029508596021478168}
   m_Layer: 14
   m_Name: GoblinArrow
   m_TagString: Weapon
@@ -404,18 +404,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.06290908, y: 0.0033109125, z: 1.27031}
   m_Center: {x: -0.009071067, y: 0.00022046866, z: 0.057540014}
---- !u!114 &3682059862084963270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7808187863613962836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f53fe1afa1af7664dab86ac9c47e3fbc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!96 &7866721075712390361
 TrailRenderer:
   serializedVersion: 3
@@ -532,6 +520,18 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!114 &3029508596021478168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7808187863613962836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ce3248896d18564da9d0ac27d0a96ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9149115317552841017
 GameObject:
   m_ObjectHideFlags: 0

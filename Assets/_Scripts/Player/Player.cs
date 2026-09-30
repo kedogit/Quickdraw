@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -18,11 +19,6 @@ public class Player : MonoBehaviour
     [Header("References - Audio")]
     [SerializeField] private AudioClip m_shootBowSFX;
     [SerializeField] private AudioClip m_pullStringSFX;
-    [SerializeField] private AudioClip m_dashSFX;
-    [SerializeField] private AudioClip m_hurtSFX;
-    [SerializeField] private AudioClip m_jumpSFX;
-    [SerializeField] private AudioClip m_hookShootSFX;
-    [SerializeField] private AudioClip m_hookLandSFX;
 
 
     [Header("Health")]
@@ -43,11 +39,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_dashForce = 5f;
     [SerializeField] private float m_dashCooldown = 2f;
     [SerializeField] private float m_dashDecayRate = 0.95f;
-
-    [Header("Camera")]
-    [SerializeField] private float m_clamp = 90f;
-    [SerializeField] private float m_mouseSensHor = 100f;
-    [SerializeField] private float m_mouseSensVert = 1.0f;
 
     [Header("Hook")]
     [SerializeField] private float m_hookDrawSpeed = 5f;
@@ -82,7 +73,6 @@ public class Player : MonoBehaviour
 
     //input actions
     private InputAction m_move;
-    private InputAction m_look;
     private InputAction m_jump;
     private InputAction m_dash;
     private InputAction m_hook;
@@ -117,8 +107,8 @@ public class Player : MonoBehaviour
     private bool m_dashReady;
 
     //camera related
-    private float m_verticalRotation = 0f;
     private Quaternion m_cameraRotation = Quaternion.identity;
+    private CinemachineImpulseSource m_impulseComponent;
 
     //hook related
     private bool m_playerHasGrapple;
@@ -161,7 +151,6 @@ public class Player : MonoBehaviour
     {
         ChangeState(new PlayerStateAirborne(this));
 
-        m_look = m_actions.FindAction("Look");
         m_jump = m_actions.FindAction("Jump");
         m_dash = m_actions.FindAction("Dash");
         m_move = m_actions.FindAction("Move");
@@ -182,6 +171,8 @@ public class Player : MonoBehaviour
         m_bowAnimator = m_playerBow.GetComponent<Animator>();
         m_bowAudioSource = m_playerBow.GetComponent<AudioSource>();
         m_arrowHolder = m_playerBow.Find("ArrowHolder");
+
+        m_impulseComponent = GetComponent<CinemachineImpulseSource>();
 
         m_checkpointPos = transform.position;
 
@@ -445,10 +436,15 @@ public class Player : MonoBehaviour
             //update hud
             m_gameHUD.UpdateHP(m_currentHP);
 
-            //die if 0 hp
+            //die if 0 hp, otherwise trigger hurt event
             if (m_currentHP <= 0)
             {
                 Die();
+            }
+            else
+            {
+                Observer.GetInstance().TriggerEvent(EVENT.ON_PLAYER_HURT);
+                m_impulseComponent.GenerateImpulse();
             }
         }
     }

@@ -100,7 +100,7 @@ public abstract class Enemy : MonoBehaviour
         m_currentState.Execute();
     }
 
-    public void CheckDistance()
+    public void DecideNextMove()
     {
         if (m_currentState is EnemyAttack)
         {

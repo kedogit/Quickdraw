@@ -470,7 +470,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1886072837984796960}
   - component: {fileID: 6808112944355346819}
-  - component: {fileID: 5557599128542449221}
+  - component: {fileID: 7189175930016976976}
   m_Layer: 0
   m_Name: R_equip_joint
   m_TagString: Weapon
@@ -515,7 +515,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0879986, y: 0.19444574, z: 0.21615271}
   m_Center: {x: -0.41304323, y: 0.013925145, z: 0.022253152}
---- !u!114 &5557599128542449221
+--- !u!114 &7189175930016976976
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -524,7 +524,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 620119462065098440}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f53fe1afa1af7664dab86ac9c47e3fbc, type: 3}
+  m_Script: {fileID: 11500000, guid: 6ce3248896d18564da9d0ac27d0a96ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &669489406471147303
