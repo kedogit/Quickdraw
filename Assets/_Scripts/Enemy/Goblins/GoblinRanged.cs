@@ -10,7 +10,6 @@ public class GoblinRanged : Enemy
     [SerializeField] private float m_arrowCleanupTime = 5f;
     [SerializeField] private AudioClip m_shootSFX;
     [SerializeField] private AudioClip m_drawSFX;
-    [SerializeField] private AnimationClip m_shootAnimation;
 
     const float m_arrowRescale = 5f;
 
@@ -29,7 +28,7 @@ public class GoblinRanged : Enemy
 
     private void ShootBow()
     {
-        m_animator.speed = m_shootAnimation.length / m_attackSpeed;
+        m_animator.speed = m_attackSpeed;
         m_animator.SetTrigger("Shoot");
 
         //find the righthand's transform and instantiate the arrow there. rescale arrow

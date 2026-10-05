@@ -12,10 +12,7 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private GameObject m_escMenu;
     [SerializeField] private GameObject m_settingsMenu;
     [SerializeField] private GameObject m_topLevelMenu;
-    [SerializeField] private GameObject m_hitMarker;
-    [SerializeField] private AudioSource m_hitMarkerSource;
 
-    [SerializeField] private float m_hitmarkerDuration = 0.2f;
     [SerializeField] private AnimationClip m_fadeOutScreen;
     [SerializeField] private GameObject m_endScreen;
 
@@ -28,13 +25,11 @@ public class GameHUD : MonoBehaviour
         m_blackScreenAnimator = m_blackScreen.GetComponent<Animation>();
         m_blackScreenAnimator.Play();
 
-        Observer.GetInstance().SubscribeTo(EVENT.ON_ENEMY_HURT, ShowHitmarker);
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, OnLevelComplete);
     }
 
     private void OnDestroy()
     {
-        Observer.GetInstance().UnsubscribeTo(EVENT.ON_ENEMY_HURT, ShowHitmarker);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, OnLevelComplete);
     }
 
@@ -143,18 +138,5 @@ public class GameHUD : MonoBehaviour
     {
         m_topLevelMenu.SetActive(true);
         m_settingsMenu.SetActive(false);
-    }
-
-    public void ShowHitmarker()
-    {
-        m_hitMarker.SetActive(true);
-        StartCoroutine(EraseHitmarker());
-        m_hitMarkerSource.Play();
-    }
-
-    private IEnumerator EraseHitmarker()
-    {
-        yield return new WaitForSeconds(m_hitmarkerDuration);
-        m_hitMarker.SetActive(false);
     }
 }

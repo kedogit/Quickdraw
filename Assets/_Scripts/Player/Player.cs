@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -443,7 +444,9 @@ public class Player : MonoBehaviour
             }
             else
             {
-                Observer.GetInstance().TriggerEvent(EVENT.ON_PLAYER_HURT);
+                Dictionary<string, object> eventParams = new Dictionary<string, object>();
+                eventParams.Add("HPPercent", (m_currentHP / m_maxHP) * 100);
+                Observer.GetInstance().TriggerEvent(EVENT.ON_PLAYER_HURT, eventParams);
                 m_impulseComponent.GenerateImpulse();
             }
         }

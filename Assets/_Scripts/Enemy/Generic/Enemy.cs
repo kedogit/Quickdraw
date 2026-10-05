@@ -130,8 +130,12 @@ public abstract class Enemy : MonoBehaviour
     {
         if (m_currentState is not EnemyDead)
         {
-            //trigger event for hitmarker
-            Observer.GetInstance().TriggerEvent(EVENT.ON_ENEMY_HURT);
+            string damageResult = "Regular";
+
+            if (bodyDamageMultipliers[partHit] >= bodyDamageMultipliers[BodyPart.HEAD])
+            {
+                damageResult = "Critical";
+            }
 
             //show bars
             m_bars.SetActive(true);
@@ -146,6 +150,7 @@ public abstract class Enemy : MonoBehaviour
             if (m_currentHP <= 0)
             {
                 Die();
+                damageResult = "Kill";
             }
             else
             {
@@ -171,6 +176,10 @@ public abstract class Enemy : MonoBehaviour
                     }
                 }
             }
+            //trigger event for hitmarker
+            Dictionary<string, object> hurtEventParams = new Dictionary<string, object>();
+            hurtEventParams.Add("HitmarkerType", damageResult);
+            Observer.GetInstance().TriggerEvent(EVENT.ON_ENEMY_HURT, hurtEventParams);
         }
     }
 

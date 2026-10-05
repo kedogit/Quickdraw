@@ -1,11 +1,8 @@
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class OrcAnimEvent : MonoBehaviour
+public class OrcAnimEvent : EnemyAnimationEvent<Orc>
 {
-    [Header("Main Script")]
-    [SerializeField] private Orc m_enemyScript;
-
     [Header("Slam")]
     [SerializeField] private BoxCollider m_slamHitbox;
     [SerializeField] private SFX m_slamSFX;
@@ -27,18 +24,16 @@ public class OrcAnimEvent : MonoBehaviour
 
     public void SwingStart()
     {
-        m_enemyScript.HandleAttackEffects(m_swingSFX, m_swordHitbox, m_swingHitboxDuration, m_swordTrail, m_swingTrailDuration);
-    }
-
-    public void DecideNextMove()
-    {
-        m_enemyScript.DecideNextMove();
+        m_attackSpeed = m_enemyScript.AttackSpeed;
+        m_enemyScript.HandleAttackEffects(m_swingSFX, m_swordHitbox, m_swingHitboxDuration/m_attackSpeed, m_swordTrail, m_swingTrailDuration/m_attackSpeed);
     }
 
     public void SlamLanding()
     {
+        m_attackSpeed = m_enemyScript.AttackSpeed;
+
         //enable hitbox
-        m_enemyScript.HandleAttackEffects(m_slamSFX, m_slamHitbox, m_slamHitboxDuration);
+        m_enemyScript.HandleAttackEffects(m_slamSFX, m_slamHitbox, m_slamHitboxDuration/m_attackSpeed);
 
         //shake camera
         m_impulseComponent.GenerateImpulse();

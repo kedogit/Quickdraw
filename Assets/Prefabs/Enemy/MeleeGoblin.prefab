@@ -2421,6 +2421,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enemyScript: {fileID: 3099541446892255437}
+  m_clubHitbox: {fileID: 6808112944355346819}
+  m_swingSFX: 8
+  m_clubTrail: {fileID: 4147066997671673329}
+  m_swingHitboxDuration: 0.2
+  m_swingTrailDuration: 0.25
 --- !u!114 &1189160000540455014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2971,7 +2976,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8488305224227241176
 Transform:
   m_ObjectHideFlags: 0
@@ -3042,8 +3047,6 @@ MonoBehaviour:
   m_weaponTrail: {fileID: 4147066997671673329}
   m_weaponHitbox: {fileID: 6808112944355346819}
   m_swingDamage: 25
-  m_swingSFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
-  m_swingAnimation: {fileID: 7400000, guid: cad07bba44831de4e864c90f71e5ac4e, type: 2}
 --- !u!82 &7011903078007300247
 AudioSource:
   m_ObjectHideFlags: 0

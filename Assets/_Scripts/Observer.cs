@@ -6,6 +6,7 @@ public enum EVENT
 {
     ON_ENEMY_HURT,
     ON_PLAYER_HURT,
+    ON_PLAYER_EXIT_CRITICAL,
     ON_PLAYER_DEATH,
     ON_SENS_CHANGE,
     ON_VOLUME_CHANGE,
@@ -29,11 +30,11 @@ public class Observer
 
     private static Observer m_instance;
 
-    private Dictionary<EVENT, Action> m_eventList;
+    private Dictionary<EVENT, Action<Dictionary<string, object>>> m_eventList;
 
     private Observer()
     {
-        m_eventList = new Dictionary<EVENT, Action>();
+        m_eventList = new Dictionary<EVENT, Action<Dictionary<string, object>>>();
         m_currentState = GAME_STATE.NEWGAME;
     }
 
@@ -46,7 +47,7 @@ public class Observer
         return m_instance;
     }
 
-    public void SubscribeTo(EVENT eventName, Action function)
+    public void SubscribeTo(EVENT eventName, Action<Dictionary<string, object>> function)
     {
         if (m_eventList.ContainsKey(eventName))
         {
@@ -58,7 +59,12 @@ public class Observer
         }
     }
 
-    public void UnsubscribeTo(EVENT eventName, Action function)
+    public void SubscribeTo(EVENT eventName, Action function)
+    {
+        SubscribeTo(eventName, ConvertToParamEvent(function));
+    }
+
+    public void UnsubscribeTo(EVENT eventName, Action<Dictionary<string, object>> function)
     {
         if (m_eventList.ContainsKey(eventName))
         {
@@ -66,11 +72,24 @@ public class Observer
         }
     }
 
+    public void UnsubscribeTo(EVENT eventName, Action function)
+    {
+        UnsubscribeTo(eventName, ConvertToParamEvent(function));
+    }
+
     public void TriggerEvent(EVENT eventName)
     {
         if (m_eventList.ContainsKey(eventName))
         {
-            m_eventList[eventName].Invoke();
+            m_eventList[eventName].Invoke(null);
+        }
+    }
+
+    public void TriggerEvent(EVENT eventName, Dictionary<string, object> eventParams)
+    {
+        if (m_eventList.ContainsKey(eventName))
+        {
+            m_eventList[eventName].Invoke(eventParams);
         }
     }
 
@@ -81,5 +100,11 @@ public class Observer
             PlayerPrefs.SetInt("CheckpointIndex", 0);
         }
         m_currentState = newState;
+    }
+
+    private Action<Dictionary<string, object>> ConvertToParamEvent(Action action)
+    {
+        Action<Dictionary<string, object>> parameterlessAction = (dict) => action();
+        return parameterlessAction;
     }
 }

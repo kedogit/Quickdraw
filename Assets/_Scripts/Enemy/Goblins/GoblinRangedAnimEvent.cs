@@ -1,9 +1,7 @@
 using UnityEngine;
 
-public class GoblinRangedAnimEvent : MonoBehaviour
+public class GoblinRangedAnimEvent : EnemyAnimationEvent<GoblinRanged>
 {
-    [SerializeField] private GoblinRanged m_enemyScript;
-
     public void ShootArrow()
     {
         m_enemyScript.LaunchArrow();
@@ -12,10 +10,5 @@ public class GoblinRangedAnimEvent : MonoBehaviour
     public void DrawString()
     {
         m_enemyScript.DrawString();
-    }
-
-    public void DecideNextMove()
-    {
-        m_enemyScript.DecideNextMove();
     }
 }
