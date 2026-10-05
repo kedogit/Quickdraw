@@ -104,10 +104,8 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
-Assets/DirectImport_Terrain/
-Assets/DirectImport_Characters/PolysplitGames/LowPolyMedievalFantasyBipedCreatures/Materials_Shaders_Textures/BipedCreatures_Materials/RGBRecolor_Objects_SkelArcher.mat
-Assets/DirectImport_Characters/
-Assets/DirectImport_SFX/
 UnusedAssets/
 Assets/Asset Cleaner/
 Assets/Asset Cleaner.meta
+Assets/Art/
+Assets/Art.meta
