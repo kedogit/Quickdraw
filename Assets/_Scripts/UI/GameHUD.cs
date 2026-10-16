@@ -1,10 +1,13 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameHUD : MonoBehaviour
 {
+    [SerializeField] private InputActionAsset m_actions;
     [SerializeField] private GameObject m_blackScreen;
     [SerializeField] private Animator m_hpBarAnimator;
     [SerializeField] private GameObject m_grappleText;
@@ -16,6 +19,9 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private AnimationClip m_fadeOutScreen;
     [SerializeField] private GameObject m_endScreen;
 
+
+    private InputAction m_escMenuInput;
+
     private Animation m_blackScreenAnimator;
     private const float m_grappleTextHideDelay = 2f;
     private const float m_grappleTextFadeDuration = 0.5f;
@@ -25,7 +31,27 @@ public class GameHUD : MonoBehaviour
         m_blackScreenAnimator = m_blackScreen.GetComponent<Animation>();
         m_blackScreenAnimator.Play();
 
+        m_escMenuInput = m_actions.FindAction("ESCMenu");
+
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, OnLevelComplete);
+    }
+
+    private void Update()
+    {
+        OpenEscMenu();
+    }
+
+    private void OpenEscMenu()
+    {
+        if (m_escMenuInput.WasPressedThisFrame())
+        {
+            if (!m_escMenu.activeSelf)
+            {
+                m_escMenu.SetActive(true);
+                Time.timeScale = 0;
+                TriggerMenuToggleEvent(true);
+            }
+        }
     }
 
     private void OnDestroy()
@@ -89,25 +115,18 @@ public class GameHUD : MonoBehaviour
         objectToHide.SetActive(false);
     }
 
-    public void ToggleEscMenu()
-    {
-        m_escMenu.SetActive(!m_escMenu.activeSelf);
-        if (Time.timeScale == 1)
-        {
-            Time.timeScale = 0;
-        }
-        else
-        {
-            Time.timeScale = 1;
-        }
-    }
-
     public void ResumeGame()
     {
-        ToggleEscMenu();
+        Time.timeScale = 1;
+        m_escMenu.SetActive(false);
+        TriggerMenuToggleEvent(false);
+    }
 
-        //yucky, do this with an observer later
-        GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().TogglePlayerInputs();
+    private void TriggerMenuToggleEvent(bool menuState)
+    {
+        Dictionary<string, object> eventParams = new Dictionary<string, object>();
+        eventParams.Add("MenuActive", menuState);
+        Observer.GetInstance().TriggerEvent(EVENT.ON_MENU_TOGGLED, eventParams);
     }
 
     public void RestartLevel()
@@ -119,12 +138,8 @@ public class GameHUD : MonoBehaviour
 
     public void BackToMainMenu()
     {
-        ToggleEscMenu();
-        LoadMainMenu();
-    }
-
-    public void LoadMainMenu()
-    {
+        Time.timeScale = 1;
+        TriggerMenuToggleEvent(true);
         SceneManager.LoadScene("MainMenu");
     }
 

@@ -42,8 +42,8 @@ public class Hitmarker : MonoBehaviour
         }
 
         m_hitMarkerImageGO.SetActive(true);
-        StartCoroutine(EraseHitmarker());
         AudioManager.GetInstance().PlaySFX(SFX.HITMARKER);
+        StartCoroutine(EraseHitmarker());
     }
 
     private IEnumerator EraseHitmarker()

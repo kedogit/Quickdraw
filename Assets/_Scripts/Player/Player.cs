@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -63,6 +64,12 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_reloadTime = 1.0f;
     [SerializeField] private float m_arrowDamage = 55f;
 
+    [Header("Impulses")]
+    [SerializeField] private float m_shootImpulseDuration = 0.4f;
+    [SerializeField] private Vector3 m_shootImpulseVector = new Vector3(0f, 0.4f, -0.5f);
+    [SerializeField] private float m_hurtImpulseDuration = 0.6f;
+    [SerializeField] private Vector3 m_hurtImpulseVector = new Vector3(-0.5f, -0.7f, 0.5f);
+
     //public getters for player states
     public float GrappleAcceleration => m_grappleAcceleration;
     public float AirRotationSpeed => m_airRotationSpeed;
@@ -79,14 +86,10 @@ public class Player : MonoBehaviour
     private InputAction m_hook;
     private InputAction m_shoot;
     private InputAction m_interact;
-    private InputAction m_escMenu;
 
     //components
     private Rigidbody m_body;
     private CapsuleCollider m_collider;
-
-    //menu
-    private bool m_isPaused;
 
     //hp
     private float m_currentHP;
@@ -158,10 +161,8 @@ public class Player : MonoBehaviour
         m_hook = m_actions.FindAction("Hook");
         m_shoot = m_actions.FindAction("Shoot");
         m_interact = m_actions.FindAction("Interact");
-        m_escMenu = m_actions.FindAction("ESCMenu");
 
         m_actions.FindActionMap("Player").Enable();
-        m_escMenu.Enable();
 
         m_body = GetComponent<Rigidbody>();
         m_hookLineRenderer = GetComponent<LineRenderer>();
@@ -201,8 +202,17 @@ public class Player : MonoBehaviour
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_MENU_TOGGLED, TogglePlayerInputs);
 
         m_groundLayer = LayerMask.GetMask("Ground");
+    }
+
+    private void OnDestroy()
+    {
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_MENU_TOGGLED, TogglePlayerInputs);
     }
 
     // Update is called once per frame
@@ -216,7 +226,6 @@ public class Player : MonoBehaviour
         Interact();
         ReadyBow();
         GrappleExitHandling();
-        EscMenuHandling();
         ShootArrow();
     }
     
@@ -252,13 +261,6 @@ public class Player : MonoBehaviour
     private void RotateBody()
     {
         m_body.MoveRotation(m_cameraRotation);
-    }
-
-    private void OnDestroy()
-    {
-        Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
-        Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
-        Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
     }
 
     public void SetInteractTarget(Interactable target)
@@ -447,7 +449,7 @@ public class Player : MonoBehaviour
                 Dictionary<string, object> eventParams = new Dictionary<string, object>();
                 eventParams.Add("HPPercent", (m_currentHP / m_maxHP) * 100);
                 Observer.GetInstance().TriggerEvent(EVENT.ON_PLAYER_HURT, eventParams);
-                m_impulseComponent.GenerateImpulse();
+                GenerateImpulse(CinemachineImpulseDefinition.ImpulseShapes.Explosion, m_hurtImpulseDuration, m_hurtImpulseVector);
             }
         }
     }
@@ -481,6 +483,9 @@ public class Player : MonoBehaviour
                 //play sfx
                 m_bowAudioSource.clip = m_shootBowSFX;
                 m_bowAudioSource.Play();
+
+                //shake screen
+                GenerateImpulse(CinemachineImpulseDefinition.ImpulseShapes.Bump, m_shootImpulseDuration, m_shootImpulseVector);
 
                 //find a transform ahead of where the player is looking
                 Vector3 target = m_playerCamera.position + m_playerCamera.forward * m_bowTargetDistance;
@@ -528,6 +533,13 @@ public class Player : MonoBehaviour
                 m_bowAnimator.SetFloat("BowCharge", 0);
             }
         }
+    }
+
+    private void GenerateImpulse(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float duration, Vector3 velocity)
+    {
+        m_impulseComponent.ImpulseDefinition.ImpulseShape = impulseShape;
+        m_impulseComponent.ImpulseDefinition.ImpulseDuration = duration;
+        m_impulseComponent.GenerateImpulseWithVelocity(velocity);
     }
 
     private IEnumerator LoadArrow()
@@ -702,36 +714,23 @@ public class Player : MonoBehaviour
     }
     #endregion
 
-    private void EscMenuHandling()
+    public void TogglePlayerInputs(Dictionary<string, object> eventParams)
     {
-        if (m_escMenu.WasPressedThisFrame())
+        if ((bool)eventParams["MenuActive"])
         {
-            TogglePlayerInputs();
-            m_gameHUD.ToggleEscMenu();
+            DisableAllInputs();
         }
-    }
-
-    public void TogglePlayerInputs()
-    {
-        if (m_isPaused)
+        else
         {
             m_actions.FindActionMap("Player").Enable();
             Cursor.lockState = CursorLockMode.Locked;
         }
-        else
-        {
-            m_actions.FindActionMap("Player").Disable();
-            Cursor.lockState = CursorLockMode.Confined;
-        }
-
-        m_isPaused = !m_isPaused;
     }
 
     private void DisableAllInputs()
     {
         m_actions.FindActionMap("Player").Disable();
         Cursor.lockState = CursorLockMode.Confined;
-        m_escMenu.Disable();
     }
 
     public void AcquireGrapple()

@@ -14,7 +14,8 @@ public enum EVENT
     ON_CHEAT_GODMODE,
     ON_CHEAT_INSTAKILL,
     ON_ARENA_START,
-    ON_PLAYER_DASH_START
+    ON_PLAYER_DASH_START,
+    ON_MENU_TOGGLED
 }
 
 public enum GAME_STATE
@@ -31,10 +32,12 @@ public class Observer
     private static Observer m_instance;
 
     private Dictionary<EVENT, Action<Dictionary<string, object>>> m_eventList;
+    private Dictionary<Action, Action<Dictionary<string, object>>> m_wrapperTracker;
 
     private Observer()
     {
         m_eventList = new Dictionary<EVENT, Action<Dictionary<string, object>>>();
+        m_wrapperTracker = new Dictionary<Action, Action<Dictionary<string, object>>>();
         m_currentState = GAME_STATE.NEWGAME;
     }
 
@@ -61,7 +64,22 @@ public class Observer
 
     public void SubscribeTo(EVENT eventName, Action function)
     {
-        SubscribeTo(eventName, ConvertToParamEvent(function));
+        //declare the "return" variable
+        Action<Dictionary<string, object>> paramAction;
+
+        //if the action is in the wrapper tracker, set the return variable to it. else, convert the function and add it to the tracker
+        if (m_wrapperTracker.TryGetValue(function, out Action<Dictionary<string,object>> wrappedAction))
+        {
+            paramAction = wrappedAction;
+        }
+        else
+        {
+            paramAction = ConvertToParamEvent(function);
+            m_wrapperTracker[function] = paramAction;
+        }
+
+        //send the call to the subscribe function
+        SubscribeTo(eventName, paramAction);
     }
 
     public void UnsubscribeTo(EVENT eventName, Action<Dictionary<string, object>> function)
@@ -74,7 +92,12 @@ public class Observer
 
     public void UnsubscribeTo(EVENT eventName, Action function)
     {
-        UnsubscribeTo(eventName, ConvertToParamEvent(function));
+        //try to find the action in the wrapper tracker and then remove it
+        if (m_wrapperTracker.TryGetValue(function, out var wrappedAction))
+        {
+            UnsubscribeTo(eventName, wrappedAction);
+            m_wrapperTracker.Remove(function);
+        }
     }
 
     public void TriggerEvent(EVENT eventName)
