@@ -4,6 +4,7 @@ public class EnemyAttack : EnemyState
 {
     public EnemyAttack(Enemy enemyScript, Animator animator) : base(enemyScript, animator)
     {
+        //simply calls the enemy's attack function once to allow it to do whatever special/unique attack behavior it has
         m_animator.SetBool("isRunning", false);
         m_enemyScript.Attack();
     }

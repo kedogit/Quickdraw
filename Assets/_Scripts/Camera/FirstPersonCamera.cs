@@ -26,15 +26,19 @@ public class FirstPersonCamera : MonoBehaviour
 
     private void DashTriggered()
     {
+        //when dash is triggered, initiate the zoom effect
         float currentFOV = m_cineComponent.Lens.FieldOfView;
         float targetFOV = currentFOV + m_dashZoomIntensity;
         StartCoroutine(ZoomLerp(currentFOV, targetFOV));
-        m_speedLines.Play();
     }
 
     private IEnumerator ZoomLerp(float startFOV, float endFOV)
     {
+        //generate speed lines and prepare the zoom in
+        m_speedLines.Play();
         float halvedDuration = m_zoomDuration / 2;
+
+        //zoom in
         m_elapsed = 0f;
         while (m_elapsed <= halvedDuration)
         {
@@ -44,6 +48,7 @@ public class FirstPersonCamera : MonoBehaviour
             yield return null;
         }
 
+        //zoom out
         m_elapsed = 0f;
         while (m_elapsed <= halvedDuration)
         {
@@ -53,6 +58,7 @@ public class FirstPersonCamera : MonoBehaviour
             yield return null;
         }
 
+        //stop the speed lines
         m_speedLines.Stop();
     }
 }

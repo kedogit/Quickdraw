@@ -8,7 +8,6 @@ public class EnemyIdle : EnemyState
 
     public override void Execute()
     {
-
     }
 
     public override void TriggerStart(Collider target)

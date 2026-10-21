@@ -68,3 +68,6 @@ MonoBehaviour:
   m_goblinHurtSFX: {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
   m_goblinDeathSFX: {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
   m_orcAttack1SFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
+  m_menuHoverSFX: {fileID: 8300000, guid: 7cc057bed53baf34799f52aab3c84800, type: 3}
+  m_menuConfirm1SFX: {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
+  m_menuConfirm2SFX: {fileID: 8300000, guid: 35cf7766e9e2aa542811e896fde57989, type: 3}

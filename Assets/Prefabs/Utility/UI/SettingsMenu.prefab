@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 3513955589208638750}
   - component: {fileID: 6373616706701010518}
   - component: {fileID: 723478154284473671}
+  - component: {fileID: 9189330919508061258}
   m_Layer: 5
   m_Name: ApplyButton
   m_TagString: Untagged
@@ -311,9 +312,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: BackToMain
+      - m_Target: {fileID: 5482575866704760592}
+        m_TargetAssemblyTypeName: UISFX, Assembly-CSharp
+        m_MethodName: OnConfirm2
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -353,6 +354,35 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &9189330919508061258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 515878184340371664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 5482575866704760592}
+          m_TargetAssemblyTypeName: UISFX, Assembly-CSharp
+          m_MethodName: OnHover
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &918834682539387320
 GameObject:
   m_ObjectHideFlags: 0
@@ -2282,6 +2312,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1812112166230605055}
   - component: {fileID: 4633235502690936077}
+  - component: {fileID: 5482575866704760592}
   m_Layer: 5
   m_Name: SettingsMenu
   m_TagString: Untagged
@@ -2328,6 +2359,18 @@ MonoBehaviour:
   m_sensDisplay: {fileID: 4481748826327002448}
   m_masterVolumeDisplay: {fileID: 6392848177584186038}
   m_musicVolumeDisplay: {fileID: 4155077287370805335}
+--- !u!114 &5482575866704760592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6784853662090491440}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b09f1df0d6f81ce49a2a7be7eb478704, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6807154406906409064
 GameObject:
   m_ObjectHideFlags: 0

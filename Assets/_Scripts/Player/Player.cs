@@ -188,17 +188,8 @@ public class Player : MonoBehaviour
 
         m_gameHUD.UpdateHP(m_currentHP);
 
-        if (Observer.GetInstance().GameState == GAME_STATE.SAVEDGAME)
-        {
-            m_playerHasGrapple = PlayerPrefs.GetInt("hasGrapple") == 1 ? true : false;
-            SetSpawnLocation();
-        }
-        else
-        {
-            AudioManager.GetInstance()?.ChangePersistentBGM(SONG.OVERWORLD1);
-        }
+        m_playerHasGrapple = PlayerPrefs.GetInt("hasGrapple") == 1 ? true : false;
 
-        Observer.GetInstance().SetGameState(GAME_STATE.SAVEDGAME);
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
@@ -233,6 +224,13 @@ public class Player : MonoBehaviour
     {
         m_currentState.Move();
         RotateBody();
+    }
+
+    public void SetReferences(Transform playerCam, Transform playerBow, GameHUD gameHUD)
+    {
+        m_playerCamera = playerCam;
+        m_playerBow = playerBow;
+        m_gameHUD = gameHUD;
     }
 
     public bool CheckGrounded()
@@ -537,6 +535,7 @@ public class Player : MonoBehaviour
 
     private void GenerateImpulse(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float duration, Vector3 velocity)
     {
+        //probably replace all of this with an impulse manager singleton later
         m_impulseComponent.ImpulseDefinition.ImpulseShape = impulseShape;
         m_impulseComponent.ImpulseDefinition.ImpulseDuration = duration;
         m_impulseComponent.GenerateImpulseWithVelocity(velocity);

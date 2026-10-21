@@ -130,8 +130,10 @@ public abstract class Enemy : MonoBehaviour
     {
         if (m_currentState is not EnemyDead)
         {
+            //damage result is used to determine hitmarker color
             string damageResult = "Regular";
 
+            //if damage multiplier is equivalent to head or higher, considered a critical hit
             if (bodyDamageMultipliers[partHit] >= bodyDamageMultipliers[BodyPart.HEAD])
             {
                 damageResult = "Critical";
@@ -219,7 +221,7 @@ public abstract class Enemy : MonoBehaviour
             m_stunParticles.SetActive(true);
 
             //this line's goal was to set the lifetime of the stun particles appropriately so they shrink fully depending on the set stun duration
-            //it broke the particle trail because trail lifetime is tied to particle lifetime. dunno how to fix, not important
+            //it broke the particle trail because trail lifetime is tied to particle lifetime. dunno how to fix, not important for now but maybe revisit later
             //var stunParticles = m_stunParticles.GetComponent<ParticleSystem>().main;
             //stunParticles.startLifetime = m_stunDuration;
 

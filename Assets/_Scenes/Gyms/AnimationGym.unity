@@ -283,6 +283,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5501886806958634884, guid: f4dc93cb33d85b347b6f53f91eba68f3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -425,63 +429,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!1001 &1381844667
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 359161739345193446, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_Name
-      value: PlayerBow
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.6094
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.4849
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2.6625
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.6009936
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.5103427
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.44223875
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.42753
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 82.553
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: -47.264
-      objectReference: {fileID: 0}
-    - target: {fileID: 8808723801149486104, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 28.832
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 46291ce295891214faf50cfe1aeb93fb, type: 3}
 --- !u!1 &1601180556
 GameObject:
   m_ObjectHideFlags: 0
@@ -615,6 +562,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5995765702732867516, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6932044512179013866, guid: ec67c960aa9edc5439ea36f1b4e3658b, type: 3}
       propertyPath: m_Name
       value: MeleeGoblinArmored
@@ -724,6 +675,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8219447384590342081, guid: 1a49d73a633d459488eb5bc654df7449, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -739,4 +694,3 @@ SceneRoots:
   - {fileID: 1745789607}
   - {fileID: 544886645}
   - {fileID: 2032429400}
-  - {fileID: 1381844667}

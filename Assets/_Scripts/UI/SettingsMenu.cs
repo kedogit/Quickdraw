@@ -19,17 +19,20 @@ public class SettingsMenu : MonoBehaviour
     private const float m_volumeMinValue = 0f;
     private const float m_volumeMaxValue = 100f;
 
+    private const float m_defaultSensValue = 50f;
+    private const float m_defaultVolumeValue = 85f;
+
     // TODO!!!!
     // combine both sensitivity sliders into one, or add a lock button to keep the same value for both
     void Start()
     {
-        float sliderValue = PlayerPrefs.GetFloat("Sensitivity");
+        float sliderValue = PlayerPrefs.GetFloat("Sensitivity", m_defaultSensValue);
         InitializeSlider(sliderValue, m_sensMinValue, m_sensMaxValue, m_sensDisplay, m_sens);
 
-        sliderValue = PlayerPrefs.GetFloat("MasterVolume");
+        sliderValue = PlayerPrefs.GetFloat("MasterVolume", m_defaultVolumeValue);
         InitializeSlider(sliderValue, m_volumeMinValue, m_volumeMaxValue, m_masterVolumeDisplay, m_masterVolume);
 
-        sliderValue = PlayerPrefs.GetFloat("MusicVolume");
+        sliderValue = PlayerPrefs.GetFloat("MusicVolume", m_defaultVolumeValue);
         InitializeSlider(sliderValue, m_volumeMinValue, m_volumeMaxValue, m_musicVolumeDisplay, m_musicVolume);
 
         m_sens.onValueChanged.AddListener(OnSensChanged);

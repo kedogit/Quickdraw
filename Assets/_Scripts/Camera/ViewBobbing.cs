@@ -70,10 +70,14 @@ public class ViewBobbing : MonoBehaviour
             return;
         }
 
+        //multiply by negative value to find a mirrored point
         Vector3 invertedLook = m_lookVector * -m_swayIntensity;
+
+        //clamp it
         invertedLook.x = Mathf.Clamp(invertedLook.x, -m_maxSwayDistance, m_maxSwayDistance);
         invertedLook.y = Mathf.Clamp(invertedLook.y, -m_maxSwayDistance, m_maxSwayDistance);
 
+        //store it
         m_swayPosition = invertedLook;
     }
 
@@ -85,10 +89,14 @@ public class ViewBobbing : MonoBehaviour
             return;
         }
 
+        //multiply by negative value to find a mirrored point
         Vector2 invertedLook = m_lookVector * -m_swayRotateIntensity;
+
+        //clamp it
         invertedLook.x = Mathf.Clamp(invertedLook.x, -m_maxSwayRotation, m_maxSwayRotation);
         invertedLook.y = Mathf.Clamp(-invertedLook.y, -m_maxSwayRotation, m_maxSwayRotation);
 
+        //store as yxx (rotations are weird idk)
         m_swayRotation = new Vector3(invertedLook.y, invertedLook.x, invertedLook.x);
     }
 
@@ -104,8 +112,10 @@ public class ViewBobbing : MonoBehaviour
 
     private void CalculateBobMovement()
     {
+        //check if player is grounded to only bob on the ground
         bool playerGrounded = m_playerScript.CheckGrounded();
 
+        //advance speed curve over time by taking into account player speed if grounded
         m_speedCurve += Time.deltaTime * (playerGrounded ? m_playerBody.linearVelocity.magnitude : 1f) + 0.01f;
 
         if (!m_doBob)
@@ -114,6 +124,7 @@ public class ViewBobbing : MonoBehaviour
             return;
         }
 
+        //use the speed curve to create the bob position vector
         m_bobPosition.x = (GetCos() * m_maxBob.x * (playerGrounded ? 1 : 0)) - (m_moveVector.x * m_bobIntensity.x);
         m_bobPosition.y = (GetSin() * m_maxBob.y) - (m_playerBody.linearVelocity.y * m_bobIntensity.y);
         m_bobPosition.z = -(m_moveVector.y * m_maxBob.z);
@@ -127,6 +138,7 @@ public class ViewBobbing : MonoBehaviour
             return;
         }
 
+        //if moving, create the bob rotation vector using the speed curve
         m_bobRotation.x = (m_moveVector != Vector2.zero ? m_bobRotationIntensity.x * (Mathf.Sin(2 * m_speedCurve)) : m_bobRotationIntensity.x * (Mathf.Sin(2 * m_speedCurve) / 2));
         m_bobRotation.y = (m_moveVector != Vector2.zero ? m_bobRotationIntensity.y * GetCos() : 0);
         m_bobRotation.z = (m_moveVector != Vector2.zero ? m_bobRotationIntensity.z * GetCos() * m_moveVector.x : 0);
@@ -134,6 +146,7 @@ public class ViewBobbing : MonoBehaviour
 
     private void ApplySwayAndBob()
     {
+        //lerp the movements and slerp the rotations for smoother effect
         transform.localPosition = Vector3.Lerp(transform.localPosition, m_swayPosition + m_bobPosition, Time.deltaTime * m_moveSmoothing);
         transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(m_swayRotation) * Quaternion.Euler(m_bobRotation), Time.deltaTime * m_rotationSmoothing);
     }

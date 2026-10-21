@@ -127,6 +127,10 @@ public class Observer
 
     private Action<Dictionary<string, object>> ConvertToParamEvent(Action action)
     {
+        //WHY DOES THIS EXIST?:
+        //i didn't want to force all subscriber functions into having dic<string,object> in their definition, so i made 2 separate definitions for the trigger
+        //and subscribe functions. if a script attempts to use these functions without parameters, it creates a lambda in the backend to simulate an event with an empty dict.
+
         Action<Dictionary<string, object>> parameterlessAction = (dict) => action();
         return parameterlessAction;
     }

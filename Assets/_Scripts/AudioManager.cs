@@ -25,7 +25,10 @@ public enum SFX
     GOBLIN_DRAW_BOW,
     GOBLIN_HURT,
     GOBLIN_DEATH,
-    ORC_ATTACK1
+    ORC_ATTACK1,
+    MENU_HOVER,
+    MENU_CONFIRM1,
+    MENU_CONFIRM2
 }
 
 public class AudioManager : MonoBehaviour
@@ -61,6 +64,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip m_goblinHurtSFX;
     [SerializeField] private AudioClip m_goblinDeathSFX;
     [SerializeField] private AudioClip m_orcAttack1SFX;
+    [SerializeField] private AudioClip m_menuHoverSFX;
+    [SerializeField] private AudioClip m_menuConfirm1SFX;
+    [SerializeField] private AudioClip m_menuConfirm2SFX;
 
     private Dictionary<SONG, AudioClip> m_songsDictionary;
     private Dictionary<SFX, AudioClip> m_sfxDictionary;
@@ -71,6 +77,8 @@ public class AudioManager : MonoBehaviour
 
     private AudioSource m_persistentMusicSource;
     private AudioSource m_situationalMusicSource;
+
+    private const float m_defaultVolumeValue = 85f;
 
     void Awake()
     {
@@ -93,8 +101,8 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
-        AdjustMasterVolume(PlayerPrefs.GetFloat("MasterVolume"));
-        AdjustMusicVolume(PlayerPrefs.GetFloat("MusicVolume"));
+        AdjustMasterVolume(PlayerPrefs.GetFloat("MasterVolume", m_defaultVolumeValue));
+        AdjustMusicVolume(PlayerPrefs.GetFloat("MusicVolume", m_defaultVolumeValue));
         Observer.GetInstance().SubscribeTo(EVENT.ON_PLAYER_DEATH, FadeToPersistentBGM);
     }
 
@@ -120,6 +128,9 @@ public class AudioManager : MonoBehaviour
         m_sfxDictionary.Add(SFX.GOBLIN_HURT, m_goblinHurtSFX);
         m_sfxDictionary.Add(SFX.GOBLIN_DEATH, m_goblinDeathSFX);
         m_sfxDictionary.Add(SFX.ORC_ATTACK1, m_orcAttack1SFX);
+        m_sfxDictionary.Add(SFX.MENU_HOVER, m_menuHoverSFX);
+        m_sfxDictionary.Add(SFX.MENU_CONFIRM1, m_menuConfirm1SFX);
+        m_sfxDictionary.Add(SFX.MENU_CONFIRM2, m_menuConfirm2SFX);
     }
 
     private AudioSource GetSource()

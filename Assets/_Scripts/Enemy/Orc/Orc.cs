@@ -22,8 +22,11 @@ public class Orc : EnemyMelee
 
     public override void Attack()
     {
-        //int rngFactor = UnityEngine.Random.Range(0, 2);
-        int rngFactor = 1;
+        //apply the attack speed to the animator
+        m_animator.speed = m_attackSpeed;
+
+        //randomly pick an attack
+        int rngFactor = UnityEngine.Random.Range(0, 2);
 
         if (rngFactor == 0)
         {
@@ -37,13 +40,11 @@ public class Orc : EnemyMelee
 
     private void Swing()
     {
-        m_animator.speed = m_attackSpeed;
         m_animator.SetTrigger("Swing");
     }
 
     private void JumpAttack()
     {
-        m_animator.speed = m_attackSpeed;
         m_animator.SetTrigger("JumpAttack");
     }
 }
