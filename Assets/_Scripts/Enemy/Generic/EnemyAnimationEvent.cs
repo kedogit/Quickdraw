@@ -16,4 +16,9 @@ public abstract class EnemyAnimationEvent<T> : MonoBehaviour where T : Enemy
     {
         m_enemyScript.DecideNextMove();
     }
+
+    public void PlayFootstep()
+    {
+        AudioManager.GetInstance().PlayFootstep(m_enemyScript.EnemyType, m_enemyScript.transform.position);
+    }
 }

@@ -233,6 +233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_dashZoomIntensity: 5
+  m_speedLineVelocityCutoff: 15
   m_zoomDuration: 0.2
   m_speedLines: {fileID: 868364418780501563}
 --- !u!1 &5019728014692840203
@@ -285,15 +286,16 @@ MonoBehaviour:
   m_doSwayRotation: 1
   m_doBob: 1
   m_doBobRotation: 1
-  m_swayIntensity: 0.1
-  m_maxSwayDistance: 999
+  m_swayIntensity: 0.3
+  m_maxSwayDistance: 0.3
   m_swayRotateIntensity: 5
-  m_maxSwayRotation: 999
+  m_maxSwayRotation: 5
   m_moveSmoothing: 2
   m_rotationSmoothing: 2
+  m_bobSpeed: 0.5
   m_bobIntensity: {x: 0.1, y: 0.1, z: 0.1}
   m_maxBob: {x: 0.1, y: 0.1, z: 0.1}
-  m_bobRotationIntensity: {x: 1, y: 1, z: 1}
+  m_bobRotationIntensity: {x: 5, y: 5, z: 5}
 --- !u!1 &6475675021166768107
 GameObject:
   m_ObjectHideFlags: 0
@@ -5379,7 +5381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2384948544056578869, guid: b1a1ab2531cf87447935a35cdc9d94eb, type: 3}
       propertyPath: m_Volume
-      value: 0.5
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 2384948544056578869, guid: b1a1ab2531cf87447935a35cdc9d94eb, type: 3}
       propertyPath: OutputAudioMixerGroup

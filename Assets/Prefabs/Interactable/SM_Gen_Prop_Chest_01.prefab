@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8432275904628953610}
   - component: {fileID: 2338788051474780018}
   - component: {fileID: 5600248613581315537}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SM_Gen_Prop_Chest_01_Latch_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 3464373049018555588}
   - component: {fileID: 8910422423853034894}
   - component: {fileID: 1295597122}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SM_Gen_Prop_Chest_01_Lid_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -332,7 +332,7 @@ GameObject:
   - component: {fileID: 3473561022104167303}
   - component: {fileID: 3758959533931021418}
   - component: {fileID: 688644944154373349}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SM_Gen_Prop_Chest_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}

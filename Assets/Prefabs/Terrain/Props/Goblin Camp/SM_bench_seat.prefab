@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 166437704348346219}
   - component: {fileID: 3814061188804199048}
   - component: {fileID: 9115719488964471639}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SM_bench_seat
   m_TagString: Untagged
   m_Icon: {fileID: 0}

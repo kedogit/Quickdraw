@@ -4,7 +4,7 @@ public class PlayerStateAirborne : BasePlayerState
 {
     private float m_airRotationSpeed;
     private const float m_stationaryKickstartForce = 1.5f;
-    private const float m_rayDistance = 2f;
+    private const float m_rayDistance = 2.2f;
 
     public PlayerStateAirborne(Player script) : base(script)
     {

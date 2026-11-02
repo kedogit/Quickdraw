@@ -24,6 +24,7 @@ public class ViewBobbing : MonoBehaviour
     [SerializeField] private float m_rotationSmoothing = 10f;
 
     [Header("Bob")]
+    [SerializeField] private float m_bobSpeed = 1f;
     [SerializeField] private Vector3 m_bobIntensity = Vector3.one * 0.025f;
     [SerializeField] private Vector3 m_maxBob = Vector3.one * 0.01f;
 
@@ -116,7 +117,7 @@ public class ViewBobbing : MonoBehaviour
         bool playerGrounded = m_playerScript.CheckGrounded();
 
         //advance speed curve over time by taking into account player speed if grounded
-        m_speedCurve += Time.deltaTime * (playerGrounded ? m_playerBody.linearVelocity.magnitude : 1f) + 0.01f;
+        m_speedCurve += (Time.deltaTime * (playerGrounded ? m_playerBody.linearVelocity.magnitude : 1f) * m_bobSpeed) + 0.01f;
 
         if (!m_doBob)
         {

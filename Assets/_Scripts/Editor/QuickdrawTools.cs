@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuickdrawTools : EditorWindow
 {
@@ -114,6 +115,12 @@ public class QuickdrawTools : EditorWindow
             {
                 m_instakill = instakillToggle;
                 OnInstakillToggle();
+            }
+
+            //reload level
+            if (GUILayout.Button("Reload Level"))
+            {
+                SceneManager.LoadScene("PrototypeLevel");
             }
         }
         else

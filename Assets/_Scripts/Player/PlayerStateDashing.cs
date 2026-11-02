@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerStateDashing : BasePlayerState
 {
+    private float m_elapsed = 0;
     private const float m_dashRotationSpeed = 2f;
     private bool m_velocityChangeRegistered;
 
@@ -12,6 +13,8 @@ public class PlayerStateDashing : BasePlayerState
 
     public override void Move()
     {
+        m_elapsed += Time.deltaTime;
+
         //fetches the planar movement vector of the player
         Vector3 currentVectorPlanar = m_body.linearVelocity;
         currentVectorPlanar.y = 0;
@@ -27,21 +30,20 @@ public class PlayerStateDashing : BasePlayerState
         currentVectorPlanar.y = m_body.linearVelocity.y;
         m_body.linearVelocity = currentVectorPlanar;
 
-        if (currentVectorPlanar.magnitude > m_playerScript.MoveSpeed)
+        if (m_elapsed < m_playerScript.DashDuration)
         {
             Vector3 currentVelocity = m_body.linearVelocity * m_playerScript.DashDecayRate;
             currentVelocity.y = m_body.linearVelocity.y;
             m_body.linearVelocity = currentVelocity;
-
-            //this bool exists because this state might accidentally detect the player's walking speed on its first frame and immediately end itself otherwise.
-            if (!m_velocityChangeRegistered)
-            {
-                m_velocityChangeRegistered = true;
-            }
         }
-        else if (m_velocityChangeRegistered)
+        else
         {
-            m_playerScript.ChangeState(new PlayerStateAirborne(m_playerScript));
+            ExitState();
         }
+    }
+
+    private void ExitState()
+    {
+        m_playerScript.ChangeState(new PlayerStateAirborne(m_playerScript));
     }
 }

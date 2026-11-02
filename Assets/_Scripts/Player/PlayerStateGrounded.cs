@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerStateGrounded : BasePlayerState
 {
     private float m_moveSpeed;
-    private const float m_rayDistance = 2f;
+    private const float m_rayDistance = 2.2f;
     private float m_elapsed;
     private const float m_coyoteTime = 0.3f;
     private bool m_isTransitioning;

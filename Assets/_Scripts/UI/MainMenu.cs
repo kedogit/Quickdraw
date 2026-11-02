@@ -14,7 +14,7 @@ public class MainMenu : MonoBehaviour
     public void PlayGame()
     {
         Observer.GetInstance().SetGameState(GAME_STATE.NEWGAME);
-        SceneManager.LoadScene("PrototypeLevel");
+        TransitionManager.GetInstance()?.ChangeScene("PrototypeLevel");
     }
 
     public void QuitGame()

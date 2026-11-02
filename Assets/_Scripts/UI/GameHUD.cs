@@ -29,7 +29,6 @@ public class GameHUD : MonoBehaviour
     void Start()
     {
         m_blackScreenAnimator = m_blackScreen.GetComponent<Animation>();
-        m_blackScreenAnimator.Play();
 
         m_escMenuInput = m_actions.FindAction("ESCMenu");
 
@@ -133,14 +132,22 @@ public class GameHUD : MonoBehaviour
     {
         ResumeGame();
         Observer.GetInstance().SetGameState(GAME_STATE.NEWGAME);
+        TransitionManager.GetInstance()?.ChangeScene("PrototypeLevel");
+
+        #if UNITY_EDITOR
         SceneManager.LoadScene("PrototypeLevel");
+        #endif
     }
 
     public void BackToMainMenu()
     {
         Time.timeScale = 1;
         TriggerMenuToggleEvent(true);
+        TransitionManager.GetInstance()?.ChangeScene("MainMenu");
+
+        #if UNITY_EDITOR
         SceneManager.LoadScene("MainMenu");
+        #endif
     }
 
     public void OpenSettingsMenu()

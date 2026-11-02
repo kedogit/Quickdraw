@@ -31,6 +31,7 @@ public abstract class Enemy : MonoBehaviour
 
     [Header("References")]
     [SerializeField] protected Animator m_animator;
+    [SerializeField] private ENEMY m_enemyType;
     [SerializeField] private SFX m_hurtSFX;
     [SerializeField] private SFX m_deathSFX;
     [SerializeField] private GameObject m_bars;
@@ -42,6 +43,7 @@ public abstract class Enemy : MonoBehaviour
 
     public float AttackSpeed => m_attackSpeed;
     public Transform Target => m_target;
+    public ENEMY EnemyType => m_enemyType;
 
     protected NavMeshAgent m_agent;
     protected AudioSource m_audioSource;

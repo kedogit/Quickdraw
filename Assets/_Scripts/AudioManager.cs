@@ -31,6 +31,12 @@ public enum SFX
     MENU_CONFIRM2
 }
 
+public enum ENEMY
+{
+    GOBLIN,
+    ORC
+}
+
 public class AudioManager : MonoBehaviour
 {
     [Header("Settings")]
@@ -50,26 +56,13 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip m_menuSong1;
 
     [Header("SFX")]
-    [SerializeField] private AudioClip m_hitmarkerSFX;
-    [SerializeField] private AudioClip m_playerHurtSFX;
-    [SerializeField] private AudioClip m_playerDrawBowSFX;
-    [SerializeField] private AudioClip m_playerShootSFX;
-    [SerializeField] private AudioClip m_playerJumpSFX;
-    [SerializeField] private AudioClip m_playerDashSFX;
-    [SerializeField] private AudioClip m_grapplingHookThrowSFX;
-    [SerializeField] private AudioClip m_grapplingHookLandSFX;
-    [SerializeField] private AudioClip m_goblinAttack1SFX;
-    [SerializeField] private AudioClip m_goblinAttack2SFX;
-    [SerializeField] private AudioClip m_goblinDrawBowSFX;
-    [SerializeField] private AudioClip m_goblinHurtSFX;
-    [SerializeField] private AudioClip m_goblinDeathSFX;
-    [SerializeField] private AudioClip m_orcAttack1SFX;
-    [SerializeField] private AudioClip m_menuHoverSFX;
-    [SerializeField] private AudioClip m_menuConfirm1SFX;
-    [SerializeField] private AudioClip m_menuConfirm2SFX;
+    [SerializeField] private List<AudioClip> m_SFX;
+    [SerializeField] private List<AudioClip> m_goblinFootsteps;
+    [SerializeField] private List<AudioClip> m_orcFootsteps;
 
     private Dictionary<SONG, AudioClip> m_songsDictionary;
     private Dictionary<SFX, AudioClip> m_sfxDictionary;
+    private Dictionary<ENEMY, List<AudioClip>> m_footstepsDictionary;
 
     private static AudioManager m_instance;
 
@@ -88,6 +81,7 @@ public class AudioManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
             InitializeMusicDictionary();
             InitializeSFXDictionary();
+            InitializeFootstepsDictionary();
             m_audioSources = new List<AudioSource>();
             m_persistentMusicSource = InitializeMusic("PersistentMusic");
             m_situationalMusicSource = InitializeMusic("SituationalMusic");
@@ -111,26 +105,38 @@ public class AudioManager : MonoBehaviour
         return m_instance;
     }
 
+    private void InitializeFootstepsDictionary()
+    {
+        m_footstepsDictionary = new Dictionary<ENEMY, List<AudioClip>>();
+        m_footstepsDictionary.Add(ENEMY.GOBLIN, m_goblinFootsteps);
+        m_footstepsDictionary.Add(ENEMY.ORC, m_orcFootsteps);
+    }
+
+    public void PlayFootstep(ENEMY enemyType, Vector3 position)
+    {
+        AudioSource audioSource = GetSource();
+        audioSource.clip = m_footstepsDictionary[enemyType].GetRandomItem();
+
+        //sets the spatial audio parameters
+        audioSource.spatialBlend = 1;
+        audioSource.minDistance = m_spatialAudioMinDistance;
+        audioSource.maxDistance = m_spatialAudioMaxDistance;
+        audioSource.gameObject.transform.position = position;
+
+        audioSource.Play();
+    }
+
     private void InitializeSFXDictionary()
     {
         m_sfxDictionary = new Dictionary<SFX, AudioClip>();
-        m_sfxDictionary.Add(SFX.HITMARKER, m_hitmarkerSFX);
-        m_sfxDictionary.Add(SFX.PLAYER_DRAW_BOW, m_playerDrawBowSFX);
-        m_sfxDictionary.Add(SFX.PLAYER_HURT, m_playerHurtSFX);
-        m_sfxDictionary.Add(SFX.PLAYER_SHOOT, m_playerShootSFX);
-        m_sfxDictionary.Add(SFX.PLAYER_JUMP, m_playerJumpSFX);
-        m_sfxDictionary.Add(SFX.PLAYER_DASH, m_playerDashSFX);
-        m_sfxDictionary.Add(SFX.GRAPPLING_HOOK_THROW, m_grapplingHookThrowSFX);
-        m_sfxDictionary.Add(SFX.GRAPPLING_HOOK_LAND, m_grapplingHookLandSFX);
-        m_sfxDictionary.Add(SFX.GOBLIN_ATTACK1, m_goblinAttack1SFX);
-        m_sfxDictionary.Add(SFX.GOBLIN_ATTACK2, m_goblinAttack2SFX);
-        m_sfxDictionary.Add(SFX.GOBLIN_DRAW_BOW, m_goblinDrawBowSFX);
-        m_sfxDictionary.Add(SFX.GOBLIN_HURT, m_goblinHurtSFX);
-        m_sfxDictionary.Add(SFX.GOBLIN_DEATH, m_goblinDeathSFX);
-        m_sfxDictionary.Add(SFX.ORC_ATTACK1, m_orcAttack1SFX);
-        m_sfxDictionary.Add(SFX.MENU_HOVER, m_menuHoverSFX);
-        m_sfxDictionary.Add(SFX.MENU_CONFIRM1, m_menuConfirm1SFX);
-        m_sfxDictionary.Add(SFX.MENU_CONFIRM2, m_menuConfirm2SFX);
+
+        //important: make sure the serialized list of audio clips matches the enum both in order and size so this loop can work seamlessly
+        int index = 0;
+        foreach (SFX soundEffect in System.Enum.GetValues(typeof(SFX))) 
+        {
+            m_sfxDictionary.Add(soundEffect, m_SFX[index]);
+            index++;
+        }
     }
 
     private AudioSource GetSource()
@@ -160,6 +166,14 @@ public class AudioManager : MonoBehaviour
     {
         AudioSource audioSource = GetSource();
         audioSource.clip = m_sfxDictionary[soundEffect];
+        audioSource.spatialBlend = 0;
+        audioSource.Play();
+    }
+
+    public void PlaySFX(AudioClip soundEffect)
+    {
+        AudioSource audioSource = GetSource();
+        audioSource.clip = soundEffect;
         audioSource.spatialBlend = 0;
         audioSource.Play();
     }
@@ -224,7 +238,11 @@ public class AudioManager : MonoBehaviour
 
     private float LerpToScale(float percentage)
     {
-        return Mathf.Lerp(-80, 0, percentage / 100);
+        if (percentage == 0)
+        {
+            return -80;
+        }
+        return Mathf.Log10((percentage / 100)) * 20;
     }
 
     private IEnumerator FadeBetweenBGM(AudioSource originalSource, AudioSource newSource)

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1288346837165134357}
   - component: {fileID: 276565763043247414}
   - component: {fileID: 524506176050182161}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: SM_rough_crate
   m_TagString: Untagged
   m_Icon: {fileID: 0}

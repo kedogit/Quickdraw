@@ -11,8 +11,13 @@ public class PlayerSpawner : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        //create and store the audio manager
+        GameObject audioManager = Instantiate(m_audioManager);
+        audioManager.SetActive(true);
+
         //determine player start pos depending on game state
         Vector3 playerStartPos = transform.position;
+        float startPan = transform.rotation.eulerAngles.y;
 
         if (Observer.GetInstance()?.GameState == GAME_STATE.SAVEDGAME)
         {
@@ -20,26 +25,34 @@ public class PlayerSpawner : MonoBehaviour
             float x = PlayerPrefs.GetFloat("PlayerStartX");
             float y = PlayerPrefs.GetFloat("PlayerStartY");
             float z = PlayerPrefs.GetFloat("PlayerStartZ");
-
             playerStartPos = new Vector3(x, y, z);
+
+            //sets start pan
+            startPan = PlayerPrefs.GetFloat("PlayerPanAngle");
         }
         else
         {
             AudioManager.GetInstance()?.ChangePersistentBGM(SONG.OVERWORLD1);
-            PlayerPrefs.SetInt("hasGrapple", 0);
+
+            PlayerPrefs.DeleteKey("hasGrapple");
+            PlayerPrefs.DeleteKey("PlayerStartX");
+            PlayerPrefs.DeleteKey("PlayerStartY");
+            PlayerPrefs.DeleteKey("PlayerStartZ");
+            PlayerPrefs.DeleteKey("PlayerPanAngle");
+            PlayerPrefs.DeleteKey("CheckpointIndex");
+
             Observer.GetInstance()?.SetGameState(GAME_STATE.SAVEDGAME);
         }
 
-        //create and store the GOs
-        GameObject audioManager = Instantiate(m_audioManager);
-        audioManager.SetActive(true);
-
+        //create and store the HUD
         GameObject gameHUD = Instantiate(m_gameHUD);
         gameHUD.SetActive(true);
 
+        //create and store the player at the proper start pos
         GameObject player = Instantiate(m_player, playerStartPos, Quaternion.identity);
         player.SetActive(true);
 
+        //create and store the cameras
         GameObject cameras = Instantiate(m_cameras);
         cameras.SetActive(true);
 
@@ -50,8 +63,8 @@ public class PlayerSpawner : MonoBehaviour
 
         //set the camera's original rotation to match the spawner rotation
         CinemachinePanTilt cameraPanTiltComponent = fpsCamera.GetComponent<CinemachinePanTilt>();
-        cameraPanTiltComponent.TiltAxis.Value = transform.rotation.x;
-        cameraPanTiltComponent.PanAxis.Value = transform.rotation.y;
+        cameraPanTiltComponent.TiltAxis.Value = 0f;
+        cameraPanTiltComponent.PanAxis.Value = startPan;
 
         //set player script references
         player.GetComponent<Player>().SetReferences(fpsCamera, playerBow, gameHUD.GetComponent<GameHUD>());

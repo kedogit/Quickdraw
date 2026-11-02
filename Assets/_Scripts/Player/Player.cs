@@ -30,6 +30,7 @@ public class Player : MonoBehaviour
     [Header("WASD")]
     [SerializeField] private float m_moveSpeed = 5f;
     [SerializeField] private float m_airRotationSpeed = 10f;
+    [SerializeField] private float m_airDrag = 0.97f;
     [SerializeField] private float m_grappleAcceleration = 3f;
 
     [Header("Jump")]
@@ -41,6 +42,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_dashForce = 5f;
     [SerializeField] private float m_dashCooldown = 2f;
     [SerializeField] private float m_dashDecayRate = 0.95f;
+    [SerializeField] private float m_dashDuration = 0.3f;
 
     [Header("Hook")]
     [SerializeField] private float m_hookDrawSpeed = 5f;
@@ -77,6 +79,8 @@ public class Player : MonoBehaviour
     public Vector3 MoveVector => m_moveVector;
     public LayerMask GroundLayer => m_groundLayer;
     public float DashDecayRate => m_dashDecayRate;
+    public float DashDuration => m_dashDuration;
+    public float AirDrag => m_airDrag;
 
 
     //input actions
@@ -235,7 +239,7 @@ public class Player : MonoBehaviour
 
     public bool CheckGrounded()
     {
-        if (m_currentState is PlayerStateGrounded)
+        if (m_currentState is PlayerStateGrounded or PlayerStateDashing)
         {
             return true;
         }
@@ -319,7 +323,7 @@ public class Player : MonoBehaviour
         if (m_jump.WasPressedThisFrame())
         {
             //if on the ground, regular jump
-            if (m_currentState is PlayerStateGrounded && m_jumpCount < 1)
+            if ((m_currentState is PlayerStateGrounded || m_currentState is PlayerStateDashing) && m_jumpCount < 1)
             {
                 Vector3 up = Vector3.up * m_jumpForce;
                 Jump(up);
@@ -465,7 +469,11 @@ public class Player : MonoBehaviour
         Observer.GetInstance().TriggerEvent(EVENT.ON_PLAYER_DEATH);
 
         //placeholder, reloads scene for now
+        TransitionManager.GetInstance()?.ChangeScene("PrototypeLevel");
+
+        #if UNITY_EDITOR
         SceneManager.LoadScene("PrototypeLevel");
+        #endif
     }
 
     #endregion

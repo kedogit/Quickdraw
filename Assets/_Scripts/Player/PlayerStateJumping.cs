@@ -9,6 +9,18 @@ public class PlayerStateJumping : BasePlayerState
     public PlayerStateJumping(Player script) : base(script)
     {
         m_airRotationSpeed = m_playerScript.AirRotationSpeed;
+
+        //if planar speed faster than base move speed, apply a dampening effect
+        Vector3 currentVectorPlanar = m_body.linearVelocity;
+        currentVectorPlanar.y = 0;
+        if (currentVectorPlanar.magnitude > m_playerScript.MoveSpeed)
+        {
+            float calc = 1 - ((currentVectorPlanar.magnitude - m_playerScript.MoveSpeed) / 100);
+            Debug.Log(calc);
+            currentVectorPlanar *= 1 - ((currentVectorPlanar.magnitude - m_playerScript.MoveSpeed) / 100);
+            currentVectorPlanar.y = m_body.linearVelocity.y;
+            m_body.linearVelocity = currentVectorPlanar;
+        }
     }
 
     public override void Move()
@@ -27,7 +39,6 @@ public class PlayerStateJumping : BasePlayerState
         //applies the rotation to the rigidbody
         currentVectorPlanar.y = m_body.linearVelocity.y;
         m_body.linearVelocity = currentVectorPlanar;
-
 
         m_elapsed += Time.deltaTime;
         if (m_elapsed >= m_jumpDuration)

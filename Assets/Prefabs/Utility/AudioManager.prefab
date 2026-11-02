@@ -54,20 +54,33 @@ MonoBehaviour:
   m_overworldSong1: {fileID: 8300000, guid: 7291548fe0217f44d9afb54f1aea767e, type: 3}
   m_battleSong1: {fileID: 8300000, guid: 9b556f348ae694f55b4dc3ed51971a64, type: 3}
   m_menuSong1: {fileID: 8300000, guid: a1863e9dca5c4b343ac6a94b631cde53, type: 3}
-  m_hitmarkerSFX: {fileID: 8300000, guid: 8c41b1b65f409a940b629a67f08f85dd, type: 3}
-  m_playerHurtSFX: {fileID: 8300000, guid: b19d73cbcd5b0e84089c0e31a937b218, type: 3}
-  m_playerDrawBowSFX: {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
-  m_playerShootSFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
-  m_playerJumpSFX: {fileID: 8300000, guid: 9e4422a8aa2b75843ade61152bc7210c, type: 3}
-  m_playerDashSFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
-  m_grapplingHookThrowSFX: {fileID: 8300000, guid: 01c7c4f202191cf46b49666571bb51bb, type: 3}
-  m_grapplingHookLandSFX: {fileID: 8300000, guid: 3ada522b115b53f41a408b5e749d6a22, type: 3}
-  m_goblinAttack1SFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
-  m_goblinAttack2SFX: {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
-  m_goblinDrawBowSFX: {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
-  m_goblinHurtSFX: {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
-  m_goblinDeathSFX: {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
-  m_orcAttack1SFX: {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
-  m_menuHoverSFX: {fileID: 8300000, guid: 7cc057bed53baf34799f52aab3c84800, type: 3}
-  m_menuConfirm1SFX: {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
-  m_menuConfirm2SFX: {fileID: 8300000, guid: 35cf7766e9e2aa542811e896fde57989, type: 3}
+  m_SFX:
+  - {fileID: 8300000, guid: 8c41b1b65f409a940b629a67f08f85dd, type: 3}
+  - {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
+  - {fileID: 8300000, guid: b19d73cbcd5b0e84089c0e31a937b218, type: 3}
+  - {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
+  - {fileID: 8300000, guid: 984d316ed8be3ac4da9e31768a8b1fa9, type: 3}
+  - {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
+  - {fileID: 8300000, guid: 01c7c4f202191cf46b49666571bb51bb, type: 3}
+  - {fileID: 8300000, guid: 3ada522b115b53f41a408b5e749d6a22, type: 3}
+  - {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
+  - {fileID: 8300000, guid: 24252664d1f41c140864d611ea092c18, type: 3}
+  - {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
+  - {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
+  - {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
+  - {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
+  - {fileID: 8300000, guid: 7cc057bed53baf34799f52aab3c84800, type: 3}
+  - {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
+  - {fileID: 8300000, guid: 35cf7766e9e2aa542811e896fde57989, type: 3}
+  m_goblinFootsteps:
+  - {fileID: 8300000, guid: d3f3cc8ad058cad408e97b1875afec82, type: 3}
+  - {fileID: 8300000, guid: ed546d9af9b4e884cbe8d8047fa8c80a, type: 3}
+  - {fileID: 8300000, guid: ba6466c0db2d12649a51ba73749902d3, type: 3}
+  - {fileID: 8300000, guid: cee5e6c416359ef4cbb722f0cd3a5a14, type: 3}
+  - {fileID: 8300000, guid: be378a7ab9654eb41ab1e85da1701672, type: 3}
+  m_orcFootsteps:
+  - {fileID: 8300000, guid: 9ea11a2d13d536e4e8441a0f5895995c, type: 3}
+  - {fileID: 8300000, guid: 203ac8b6f07070e4f93f1c1a6fff06c3, type: 3}
+  - {fileID: 8300000, guid: ac6649006dbee9e4685752e124111da7, type: 3}
+  - {fileID: 8300000, guid: f42914d98b070f741b2feee96a2988ee, type: 3}
+  - {fileID: 8300000, guid: feb62160ad1f8334ab037017b843d162, type: 3}

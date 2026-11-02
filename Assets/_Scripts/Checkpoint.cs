@@ -17,6 +17,7 @@ public class Checkpoint : MonoBehaviour
                 PlayerPrefs.SetFloat("PlayerStartX", transform.position.x);
                 PlayerPrefs.SetFloat("PlayerStartY", transform.position.y);
                 PlayerPrefs.SetFloat("PlayerStartZ", transform.position.z);
+                PlayerPrefs.SetFloat("PlayerPanAngle", transform.rotation.eulerAngles.y);
                 PlayerPrefs.Save();
             }
         }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class FirstPersonCamera : MonoBehaviour
 {
     [SerializeField] private float m_dashZoomIntensity = 10f;
+    [SerializeField] private float m_speedLineVelocityCutoff = 15f;
     [SerializeField] private float m_zoomDuration = 1f;
     [SerializeField] private ParticleSystem m_speedLines;
 
@@ -58,7 +59,12 @@ public class FirstPersonCamera : MonoBehaviour
             yield return null;
         }
 
-        //stop the speed lines
+        //stop the speed lines when player's speed is below threshold
+        Rigidbody playerRigidbody = GameObject.FindGameObjectWithTag("Player")?.GetComponent<Rigidbody>();
+        while (playerRigidbody.linearVelocity.magnitude > m_speedLineVelocityCutoff)
+        {
+            yield return null;
+        }
         m_speedLines.Stop();
     }
 }
