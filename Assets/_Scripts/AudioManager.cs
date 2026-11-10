@@ -25,10 +25,13 @@ public enum SFX
     GOBLIN_DRAW_BOW,
     GOBLIN_HURT,
     GOBLIN_DEATH,
+    GOBLIN_GRUNT,
     ORC_ATTACK1,
     MENU_HOVER,
     MENU_CONFIRM1,
-    MENU_CONFIRM2
+    MENU_CONFIRM2,
+    CHEST_OPEN,
+    ITEM_ACQUIRED
 }
 
 public enum ENEMY
@@ -72,6 +75,9 @@ public class AudioManager : MonoBehaviour
     private AudioSource m_situationalMusicSource;
 
     private const float m_defaultVolumeValue = 85f;
+
+    private const float m_minPitch = 0.9f;
+    private const float m_maxPitch = 1.2f;
 
     void Awake()
     {
@@ -145,6 +151,11 @@ public class AudioManager : MonoBehaviour
         {
             if (!source.isPlaying)
             {
+                //reset params to default
+                source.spatialBlend = 0;
+                source.pitch = 1;
+
+                //return it
                 return source;
             }
         }
@@ -166,15 +177,6 @@ public class AudioManager : MonoBehaviour
     {
         AudioSource audioSource = GetSource();
         audioSource.clip = m_sfxDictionary[soundEffect];
-        audioSource.spatialBlend = 0;
-        audioSource.Play();
-    }
-
-    public void PlaySFX(AudioClip soundEffect)
-    {
-        AudioSource audioSource = GetSource();
-        audioSource.clip = soundEffect;
-        audioSource.spatialBlend = 0;
         audioSource.Play();
     }
 
@@ -188,6 +190,23 @@ public class AudioManager : MonoBehaviour
         audioSource.minDistance = m_spatialAudioMinDistance;
         audioSource.maxDistance = m_spatialAudioMaxDistance;
         audioSource.gameObject.transform.position = position;
+
+        audioSource.Play();
+    }
+
+    public void PlayPitchShiftedSFX(SFX soundEffect, Vector3 position)
+    {
+        AudioSource audioSource = GetSource();
+        audioSource.clip = m_sfxDictionary[soundEffect];
+
+        //sets the spatial audio parameters
+        audioSource.spatialBlend = 1;
+        audioSource.minDistance = m_spatialAudioMinDistance;
+        audioSource.maxDistance = m_spatialAudioMaxDistance;
+        audioSource.gameObject.transform.position = position;
+
+        //set random pitch
+        audioSource.pitch = Random.Range(m_minPitch, m_maxPitch);
 
         audioSource.Play();
     }

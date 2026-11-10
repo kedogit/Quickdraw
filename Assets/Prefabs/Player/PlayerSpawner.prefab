@@ -48,3 +48,4 @@ MonoBehaviour:
   m_cameras: {fileID: 6475675021166768107, guid: 59a8e8436e5db68478561417e6c7a24f, type: 3}
   m_gameHUD: {fileID: 5388090462963004803, guid: eaff7091f0cf3b24ab0437eb6c4f85b9, type: 3}
   m_audioManager: {fileID: 3342598121900728305, guid: 421280037bf20c147a93b5b5b5b341c5, type: 3}
+  m_impulseManager: {fileID: 4771017545574264439, guid: 17e4fc16d4c84d34c82fa4d201eaf723, type: 3}

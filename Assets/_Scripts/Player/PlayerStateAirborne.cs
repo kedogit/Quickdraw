@@ -3,7 +3,6 @@ using UnityEngine;
 public class PlayerStateAirborne : BasePlayerState
 {
     private float m_airRotationSpeed;
-    private const float m_stationaryKickstartForce = 1.5f;
     private const float m_rayDistance = 2.2f;
 
     public PlayerStateAirborne(Player script) : base(script)
@@ -29,10 +28,10 @@ public class PlayerStateAirborne : BasePlayerState
         //if player is not moving, add a little bit of force in the input direction
         if (currentVectorPlanar.magnitude <= 0.1f)
         {
-            m_body.AddForce(moveVectorPlanar * m_stationaryKickstartForce, ForceMode.Impulse);
+            m_body.AddForce(moveVectorPlanar * m_playerScript.JumpKickstart, ForceMode.Impulse);
         }
 
-        //rotates the player's currnet movement towards the input without changing the magnitude
+        //rotates the player's current movement towards the input without changing the magnitude
         currentVectorPlanar = Vector3.RotateTowards(currentVectorPlanar, moveVectorPlanar, m_airRotationSpeed * Time.deltaTime, 0f);
 
         //applies the rotation to the rigidbody

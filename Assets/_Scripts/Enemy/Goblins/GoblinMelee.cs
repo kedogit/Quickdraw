@@ -21,6 +21,10 @@ public class GoblinMelee : EnemyMelee
 
     private void Swing()
     {
+        if (m_grunts)
+        {
+            Grunt();
+        }
         m_animator.speed = m_attackSpeed;
         m_animator.SetTrigger("Swing");
     }

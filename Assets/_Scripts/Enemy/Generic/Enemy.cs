@@ -31,11 +31,17 @@ public abstract class Enemy : MonoBehaviour
 
     [Header("References")]
     [SerializeField] protected Animator m_animator;
+    [SerializeField] private GameObject m_bars;
+    [SerializeField] private GameObject m_stunParticles;
+
+    [Header("Sounds")]
     [SerializeField] private ENEMY m_enemyType;
     [SerializeField] private SFX m_hurtSFX;
     [SerializeField] private SFX m_deathSFX;
-    [SerializeField] private GameObject m_bars;
-    [SerializeField] private GameObject m_stunParticles;
+    [SerializeField] private SFX m_gruntSFX;
+    [SerializeField] protected bool m_grunts = false;
+    [SerializeField] private float m_gruntsMinDelay = 3f;
+    [SerializeField] private float m_gruntsMaxDelay = 10f;
 
     [Header("Body Parts")]
     [SerializeField] private float m_bodyMultiplier = 1f;
@@ -68,6 +74,10 @@ public abstract class Enemy : MonoBehaviour
 
     protected EnemyState m_currentState;
 
+    private float m_gruntsElapsed = 0f;
+    private float m_gruntsDelay = 0f;
+    private const float m_gruntGracePeriod = 2f;
+
     public abstract void Attack();
 
 
@@ -94,12 +104,42 @@ public abstract class Enemy : MonoBehaviour
         bodyDamageMultipliers = new Dictionary<BodyPart, float>();
         bodyDamageMultipliers.Add(BodyPart.BODY, m_bodyMultiplier);
         bodyDamageMultipliers.Add(BodyPart.HEAD, m_headshotMultiplier);
+
+        m_gruntsDelay = DetermineNextGruntDelay();
     }
 
     // Update is called once per frame
     protected virtual void Update()
     {
         m_currentState.Execute();
+    }
+
+    public void ElapseGrunts()
+    {
+        if (m_grunts)
+        {
+            m_gruntsElapsed += Time.deltaTime;
+
+            if (m_gruntsElapsed >= m_gruntsDelay)
+            {
+                Grunt();
+                DetermineNextGruntDelay();
+            }
+        }
+    }
+
+    protected void Grunt()
+    {
+        if (m_gruntsElapsed >= m_gruntGracePeriod)
+        {
+            AudioManager.GetInstance().PlayPitchShiftedSFX(m_gruntSFX, transform.position);
+            m_gruntsElapsed = 0;
+        }
+    }
+
+    private float DetermineNextGruntDelay()
+    {
+        return Random.Range(m_gruntsMinDelay, m_gruntsMaxDelay);
     }
 
     public void DecideNextMove()

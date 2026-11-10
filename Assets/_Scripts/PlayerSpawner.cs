@@ -7,10 +7,15 @@ public class PlayerSpawner : MonoBehaviour
     [SerializeField] private GameObject m_cameras;
     [SerializeField] private GameObject m_gameHUD;
     [SerializeField] private GameObject m_audioManager;
+    [SerializeField] private GameObject m_impulseManager;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        //create and store the impulse manager
+        GameObject impulseManager = Instantiate(m_impulseManager);
+        impulseManager.SetActive(true);
+
         //create and store the audio manager
         GameObject audioManager = Instantiate(m_audioManager);
         audioManager.SetActive(true);

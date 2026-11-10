@@ -460,10 +460,15 @@ MonoBehaviour:
   m_attackSpeed: 1
   m_deathCleanupTime: 15
   m_animator: {fileID: 8208695175955196203}
-  m_hurtSFX: 11
-  m_deathSFX: 12
   m_bars: {fileID: 8154260903205105994}
   m_stunParticles: {fileID: 6777518491663280103}
+  m_enemyType: 1
+  m_hurtSFX: 11
+  m_deathSFX: 12
+  m_gruntSFX: 13
+  m_grunts: 0
+  m_gruntsMinDelay: 3
+  m_gruntsMaxDelay: 10
   m_bodyMultiplier: 1
   m_headshotMultiplier: 2
   m_weaponTrail: {fileID: 7936679124150833061}
@@ -3319,7 +3324,6 @@ GameObject:
   - component: {fileID: 2742822435095356554}
   - component: {fileID: 6995600284675287466}
   - component: {fileID: 3169731910521129059}
-  - component: {fileID: 4825992991891093079}
   m_Layer: 8
   m_Name: rootSkeleton
   m_TagString: Untagged
@@ -3416,66 +3420,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enemyScript: {fileID: 3145728313351128988}
   m_slamHitbox: {fileID: 6931071752012353744}
-  m_slamSFX: 13
+  m_slamSFX: 14
   m_slamHitboxDuration: 0.1
   m_swordHitbox: {fileID: 8177336064556151231}
-  m_swingSFX: 13
+  m_swingSFX: 14
   m_swordTrail: {fileID: 7936679124150833061}
   m_swingHitboxDuration: 0.3
   m_swingTrailDuration: 0.4
---- !u!114 &4825992991891093079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6279542676081670117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ImpulseDefinition:
-    ImpulseChannel: 1
-    ImpulseShape: 3
-    CustomImpulseShape:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    ImpulseDuration: 0.2
-    ImpulseType: 0
-    DissipationRate: 0.25
-    RawSignal: {fileID: 0}
-    AmplitudeGain: 1
-    FrequencyGain: 1
-    RepeatMode: 0
-    Randomize: 1
-    TimeEnvelope:
-      AttackShape:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      DecayShape:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      AttackTime: 0
-      SustainTime: 0.2
-      DecayTime: 0.7
-      ScaleWithImpact: 1
-      HoldForever: 0
-    ImpactRadius: 100
-    DirectionMode: 0
-    DissipationMode: 2
-    DissipationDistance: 100
-    PropagationSpeed: 343
-  DefaultVelocity: {x: 0, y: -1, z: 0}
 --- !u!1 &6383323435826344887
 GameObject:
   m_ObjectHideFlags: 0

@@ -33,6 +33,17 @@ public class GameHUD : MonoBehaviour
         m_escMenuInput = m_actions.FindAction("ESCMenu");
 
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, OnLevelComplete);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_INTERACT_NEARBY, ShowInteractPrompt);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_INTERACT_EXIT_RANGE, HideInteractPrompt);
+        Observer.GetInstance().SubscribeTo(EVENT.ACQUIRED_ITEM_GRAPPLE, ShowGrappleText);
+    }
+
+    private void OnDestroy()
+    {
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, OnLevelComplete);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_INTERACT_NEARBY, ShowInteractPrompt);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_INTERACT_EXIT_RANGE, HideInteractPrompt);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ACQUIRED_ITEM_GRAPPLE, ShowGrappleText);
     }
 
     private void Update()
@@ -51,11 +62,6 @@ public class GameHUD : MonoBehaviour
                 TriggerMenuToggleEvent(true);
             }
         }
-    }
-
-    private void OnDestroy()
-    {
-        Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, OnLevelComplete);
     }
 
     private void OnLevelComplete()
@@ -83,9 +89,14 @@ public class GameHUD : MonoBehaviour
         m_hpBarAnimator.SetFloat("Fill", currHP);
     }
 
-    public void ToggleInteractPrompt()
+    private void ShowInteractPrompt()
     {
-        m_interactPrompt.SetActive(!m_interactPrompt.activeSelf);
+        m_interactPrompt.SetActive(true);
+    }
+
+    private void HideInteractPrompt()
+    {
+        m_interactPrompt.SetActive(false);
     }
 
     public void ShowGrappleText()

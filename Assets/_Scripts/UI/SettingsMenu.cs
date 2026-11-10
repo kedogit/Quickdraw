@@ -8,6 +8,7 @@ public class SettingsMenu : MonoBehaviour
     [SerializeField] private Slider m_sens;
     [SerializeField] private Slider m_masterVolume;
     [SerializeField] private Slider m_musicVolume;
+    [SerializeField] private Toggle m_cameraShake;
 
     [SerializeField] private TextMeshProUGUI m_sensDisplay;
     [SerializeField] private TextMeshProUGUI m_masterVolumeDisplay;
@@ -35,9 +36,12 @@ public class SettingsMenu : MonoBehaviour
         sliderValue = PlayerPrefs.GetFloat("MusicVolume", m_defaultVolumeValue);
         InitializeSlider(sliderValue, m_volumeMinValue, m_volumeMaxValue, m_musicVolumeDisplay, m_musicVolume);
 
+        m_cameraShake.isOn = PlayerPrefs.GetInt("CameraShake", 1) == 1 ? true : false;
+
         m_sens.onValueChanged.AddListener(OnSensChanged);
         m_masterVolume.onValueChanged.AddListener(OnMasterVolumeChanged);
         m_musicVolume.onValueChanged.AddListener(OnMusicVolumeChanged);
+        m_cameraShake.onValueChanged.AddListener(OnCameraShakeToggled);
     }
 
     private void InitializeSlider(float defaultValue, float minValue, float maxValue, TextMeshProUGUI label, Slider slider)
@@ -95,6 +99,18 @@ public class SettingsMenu : MonoBehaviour
         if (GameObject.FindGameObjectWithTag("Player") != null)
         {
             Observer.GetInstance().TriggerEvent(EVENT.ON_SENS_CHANGE);
+            Observer.GetInstance().TriggerEvent(EVENT.ON_SHAKE_TOGGLE);
         }
     }
+
+    public void OnCameraShakeToggled(bool toggleState)
+    {
+        int boolToInt = toggleState ? 1 : 0;
+        PlayerPrefs.SetInt("CameraShake", boolToInt);
+    }
+
+    //private void OnDisable()
+    //{
+    //    SaveSettings();
+    //}
 }

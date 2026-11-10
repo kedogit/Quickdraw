@@ -1,16 +1,16 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Interactable : MonoBehaviour
 {
-    protected Player m_player;
-
     private void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            //sets the player's interaction target to this interactable
-            m_player = collision.gameObject.GetComponent<Player>();
-            m_player.SetInteractTarget(this);
+            Dictionary<string, object> eventParams = new Dictionary<string,object>();
+            eventParams.Add("Target", this);
+
+            Observer.GetInstance().TriggerEvent(EVENT.ON_INTERACT_NEARBY, eventParams);
         }
     }
 
@@ -18,7 +18,7 @@ public abstract class Interactable : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            m_player.SetInteractTarget(null);
+            Observer.GetInstance().TriggerEvent(EVENT.ON_INTERACT_EXIT_RANGE);
         }
     }
 
@@ -26,7 +26,8 @@ public abstract class Interactable : MonoBehaviour
     {
         //disables collider and removes interact target
         GetComponent<BoxCollider>().enabled = false;
-        m_player.SetInteractTarget(null);
+        Observer.GetInstance().TriggerEvent(EVENT.ON_INTERACT_EXIT_RANGE);
+        GetComponent<MeshRenderer>().materials[1] = null;
     }
 
     public abstract void InteractAction();

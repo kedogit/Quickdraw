@@ -1,10 +1,12 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class DeathPlane : MonoBehaviour
 {
     private void OnCollisionEnter(Collision collision)
     {
-        collision.gameObject.GetComponent<Player>().Hurt(999f);
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            collision.gameObject.GetComponent<Player>().Hurt(999f);
+        }
     }
 }

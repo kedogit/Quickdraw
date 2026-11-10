@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -37,6 +35,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_jumpForce = 5f;
     [SerializeField] private float m_doubleJumpUpForce = 2f;
     [SerializeField] private float m_doubleJumpForwardForce = 4f;
+    [SerializeField] private float m_stationaryKickstartForce = 5f;
 
     [Header("Dash")]
     [SerializeField] private float m_dashForce = 5f;
@@ -66,12 +65,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float m_reloadTime = 1.0f;
     [SerializeField] private float m_arrowDamage = 55f;
 
-    [Header("Impulses")]
-    [SerializeField] private float m_shootImpulseDuration = 0.4f;
-    [SerializeField] private Vector3 m_shootImpulseVector = new Vector3(0f, 0.4f, -0.5f);
-    [SerializeField] private float m_hurtImpulseDuration = 0.6f;
-    [SerializeField] private Vector3 m_hurtImpulseVector = new Vector3(-0.5f, -0.7f, 0.5f);
-
     //public getters for player states
     public float GrappleAcceleration => m_grappleAcceleration;
     public float AirRotationSpeed => m_airRotationSpeed;
@@ -81,6 +74,8 @@ public class Player : MonoBehaviour
     public float DashDecayRate => m_dashDecayRate;
     public float DashDuration => m_dashDuration;
     public float AirDrag => m_airDrag;
+    public float JumpKickstart => m_stationaryKickstartForce;
+    public float BowChargeLevel => m_bowChargeNormalized;
 
 
     //input actions
@@ -116,7 +111,6 @@ public class Player : MonoBehaviour
 
     //camera related
     private Quaternion m_cameraRotation = Quaternion.identity;
-    private CinemachineImpulseSource m_impulseComponent;
 
     //hook related
     private bool m_playerHasGrapple;
@@ -178,8 +172,6 @@ public class Player : MonoBehaviour
         m_bowAudioSource = m_playerBow.GetComponent<AudioSource>();
         m_arrowHolder = m_playerBow.Find("ArrowHolder");
 
-        m_impulseComponent = GetComponent<CinemachineImpulseSource>();
-
         m_checkpointPos = transform.position;
 
         m_body.freezeRotation = true;
@@ -194,20 +186,31 @@ public class Player : MonoBehaviour
 
         m_playerHasGrapple = PlayerPrefs.GetInt("hasGrapple") == 1 ? true : false;
 
+        #region OBSERVER SUBS
         Observer.GetInstance().SubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().SubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
         Observer.GetInstance().SubscribeTo(EVENT.ON_MENU_TOGGLED, TogglePlayerInputs);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_INTERACT_NEARBY, SetInteractTarget);
+        Observer.GetInstance().SubscribeTo(EVENT.ON_INTERACT_EXIT_RANGE, ClearInteractTarget);
+        Observer.GetInstance().SubscribeTo(EVENT.ACQUIRED_ITEM_GRAPPLE, AcquireGrapple);
+        #endregion
+
 
         m_groundLayer = LayerMask.GetMask("Ground");
     }
 
     private void OnDestroy()
     {
+        #region OBSERVER UNSUBS
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_LEVEL_COMPLETE, DisableAllInputs);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_GODMODE, GodModeToggle);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_CHEAT_INSTAKILL, InstakillToggle);
         Observer.GetInstance().UnsubscribeTo(EVENT.ON_MENU_TOGGLED, TogglePlayerInputs);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_INTERACT_NEARBY, SetInteractTarget);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ON_INTERACT_EXIT_RANGE, ClearInteractTarget);
+        Observer.GetInstance().UnsubscribeTo(EVENT.ACQUIRED_ITEM_GRAPPLE, AcquireGrapple);
+        #endregion
     }
 
     // Update is called once per frame
@@ -265,10 +268,14 @@ public class Player : MonoBehaviour
         m_body.MoveRotation(m_cameraRotation);
     }
 
-    public void SetInteractTarget(Interactable target)
+    private void SetInteractTarget(Dictionary<string, object> eventParams)
     {
-        m_gameHUD.ToggleInteractPrompt();
-        m_interactTarget = target;
+        m_interactTarget = (Interactable)eventParams["Target"];
+    }
+
+    private void ClearInteractTarget()
+    {
+        m_interactTarget = null;
     }
 
     private void Interact()
@@ -451,7 +458,7 @@ public class Player : MonoBehaviour
                 Dictionary<string, object> eventParams = new Dictionary<string, object>();
                 eventParams.Add("HPPercent", (m_currentHP / m_maxHP) * 100);
                 Observer.GetInstance().TriggerEvent(EVENT.ON_PLAYER_HURT, eventParams);
-                GenerateImpulse(CinemachineImpulseDefinition.ImpulseShapes.Explosion, m_hurtImpulseDuration, m_hurtImpulseVector);
+                ImpulseManager.GetInstance()?.PlayImpulse(CAMERA_EFFECT.DAMAGE_TAKEN);
             }
         }
     }
@@ -491,7 +498,7 @@ public class Player : MonoBehaviour
                 m_bowAudioSource.Play();
 
                 //shake screen
-                GenerateImpulse(CinemachineImpulseDefinition.ImpulseShapes.Bump, m_shootImpulseDuration, m_shootImpulseVector);
+                ImpulseManager.GetInstance()?.PlayImpulse(CAMERA_EFFECT.BOW_RECOIL);
 
                 //find a transform ahead of where the player is looking
                 Vector3 target = m_playerCamera.position + m_playerCamera.forward * m_bowTargetDistance;
@@ -527,6 +534,7 @@ public class Player : MonoBehaviour
                 //prepare next shot
                 m_currentArrow = null;
                 m_bowChargeTime = 0;
+                m_bowChargeNormalized = 0;
                 m_bowAnimator.SetFloat("BowCharge", 0);
                 m_bowAnimator.SetTrigger("Shot");
                 m_readyToFire = false;
@@ -539,14 +547,6 @@ public class Player : MonoBehaviour
                 m_bowAnimator.SetFloat("BowCharge", 0);
             }
         }
-    }
-
-    private void GenerateImpulse(CinemachineImpulseDefinition.ImpulseShapes impulseShape, float duration, Vector3 velocity)
-    {
-        //probably replace all of this with an impulse manager singleton later
-        m_impulseComponent.ImpulseDefinition.ImpulseShape = impulseShape;
-        m_impulseComponent.ImpulseDefinition.ImpulseDuration = duration;
-        m_impulseComponent.GenerateImpulseWithVelocity(velocity);
     }
 
     private IEnumerator LoadArrow()
@@ -740,22 +740,10 @@ public class Player : MonoBehaviour
         Cursor.lockState = CursorLockMode.Confined;
     }
 
-    public void AcquireGrapple()
+    private void AcquireGrapple()
     {
         //allows grapple usage and saves it to playerprefs
         m_playerHasGrapple = true;
         PlayerPrefs.SetInt("hasGrapple", 1);
-        m_gameHUD.ShowGrappleText();
-    }
-
-    private void SetSpawnLocation()
-    {
-        //fetches the saved location and sets the player's position
-        float x = PlayerPrefs.GetFloat("PlayerStartX");
-        float y = PlayerPrefs.GetFloat("PlayerStartY");
-        float z = PlayerPrefs.GetFloat("PlayerStartZ");
-
-        Vector3 spawnLocation = new Vector3(x, y, z);
-        transform.position = spawnLocation;
     }
 }

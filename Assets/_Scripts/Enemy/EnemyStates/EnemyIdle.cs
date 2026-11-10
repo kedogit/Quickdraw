@@ -8,6 +8,7 @@ public class EnemyIdle : EnemyState
 
     public override void Execute()
     {
+        m_enemyScript.ElapseGrunts();
     }
 
     public override void TriggerStart(Collider target)

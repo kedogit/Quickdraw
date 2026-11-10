@@ -68,10 +68,13 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 470d35b1638f4234e895ca3e65fb00dc, type: 3}
   - {fileID: 8300000, guid: 4d442f6db53cd744aaa7325d2c6bfc20, type: 3}
   - {fileID: 8300000, guid: 3f9a68e4da903f146869d6dc9fd85ec5, type: 3}
+  - {fileID: 8300000, guid: 22f0e0a1e0427c945a41c6d8a070ba05, type: 3}
   - {fileID: 8300000, guid: fcae301d7e2c1d14ea3a64a4985c9c7e, type: 3}
   - {fileID: 8300000, guid: 7cc057bed53baf34799f52aab3c84800, type: 3}
   - {fileID: 8300000, guid: c5cb2ac29e89dbf43a9b644caaad45e6, type: 3}
   - {fileID: 8300000, guid: 35cf7766e9e2aa542811e896fde57989, type: 3}
+  - {fileID: 8300000, guid: af9b5273e6f746144829fc82997ebdac, type: 3}
+  - {fileID: 8300000, guid: 95157f65eca121542a65da543212d07e, type: 3}
   m_goblinFootsteps:
   - {fileID: 8300000, guid: d3f3cc8ad058cad408e97b1875afec82, type: 3}
   - {fileID: 8300000, guid: ed546d9af9b4e884cbe8d8047fa8c80a, type: 3}

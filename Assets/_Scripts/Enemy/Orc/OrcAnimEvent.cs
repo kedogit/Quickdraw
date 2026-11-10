@@ -15,13 +15,6 @@ public class OrcAnimEvent : EnemyAnimationEvent<Orc>
     [SerializeField] private float m_swingHitboxDuration = 0.3f;
     [SerializeField] private float m_swingTrailDuration = 0.4f;
 
-    private CinemachineImpulseSource m_impulseComponent;
-
-    private void Start()
-    {
-        m_impulseComponent = GetComponent<CinemachineImpulseSource>();
-    }
-
     public void SwingStart()
     {
         m_attackSpeed = m_enemyScript.AttackSpeed;
@@ -36,6 +29,6 @@ public class OrcAnimEvent : EnemyAnimationEvent<Orc>
         m_enemyScript.HandleAttackEffects(m_slamSFX, m_slamHitbox, m_slamHitboxDuration/m_attackSpeed);
 
         //shake camera
-        m_impulseComponent.GenerateImpulse();
+        ImpulseManager.GetInstance().PlayImpulse(CAMERA_EFFECT.GROUND_QUAKE);
     }
 }
